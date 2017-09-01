@@ -1,0 +1,15 @@
+Package: DANTsR
+Type: Package
+Title: Diffusion Image Support for ANTsR
+Version: 1.0
+Date: 2017-09-01
+Author: Jeffrey T. Duda
+Maintainer: Jeffrey T. Duda <jeff.duda@gmail.com>
+Description: More details about what the package does. See
+        <http://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file>
+        for details on how to write this part.
+License: Apache License 2.0
+Depends: Rcpp, ANTsR, ITKR, ANTsRCore
+Imports: Rcpp, ANTsR, ITKR, ANTsRCore
+LinkingTo: Rcpp, ANTsR, ITKR, ANTsRCore
+RoxygenNote: 6.0.1.9000
