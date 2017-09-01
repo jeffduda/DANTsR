@@ -13,12 +13,14 @@
 #include <RcppCommon.h>
 
 // itk::Image to antsImage
+#include <RcppANTsR/RcppANTsR_ImageDef.h>
 #include <RcppANTsR/RcppANTsR_VectorImageDef.h>
 #include <RcppDANTsR/RcppDANTsR_DTIImageDef.h>
 
 // This needs to go after wrap declarations and before implementations
 #include <Rcpp.h>
 
+#include <RcppANTsR/RcppANTsR_ImageImp.h>
 #include <RcppANTsR/RcppANTsR_VectorImageImp.h>
 #include <RcppDANTsR/RcppDANTsR_DTIImageImp.h>
 
