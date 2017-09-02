@@ -11,7 +11,7 @@ dtiFromVectorImage = function( vImg ) {
     stop("Input must have 6 channels")
   }
 
-  .Call( "dantsrDTIFromVectorImage", vImg, PACKAGE="DANTsR" )
+  x = .Call( "dtiFromVectorImage", vImg, PACKAGE="DANTsR" )
 
   return(0)
 

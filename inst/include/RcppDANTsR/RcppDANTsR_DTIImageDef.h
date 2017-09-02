@@ -8,16 +8,16 @@
 
 namespace Rcpp {
 
-typedef itk::DiffusionTensor3D<float> DTFloat;
+typedef itk::DiffusionTensor3D<float>  DTFloat;
 typedef itk::DiffusionTensor3D<double> DTDouble;
 
 // itk::Image to antsImage
-template <> inline SEXP wrap( const itk::Image<DTDouble,3>::Pointer &image );
-template <> inline SEXP wrap( const itk::Image<DTFloat,3>::Pointer &image );
+template <> inline SEXP wrap( const itk::Image<itk::DiffusionTensor3D<double>,3>::Pointer &image );
+template <> inline SEXP wrap( const itk::Image<itk::DiffusionTensor3D<float>,3>::Pointer &image );
 
 // antsImage to itk::Image
-template <> inline itk::Image<DTDouble,3>::Pointer as( SEXP itkImageR );
-template <> inline itk::Image<DTFloat,3>::Pointer as( SEXP itkImageR );
+template <> inline itk::Image<itk::DiffusionTensor3D<double>,3>::Pointer as( SEXP itkImageR );
+template <> inline itk::Image<itk::DiffusionTensor3D<float>,3>::Pointer as( SEXP itkImageR );
 
 }
 
