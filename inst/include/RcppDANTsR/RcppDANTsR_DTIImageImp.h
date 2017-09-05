@@ -36,7 +36,7 @@ template <> inline
 SEXP wrap( const itk::Image<DTDouble,3>::Pointer &image )
 {
   Rcpp::Rcout << "wrap( itk::Image<DiffusionTensor3D<double>( image ) )" << std::endl;
-  /*
+
   typedef itk::Image<DTDouble,3>        ImageType;
   typedef ImageType::Pointer            ImagePointerType;
   //typedef itkImageFinalizer<double,2> FinalizerType;
@@ -46,6 +46,7 @@ SEXP wrap( const itk::Image<DTDouble,3>::Pointer &image )
   ImagePointerType* rawPointer = new ImagePointerType( image );
   XPtrType xptr( rawPointer , true );
 
+  /*
   Rcpp::S4 itkImage( std::string( "antsImage" ) );
   itkImage.slot( "pixeltype" ) = "DTdouble";
   itkImage.slot( "dimension" ) = 3;
@@ -62,9 +63,7 @@ template <> inline
 SEXP wrap( const itk::Image<DTFloat,3>::Pointer &image )
 {
   Rcpp::Rcout << "wrap( itk::Image<DiffusionTensor3D<double>( image ) )" << std::endl;
-  wrap(NULL);
 
-  /*
   typedef itk::Image<DTFloat,3>         ImageType;
   typedef ImageType::Pointer            ImagePointerType;
   //typedef itkImageFinalizer<double,2> FinalizerType;
@@ -75,14 +74,14 @@ SEXP wrap( const itk::Image<DTFloat,3>::Pointer &image )
   XPtrType xptr( rawPointer , true );
 
   Rcpp::S4 itkImage( std::string( "antsImage" ) );
-  itkImage.slot( "pixeltype" ) = "DTfloat";
+  itkImage.slot( "pixeltype" ) = "float";
   itkImage.slot( "dimension" ) = 3;
   itkImage.slot( "components" ) = 6;
   itkImage.slot( "isVector" ) = true;
   itkImage.slot( "pointer") = xptr;
 
   return(wrap(itkImage));
-  */
+  //return( wrap(NULL) );
 }
 
 template <> inline
