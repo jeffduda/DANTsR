@@ -1,5 +1,5 @@
 # DANTsR
-Diffusion imaging for ANTsR.
+Diffusion imaging extension to ANTsR.
 
 img = antsImageRead("yourfile.nii.gz")
 
