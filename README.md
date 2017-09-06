@@ -1,3 +1,5 @@
+![dantsr killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg)
+
 # DANTsR
 Diffusion imaging extension to ANTsR.
 
