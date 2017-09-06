@@ -1,0 +1,22 @@
+# ignore all the backup files created by editors
+*~
+*.so
+*.o
+
+# things to ignore in directory ANTsR/src
+src/Makevars
+extdata/
+src/*.o
+src/*.o-*
+src/*.so
+src/symbols.rds
+
+# inst/doc
+vignettes/*pdf
+vignettes/*html
+
+.Rhistory
+R/.Rhistory
+
+.DS_Store
+.Rproj.user
