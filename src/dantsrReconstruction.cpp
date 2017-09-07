@@ -32,7 +32,7 @@ SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method )
     Rcpp::stop( "Number of matrix rows must equals components in image");
   }
 
-  if ( method == "svd" )
+  if ( method == "itk-svd" )
   {
     typedef itk::DiffusionTensor3DReconstructionImageFilter<ValueType,ValueType,ValueType>
       FilterType;
@@ -52,22 +52,20 @@ SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method )
           Rcpp::stop("This method only supports one non-zero b-value");
         }
       }
-
-      if ( thisB > 0) {
-        vect3d[0] = gradients(i,0);
-        vect3d[1] = gradients(i,1);
-        vect3d[2] = gradients(i,2);
-        diffusionVectors->InsertElement( i, vect3d );
-      }
+      vect3d[0] = gradients(i,0);
+      vect3d[1] = gradients(i,1);
+      vect3d[2] = gradients(i,2);
+      diffusionVectors->InsertElement( i, vect3d );
+      //Rcpp::Rcout << "Set gradient: " << vect3d << std::endl;
     }
 
     typename FilterType::Pointer filter = FilterType::New();
     filter->SetNumberOfThreads(1); // due to netlib / vnl_svd
     filter->SetGradientImage( diffusionVectors, image );
     filter->SetBValue( bValue );
+
     //filter->SetThreshold( lowValue ); add this as option?
     filter->Update();
-
     typename FilterType::OutputImageType::Pointer dtiImage = filter->GetOutput();
 
     //Copy to ANTsR compatible image
@@ -85,7 +83,7 @@ SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method )
     it.GoToBegin();
     while( !it.IsAtEnd() ) {
       VectorType dt;
-      dt.SetData( it.Get().GetDataPointer(), 6, true);
+      dt.SetData( it.Get().GetDataPointer(), 6, false);
       itOut.Set(dt);
       ++it;
       ++itOut;
@@ -93,7 +91,6 @@ SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method )
 
     return Rcpp::wrap(outImage);
   }
-
 
   Rcpp::Rcout << "Unknown DTI reconstruction method passed: " << method << std::endl;
   return(Rcpp::wrap(NA_REAL));

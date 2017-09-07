@@ -4,4 +4,4 @@ useDynLib(DANTsR)
 export(dtiAnisotropyImage)
 export(dtiEigenSystem)
 export(dtiColorMap)
-
+export(dimensionToChannel)
