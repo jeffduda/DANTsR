@@ -1,9 +1,14 @@
-#' @title dtiAnisotropyImage
+#' @title dtiAnisotropy
 #' @description calculate an anistropy image from DTI
 #' @param img a 6-channel antsImage
+#' @param method the measure to return
+#' \itemize{
+#'   \item{FractionalAnisotropy}{}
+#'   \item{RelativeAnisotropy}{}
+#' }
 #' @param method which type of anisotropy index to calculate
 #' @export
-dtiAnisotropyImage = function(img, method="FractionalAnisotropy")
+dtiAnisotropy= function(img, method="FractionalAnisotropy")
 {
   if ( !class(img)=="antsImage") {
     stop("Must input an 'antsImage'")
