@@ -115,61 +115,45 @@ DiffusionTensorProductImageToImageMetricv4GetValueAndDerivativeThreader< TDomain
     localDerivativeReturn[par] = NumericTraits<DerivativeValueType>::ZeroValue();
     for ( unsigned int nc = 0; nc < nComponents; nc++ )
     {
-    //MeasureType diffValue = DefaultConvertPixelTraits<FixedImagePixelType>::GetNthComponent(nc,diff);
-    MeasureType dValue = NumericTraits<DerivativeValueType>::ZeroValue();
-    for ( SizeValueType dim = 0; dim < ImageToImageMetricv4Type::MovingImageDimension; dim++ )
-      {
-      unsigned int idx = nc/4;
-      unsigned int comp = nc-idx;
-
-      MeasureType x = fixedImageValue[idx];
-      MeasureType y = movingImageValue[idx];
-      MeasureType a = fixedImageValue[idx+1];
-      MeasureType b = fixedImageValue[idx+2];
-      MeasureType c = fixedImageValue[idx+3];
-      MeasureType d = movingImageValue[idx+1];
-      MeasureType e = movingImageValue[idx+2];
-      MeasureType f = movingImageValue[idx+3];
-
-      MeasureType dd = NumericTraits<DerivativeValueType>::ZeroValue();
-
-      switch(comp) {
-        case 1:  //ddy
-          dd = a*a*d*d*x + 2.0*a*b*d*e*x + 2.0*a*c*d*f*x + b*b*e*e*x + 2.0*b*c*e*f*x + c*c*f*f*x;
-          break;
-        case 2: //ddd
-          dd = 2.0*a*a*d*x*y + 2.0*a*b*e*x*y + 2.0*a*c*f*x*y;
-          break;
-        case 3: //dde
-          dd = 2.0*a*b*d*x*y + 2.0*b*b*e*x*y + 2.0*b*c*f*x*y;
-          break;
-        case 4: //ddf
-          dd = 2.0*a*c*d*x*y + 2.0*b*c*e*x*y + 2.0*c*c*f*x*y;
-          break;
-        }
-
-
-      MeasureType ddd =
-      MeasureType dde =
-      MeasureType ddf =
-
-      localDerivativeReturn[par] += dValue * jacobian(dim, par) *
-        DefaultConvertPixelTraits<MovingImageGradientType>::GetNthComponent(
-          ImageToImageMetricv4Type::FixedImageDimension * nc + dim, movingImageGradient );
-
-      // double for off-diagonal elements
-      if ( i != j )
+      //MeasureType diffValue = DefaultConvertPixelTraits<FixedImagePixelType>::GetNthComponent(nc,diff);
+      MeasureType dValue = NumericTraits<DerivativeValueType>::ZeroValue();
+      for ( SizeValueType dim = 0; dim < ImageToImageMetricv4Type::MovingImageDimension; dim++ )
         {
-        dValue += 0;
+        unsigned int idx = nc/4;      // which eigenvalue/vector pair
+        unsigned int comp = nc-idx;
+        unsigned int offset = idx*3;
+
+        MeasureType x = fixedImageValue[idx];
+        MeasureType y = movingImageValue[idx];
+        MeasureType a = fixedImageValue[idx+1];
+        MeasureType b = fixedImageValue[idx+2];
+        MeasureType c = fixedImageValue[idx+3];
+        MeasureType d = movingImageValue[idx+1];
+        MeasureType e = movingImageValue[idx+2];
+        MeasureType f = movingImageValue[idx+3];
+
+        MeasureType dValue = NumericTraits<DerivativeValueType>::ZeroValue();
+
+        switch(comp) {
+          case 1:  //ddy
+            dValue = a*a*d*d*x + 2.0*a*b*d*e*x + 2.0*a*c*d*f*x + b*b*e*e*x + 2.0*b*c*e*f*x + c*c*f*f*x;
+            break;
+          case 2: //ddd
+            dValue = 2.0*a*a*d*x*y + 2.0*a*b*e*x*y + 2.0*a*c*f*x*y;
+            break;
+          case 3: //dde
+            dValue = 2.0*a*b*d*x*y + 2.0*b*b*e*x*y + 2.0*b*c*f*x*y;
+            break;
+          case 4: //ddf
+            dValue = 2.0*a*c*d*x*y + 2.0*b*c*e*x*y + 2.0*c*c*f*x*y;
+            break;
+          }
+
+        localDerivativeReturn[par] += dValue * jacobian(dim, par) *
+          DefaultConvertPixelTraits<MovingImageGradientType>::GetNthComponent(
+            ImageToImageMetricv4Type::FixedImageDimension * nc + dim, movingImageGradient );
         }
-
       }
-
-      localDerivativeReturn[par] += dValue * jacobian(dim, par) *
-        DefaultConvertPixelTraits<MovingImageGradientType>::GetNthComponent(
-          ImageToImageMetricv4Type::FixedImageDimension * nc + dim, movingImageGradient );
-      }
-
     }
   return true;
 }
