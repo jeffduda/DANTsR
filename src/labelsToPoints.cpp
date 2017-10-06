@@ -7,6 +7,7 @@
 #include "itkImage.h"
 #include "itkLabeledImageToPointSetFilter.h"
 #include "itkMesh.h"
+#include "itkPointSet.h"
 
 template< class ImageType, class MeshType >
 SEXP labelsToPoints( SEXP r_img, SEXP r_label )
@@ -24,9 +25,6 @@ SEXP labelsToPoints( SEXP r_img, SEXP r_label )
   filter->SetInput(image);
   filter->SetLabel(label);
   filter->Update();
-
-  Rcpp::Rcout << "Filter updated" << std::endl;
-  Rcpp::Rcout << "#points = " << filter->GetOutput()->GetNumberOfPoints() << std::endl;
 
   Rcpp::NumericMatrix pts(filter->GetOutput()->GetNumberOfPoints(), ImageType::ImageDimension );
   for ( unsigned int i=0; i<filter->GetOutput()->GetNumberOfPoints(); i++)
