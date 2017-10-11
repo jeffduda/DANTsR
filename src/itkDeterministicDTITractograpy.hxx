@@ -36,7 +36,7 @@ DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
   // Modify superclass default values, can be overridden by subclasses
   this->SetNumberOfRequiredInputs(1);
 
-  //this->GetOutput()->GetPoints()->Reserve(m_NodeLimit);
+  this->GetOutput()->GetPoints()->Reserve(3000);
   //this->GetOutput()->GetCells()->Reserve(m_CellLimit);
 }
 
@@ -82,17 +82,30 @@ DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
   m_SeedMesh =
     static_cast< const OutputMeshType * >( this->ProcessObject::GetInput(1) );
 
+
+
+  std::cout << "Tracking from " << m_SeedMesh->GetNumberOfPoints() << " seed points" << std::endl;
+  this->m_OutputMesh->GetPoints()->Reserve()
+
+  IdentifierType nPoints = 0;
+
+  typename OutputMeshType::PointsContainer points = this->m_OutputMesh->GetPoints();
+
+  for ( IdentifierType i=0; i<m_SeedMesh->GetNumberOfPoints(); i++ )
+  {
+    if ( !points->IndexExists( nPoints ) )
+    {
+      points->CreateIndex( nPoints ); // FIXME - add memory in chunks?
+    }
+    points->SetElement( nPoints, m_SeedMesh->GetPoints()->GetElement(i) );
+    ++nPoints;
+  }
+
+
   // This indicates that the current BufferedRegion is equal to the
   // requested region. This action prevents useless rexecutions of
   // the pipeline.
   this->m_OutputMesh->SetBufferedRegion( this->GetOutput()->GetRequestedRegion() );
-
-  std::cout << "Tracking from " << m_SeedMesh->GetNumberOfPoints() << " seed points" << std::endl;
-
-  for ( unsigned int i=0; i<m_SeedMesh->GetNumberOfPoints(); i++ )
-  {
-
-  }
 
 }
 
