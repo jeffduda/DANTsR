@@ -2,12 +2,11 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-#include <RcppANTsR.h>
+#include <RcppDANTsR.h>
 
 #include "itkImage.h"
 #include "itkLabeledImageToPointSetFilter.h"
 #include "itkMesh.h"
-#include "itkPointSet.h"
 
 template< class ImageType, class MeshType >
 SEXP labelsToPoints( SEXP r_img, SEXP r_label )
@@ -15,6 +14,7 @@ SEXP labelsToPoints( SEXP r_img, SEXP r_label )
 
   typedef typename ImageType::PixelType PixelType;
   typedef typename ImageType::Pointer ImagePointerType;
+  typedef typename MeshType::Pointer MeshPointerType;
 
   ImagePointerType image = Rcpp::as<ImagePointerType>(r_img);
 
@@ -26,6 +26,11 @@ SEXP labelsToPoints( SEXP r_img, SEXP r_label )
   filter->SetLabel(label);
   filter->Update();
 
+  typename MeshType::Pointer outMesh = filter->GetOutput();
+
+  return( Rcpp::wrap<MeshPointerType>(outMesh) );
+
+  /*
   Rcpp::NumericMatrix pts(filter->GetOutput()->GetNumberOfPoints(), ImageType::ImageDimension );
   for ( unsigned int i=0; i<filter->GetOutput()->GetNumberOfPoints(); i++)
   {
@@ -36,7 +41,7 @@ SEXP labelsToPoints( SEXP r_img, SEXP r_label )
   }
 
   return( Rcpp::wrap(pts) );
-
+  */
 }
 
 
@@ -123,21 +128,21 @@ try
       {
       const unsigned int Dimension = 2;
       typedef itk::Image< PixelType, Dimension >  ImageType;
-      typedef itk::Mesh< PixelType, Dimension >   MeshType;
+      typedef itk::Mesh< float, Dimension >   MeshType;
       return  labelsToPoints< ImageType, MeshType >( r_img, r_label );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
       typedef itk::Image< PixelType, Dimension >  ImageType;
-      typedef itk::Mesh< PixelType, Dimension >   MeshType;
+      typedef itk::Mesh< float, Dimension >   MeshType;
       return  labelsToPoints< ImageType, MeshType >( r_img, r_label );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
       typedef itk::Image< PixelType, Dimension >  ImageType;
-      typedef itk::Mesh< PixelType, Dimension >   MeshType;
+      typedef itk::Mesh< float, Dimension >   MeshType;
       return  labelsToPoints< ImageType, MeshType >( r_img, r_label );
       }
     }
@@ -148,21 +153,21 @@ try
       {
       const unsigned int Dimension = 2;
       typedef itk::Image< PixelType, Dimension >  ImageType;
-      typedef itk::Mesh< PixelType, Dimension >   MeshType;
+      typedef itk::Mesh< float, Dimension >   MeshType;
       return  labelsToPoints< ImageType, MeshType >( r_img, r_label );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
       typedef itk::Image< PixelType, Dimension >  ImageType;
-      typedef itk::Mesh< PixelType, Dimension >   MeshType;
+      typedef itk::Mesh< float, Dimension >   MeshType;
       return  labelsToPoints< ImageType, MeshType >( r_img, r_label );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
       typedef itk::Image< PixelType, Dimension >  ImageType;
-      typedef itk::Mesh< PixelType, Dimension >   MeshType;
+      typedef itk::Mesh< float, Dimension >   MeshType;
       return  labelsToPoints< ImageType, MeshType >( r_img, r_label );
       }
     }
