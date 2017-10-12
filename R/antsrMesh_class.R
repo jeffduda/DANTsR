@@ -129,6 +129,9 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
   #' antsrMeshSetPoint( x, 0, c(0,0,0) )
   #' pt = antsrMeshGetPoints(x, 0)
   #' @export
-    antsrMeshGetPoints = function( mesh, identifier ) {
-      .Call("antsrMesh_GetPoints", mesh, identifier, package="DANTsR")
+    antsrMeshGetPoints = function( mesh, identifiers=NULL) {
+      if ( is.null(identifiers) ) {
+        identifiers = numeric(0)
+      }
+      .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
     }

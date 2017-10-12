@@ -262,20 +262,30 @@ return Rcpp::wrap(NA_REAL); //not reached
 
 template< class MeshType >
 SEXP
-antsrMesh_GetPoints( SEXP r_mesh, SEXP r_identifier )
+antsrMesh_GetPoints( SEXP r_mesh, SEXP r_identifiers )
 {
   Rcpp::S4 rMesh( r_mesh );
   unsigned int dimension = rMesh.slot("dimension");
 
   typedef typename MeshType::Pointer MeshPointerType;
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  //itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+  Rcpp::NumericVector ids = Rcpp::as<Rcpp::NumericVector>(r_identifiers);
 
   typename MeshType::PointType itkPoint;
-  Rcpp::NumericMatrix pts( mesh->GetNumberOfPoints(), dimension);
+  itk::IdentifierType nPoints = mesh->GetNumberOfPoints();
+  if ( ids.size() != 0 ) {
+    nPoints = ids.size();
+  }
+  Rcpp::NumericMatrix pts( nPoints, dimension);
 
-  for ( itk::IdentifierType i=0; i<mesh->GetNumberOfPoints(); i++ ) {
-    mesh->GetPoint(i, &itkPoint);
+  for ( itk::IdentifierType i=0; i<nPoints; i++ ) {
+
+    itk::IdentifierType id = i;
+    if (ids.size() != 0 ) {
+      id = ids[i];
+    }
+
+    mesh->GetPoint(id, &itkPoint);
     for ( unsigned int j=0; j<dimension; j++) {
       pts(i,j) = itkPoint[j];
     }
@@ -285,7 +295,7 @@ antsrMesh_GetPoints( SEXP r_mesh, SEXP r_identifier )
 }
 
 //pixeltype, precision, dimension, type, isVector
-RcppExport SEXP antsrMesh_GetPoints( SEXP r_mesh, SEXP r_identifier )
+RcppExport SEXP antsrMesh_GetPoints( SEXP r_mesh, SEXP r_identifiers )
 {
 try
 {
@@ -301,30 +311,30 @@ try
     typedef double PrecisionType;
     if ( dimension == 2 ) {
       typedef itk::Mesh<PrecisionType,2> MeshType;
-      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifier);
+      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
     }
     else if ( dimension == 3 ) {
       typedef itk::Mesh<PrecisionType,3> MeshType;
-      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifier);
+      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
     }
     else if ( dimension == 4 ) {
       typedef itk::Mesh<PrecisionType,4> MeshType;
-      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifier);
+      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
     }
   }
   else if (precision=="float") {
     typedef float PrecisionType;
     if ( dimension == 2 ) {
       typedef itk::Mesh<PrecisionType,2> MeshType;
-      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifier);
+      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
     }
     else if ( dimension == 3 ) {
       typedef itk::Mesh<PrecisionType,3> MeshType;
-      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifier);
+      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
         }
     else if ( dimension == 4 ) {
       typedef itk::Mesh<PrecisionType,4> MeshType;
-      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifier);
+      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
     }
   }
   else {
