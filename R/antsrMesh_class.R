@@ -135,3 +135,9 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
       }
       .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
     }
+
+read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
+  # FIXME - check for .vtk extension
+
+  .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, package="DANTsR")
+}
