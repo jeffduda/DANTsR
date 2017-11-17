@@ -843,11 +843,33 @@ VtkPolyDataFileReader<TOutputMesh>
     }
     else if (line.find("NORMALS") != std::string::npos)
     {
-      std::cerr << "NORMALS not yet supported" << std::endl;
+
+      std::string::size_type sp1 = line.find( " " );
+      std::string::size_type sp2 = line.find( " ", sp1+1);
+
+      std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
+      std::string dataType = std::string( line, sp2+1, line.length()-sp1-1 );
+
+      std::cout << "Found NORMALS named " << dataName << " of type " << dataType << std::endl;
+
+      //this->ReadVTKNormals(dataName, dataType, nCells, nComponents, false);
+
     }
     else if (line.find("TEXTURE_COORDINATES") != std::string::npos)
     {
-      std::cerr << "TEXTURE_COORDINATES not yet supported" << std::endl;
+      unsigned int dim = 1;
+      std::string::size_type sp1 = line.find( " " );
+      std::string::size_type sp2 = line.find( " ", sp1+1);
+      std::string::size_type sp3 = line.find( " ", sp2+1);
+
+      dim = std::atoi( std::string( line, sp2+1, (sp3-sp2)-1 ).c_str()  );
+      std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
+      std::string dataType = std::string( line, sp3+1, line.length()-sp2-1 );
+
+
+      std::cout << "Found TEXTURE_COORDINATES named " << dataName << "of dimension " << dim << " of type " << dataType << std::endl;
+      std::cout << line << std::endl;
+      std::cout << sp1 << " " << sp2 << " " << sp3 << std::endl;
     }
     else if (line.find("TENSORS") != std::string::npos)
     {
@@ -919,7 +941,17 @@ VtkPolyDataFileReader<TOutputMesh>
     }
     else if (line.find("NORMALS") != std::string::npos)
     {
-      std::cerr << "NORMALS not yet supported" << std::endl;
+
+      std::string::size_type sp1 = line.find( " " );
+      std::string::size_type sp2 = line.find( " ", sp1+1);
+
+      std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
+      std::string dataType = std::string( line, sp2+1, line.length()-sp1-1 );
+
+      std::cout << "Found NORMALS named " << dataName << " of type " << dataType << std::endl;
+
+      //this->ReadVTKNormals(dataName, dataType, nCells, nComponents, false);
+
     }
     else if (line.find("TEXTURE_COORDINATES") != std::string::npos)
     {
