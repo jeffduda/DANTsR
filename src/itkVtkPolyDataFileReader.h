@@ -21,11 +21,14 @@
 #include "itkMeshSource.h"
 
 #include "itkArray.h"
+#include "itkByteSwapper.h"
 #include "itkImage.h"
 #include "itkVectorContainer.h"
 
 #include <vector>
 #include <fstream>
+
+#include <RcppDANTsR.h>
 
 namespace itk {
 
@@ -63,6 +66,10 @@ public:
   typedef typename OutputMeshType::PointType      PointType;
   typedef typename MeshTraits::PixelType          PixelType;
   typedef Array<float>                            MultiComponentScalarType;
+
+  typedef typename Rcpp::NumericMatrix            MatrixType;
+  typedef VectorContainer<long, MatrixType>       MatrixSetType;
+
   typedef Array<unsigned long>                    LineType;
   typedef VectorContainer<long,
     MultiComponentScalarType>                     MultiComponentScalarSetType;
@@ -127,6 +134,29 @@ public:
   LineSetType* GetTriangularStrips()
     { return this->m_Strips.GetPointer(); }
 
+  template <typename ValueType>
+  ValueType * ReadVTKBinaryData( std::ifstream infile, unsigned long nValues ) {
+    ValueType p;
+    ValueType * data = new ValueType [ nValues ];
+    infile.read( reinterpret_cast< char * >( data ), nValues * sizeof(p) );
+    ByteSwapper<ValueType>::SwapRangeFromSystemToBigEndian(data,nValues);
+  }
+
+  template <typename ValueType>
+  Rcpp::NumericMatrix ReadVKTBinaryMatrix(  std::ifstream infile, unsigned long nRows, unsigned long nCols ) {
+    Rcpp::NumericMatrix mat( nRows, nCols );
+    ValueType * vec = ReadVTKBinaryData(infile, nRows*nCols);
+    unsigned long idx = 0;
+    for ( unsigned long i=0; i<nRows; i++ ) {
+      for (unsigned long j=0; j<nCols; j++ ) {
+        mat(i,j) = vec[idx];
+        ++idx;
+      }
+    }
+    delete [] vec;
+    return mat;
+  }
+
 protected:
   VtkPolyDataFileReader();
   ~VtkPolyDataFileReader() {}
@@ -147,6 +177,9 @@ protected:
   typename LineSetType::Pointer                        m_Polygons;
   typename LineSetType::Pointer                        m_Vertices;
   typename LineSetType::Pointer                        m_Strips;
+
+  typename MatrixSetType::Pointer                 m_PointNormals;
+  typename MatrixSetType::Pointer                 m_CellNormals;
 
   bool                                            m_BinaryData;
   std::ifstream                                   m_InputFile;
@@ -174,6 +207,7 @@ private:
   bool ReadVTKPointData(unsigned long nPoints);
   bool ReadVTKCellData(unsigned long nCells);
   bool ReadVTKScalars(std::string dataName, std::string dataType, unsigned long nPoints, unsigned long nComponents, bool isPointData);
+  bool ReadVTKNormals(std::string dataName, std::string dataType, unsigned long nPoints, bool isPointData);
 
 
 };

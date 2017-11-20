@@ -50,6 +50,9 @@ VtkPolyDataFileReader<TOutputMesh>
   this->m_Vertices = LineSetType::New();
   this->m_Strips = LineSetType::New();
 
+  this->m_PointNormals = MatrixSetType::New();
+  this->m_CellNormals = MatrixSetType::New();
+
   //
   // Create the output
   //
@@ -852,7 +855,7 @@ VtkPolyDataFileReader<TOutputMesh>
 
       std::cout << "Found NORMALS named " << dataName << " of type " << dataType << std::endl;
 
-      //this->ReadVTKNormals(dataName, dataType, nCells, nComponents, false);
+      this->ReadVTKNormals(dataName, dataType, nPoints, true);
 
     }
     else if (line.find("TEXTURE_COORDINATES") != std::string::npos)
@@ -1172,6 +1175,57 @@ VtkPolyDataFileReader<TOutputMesh>
 
   inputFile.close();
 }
+
+template<class TOutputMesh>
+bool
+VtkPolyDataFileReader<TOutputMesh>
+::ReadVTKNormals( std::string dataName, std::string itkNotUsed(dataType), unsigned long nPoints, bool isPointData )
+{
+
+  typename MultiComponentScalarSetType::Pointer set = MultiComponentScalarSetType::New();
+  set->Initialize();
+  set->Reserve( nPoints );
+
+  MatrixType normalMatrix( nPoints, Dimension );
+
+  if (!this->m_BinaryData)
+  {
+    /*
+    for (unsigned long i=0; i<nPoints; i++)
+    {
+      MultiComponentScalarType value(nComponents);
+      for (unsigned long j=0; j<nComponents; j++)
+      {
+        float component;
+        this->m_InputFile >> component;
+        value[j] = component;
+      }
+      if (labels)
+      {
+        typename OutputMeshType::PixelType label = static_cast<typename OutputMeshType::PixelType>( value[0] );
+        this->GetOutput()->GetPointData()->InsertElement(i, label);
+      }
+      else
+      {
+        set->InsertElement(i, value);
+      }
+    }
+    */
+  }
+  else
+  {
+    Rcpp::Rcout << "Read binary normals" << std::endl;
+    //MatrixType normMat = ReadVTKBinaryData<float>::ReadMatrix( this->m_Inputfile, nPoints, Dimension );
+    float * dat = ReadVTKBinaryData<float>::Read( this->m_Inputfile, nPoints*Dimension );
+    Rcpp::Rcout << "Completed - Read binary normals" << std::endl;
+  }
+
+
+
+  return true;
+}
+
+
 
 template<class TOutputMesh>
 void
