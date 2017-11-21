@@ -842,21 +842,21 @@ VtkPolyDataFileReader<TOutputMesh>
     }
     else if (line.find("VECTORS") != std::string::npos)
     {
-      std::cerr << "VECTORS not yet supported" << std::endl;
-    }
-    else if (line.find("NORMALS") != std::string::npos)
-    {
-
       std::string::size_type sp1 = line.find( " " );
       std::string::size_type sp2 = line.find( " ", sp1+1);
-
       std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
       std::string dataType = std::string( line, sp2+1, line.length()-sp1-1 );
 
-      std::cout << "Found NORMALS named " << dataName << " of type " << dataType << std::endl;
-
-      this->ReadVTKNormals(dataName, dataType, nPoints, true);
-
+      //this->ReadVTKDataSet(dataName, dataType, Vectors, nPoints, 3, true);
+      this->ReadVTKVectors(dataName, dataType, nPoints, true, false);
+    }
+    else if (line.find("NORMALS") != std::string::npos)
+    {
+      std::string::size_type sp1 = line.find( " " );
+      std::string::size_type sp2 = line.find( " ", sp1+1);
+      std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
+      std::string dataType = std::string( line, sp2+1, line.length()-sp1-1 );
+      this->ReadVTKVectors(dataName, dataType, nPoints, true, true);
     }
     else if (line.find("TEXTURE_COORDINATES") != std::string::npos)
     {
@@ -864,15 +864,10 @@ VtkPolyDataFileReader<TOutputMesh>
       std::string::size_type sp1 = line.find( " " );
       std::string::size_type sp2 = line.find( " ", sp1+1);
       std::string::size_type sp3 = line.find( " ", sp2+1);
-
       dim = std::atoi( std::string( line, sp2+1, (sp3-sp2)-1 ).c_str()  );
       std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
       std::string dataType = std::string( line, sp3+1, line.length()-sp2-1 );
-
-
-      std::cout << "Found TEXTURE_COORDINATES named " << dataName << "of dimension " << dim << " of type " << dataType << std::endl;
-      std::cout << line << std::endl;
-      std::cout << sp1 << " " << sp2 << " " << sp3 << std::endl;
+      this->ReadVTKTextureCoordinates(dataName, dataType, nPoints, dim, true);
     }
     else if (line.find("TENSORS") != std::string::npos)
     {
@@ -940,25 +935,30 @@ VtkPolyDataFileReader<TOutputMesh>
     }
     else if (line.find("VECTORS") != std::string::npos)
     {
-      std::cerr << "VECTORS not yet supported" << std::endl;
+      std::string::size_type sp1 = line.find( " " );
+      std::string::size_type sp2 = line.find( " ", sp1+1);
+      std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
+      std::string dataType = std::string( line, sp2+1, line.length()-sp1-1 );
+      this->ReadVTKVectors(dataName, dataType, nCells, false, false);
     }
     else if (line.find("NORMALS") != std::string::npos)
     {
-
       std::string::size_type sp1 = line.find( " " );
       std::string::size_type sp2 = line.find( " ", sp1+1);
-
       std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
       std::string dataType = std::string( line, sp2+1, line.length()-sp1-1 );
-
-      std::cout << "Found NORMALS named " << dataName << " of type " << dataType << std::endl;
-
-      //this->ReadVTKNormals(dataName, dataType, nCells, nComponents, false);
-
+      this->ReadVTKVectors(dataName, dataType, nCells, false, true);
     }
     else if (line.find("TEXTURE_COORDINATES") != std::string::npos)
     {
-      std::cerr << "TEXTURE_COORDINATES not yet supported" << std::endl;
+      unsigned int dim = 1;
+      std::string::size_type sp1 = line.find( " " );
+      std::string::size_type sp2 = line.find( " ", sp1+1);
+      std::string::size_type sp3 = line.find( " ", sp2+1);
+      dim = std::atoi( std::string( line, sp2+1, (sp3-sp2)-1 ).c_str()  );
+      std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
+      std::string dataType = std::string( line, sp3+1, line.length()-sp2-1 );
+      this->ReadVTKTextureCoordinates(dataName, dataType, nCells, dim, false);
     }
     else if (line.find("TENSORS") != std::string::npos)
     {
@@ -1179,14 +1179,11 @@ VtkPolyDataFileReader<TOutputMesh>
 template<class TOutputMesh>
 bool
 VtkPolyDataFileReader<TOutputMesh>
-::ReadVTKNormals( std::string dataName, std::string itkNotUsed(dataType), unsigned long nPoints, bool isPointData )
+::ReadVTKDataSet( std::string dataName, std::string dataType, VTKDataSetType type, unsigned long nRows,
+  unsigned long nCols, bool isPointData )
 {
-
-  typename MultiComponentScalarSetType::Pointer set = MultiComponentScalarSetType::New();
-  set->Initialize();
-  set->Reserve( nPoints );
-
-  MatrixType normalMatrix( nPoints, Dimension );
+  Rcpp::Rcout << "ReadVTKDataSet" << std::endl;
+  MatrixType matrix(nRows, nCols);
 
   if (!this->m_BinaryData)
   {
@@ -1214,13 +1211,156 @@ VtkPolyDataFileReader<TOutputMesh>
   }
   else
   {
-    Rcpp::Rcout << "Read binary normals" << std::endl;
-    //MatrixType normMat = ReadVTKBinaryData<float>::ReadMatrix( this->m_Inputfile, nPoints, Dimension );
-    float * dat = ReadVTKBinaryData<float>::Read( this->m_Inputfile, nPoints*Dimension );
-    Rcpp::Rcout << "Completed - Read binary normals" << std::endl;
+
+    if ( !dataType.compare("int") ) {
+      this->ReadVTKBinaryMatrix<int>( matrix );
+    }
+    else if ( !dataType.compare("float") ) {
+      this->ReadVTKBinaryMatrix<float>( matrix );
+    }
   }
 
+  if ( isPointData ) {
+    Rcpp::Rcout << "Saving Point Data" << std::endl;
+    if (type==Normals) {
+      this->m_PointNormals->InsertElement(this->m_PointNormals->Size(), matrix);
+    }
+    else if (type==Vectors) {
+      this->m_PointVectors->InsertElement(this->m_PointVectors->Size(), matrix);
+    }
+    else if (type==TextureCoordinates) {
+      this->m_PointTextureCoordinates->InsertElement(this->m_PointTextureCoordinates->Size(), matrix);
+    }
+  }
+  else {
+    Rcpp::Rcout << "Saving Cell Data" << std::endl;
+    if (type==Normals) {
+      this->m_CellNormals->InsertElement(this->m_CellNormals->Size(), matrix);
+    }
+    else if (type==Vectors) {
+      this->m_CellVectors->InsertElement(this->m_CellVectors->Size(), matrix);
+    }
+    else if (type==TextureCoordinates) {
+      this->m_CellTextureCoordinates->InsertElement(this->m_CellTextureCoordinates->Size(), matrix);
+    }
+  }
 
+  return true;
+}
+
+
+template<class TOutputMesh>
+bool
+VtkPolyDataFileReader<TOutputMesh>
+::ReadVTKVectors( std::string dataName, std::string dataType, unsigned long nPoints, bool isPointData, bool isNormal )
+{
+
+  MatrixType matrix(nPoints, 3); // FIXME - always 3 components normals?
+
+  if (!this->m_BinaryData)
+  {
+    /*
+    for (unsigned long i=0; i<nPoints; i++)
+    {
+      MultiComponentScalarType value(nComponents);
+      for (unsigned long j=0; j<nComponents; j++)
+      {
+        float component;
+        this->m_InputFile >> component;
+        value[j] = component;
+      }
+      if (labels)
+      {
+        typename OutputMeshType::PixelType label = static_cast<typename OutputMeshType::PixelType>( value[0] );
+        this->GetOutput()->GetPointData()->InsertElement(i, label);
+      }
+      else
+      {
+        set->InsertElement(i, value);
+      }
+    }
+    */
+  }
+  else
+  {
+
+    if ( !dataType.compare("int") ) {
+       this->ReadVTKBinaryMatrix<int>( matrix );
+    }
+    else if ( !dataType.compare("float") ) {
+       this->ReadVTKBinaryMatrix<float>( matrix );
+    }
+  }
+
+  if ( isNormal ) {
+    if ( isPointData ) {
+      this->m_PointNormals->InsertElement(this->m_PointNormals->Size(), matrix);
+    }
+    else {
+      this->m_CellNormals->InsertElement(this->m_CellNormals->Size(), matrix);
+    }
+  }
+  else {
+    if ( isPointData ) {
+      this->m_PointVectors->InsertElement(this->m_PointVectors->Size(), matrix);
+    }
+    else {
+      this->m_CellVectors->InsertElement(this->m_CellVectors->Size(), matrix);
+    }
+  }
+
+  return true;
+}
+
+template<class TOutputMesh>
+bool
+VtkPolyDataFileReader<TOutputMesh>
+::ReadVTKTextureCoordinates( std::string dataName, std::string dataType, unsigned long nRows, unsigned long dim, bool isPointData )
+{
+
+  MatrixType texMatrix(nRows, dim);
+
+  if (!this->m_BinaryData)
+  {
+    /*
+    for (unsigned long i=0; i<nPoints; i++)
+    {
+      MultiComponentScalarType value(nComponents);
+      for (unsigned long j=0; j<nComponents; j++)
+      {
+        float component;
+        this->m_InputFile >> component;
+        value[j] = component;
+      }
+      if (labels)
+      {
+        typename OutputMeshType::PixelType label = static_cast<typename OutputMeshType::PixelType>( value[0] );
+        this->GetOutput()->GetPointData()->InsertElement(i, label);
+      }
+      else
+      {
+        set->InsertElement(i, value);
+      }
+    }
+    */
+  }
+  else
+  {
+
+    if ( !dataType.compare("int") ) {
+       this->ReadVTKBinaryMatrix<int>( texMatrix );
+    }
+    else if ( !dataType.compare("float") ) {
+       this->ReadVTKBinaryMatrix<float>( texMatrix );
+    }
+  }
+
+  if ( isPointData ) {
+    this->m_PointTextureCoordinates->InsertElement(this->m_PointTextureCoordinates->Size(), texMatrix);
+  }
+  else {
+    this->m_CellTextureCoordinates->InsertElement(this->m_CellTextureCoordinates->Size(), texMatrix);
+  }
 
   return true;
 }

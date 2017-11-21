@@ -135,26 +135,22 @@ public:
     { return this->m_Strips.GetPointer(); }
 
   template <typename ValueType>
-  ValueType * ReadVTKBinaryData( std::ifstream infile, unsigned long nValues ) {
+  ValueType * ReadVTKBinaryData( unsigned long nValues ) {
     ValueType p;
     ValueType * data = new ValueType [ nValues ];
-    infile.read( reinterpret_cast< char * >( data ), nValues * sizeof(p) );
+    this->m_InputFile.read( reinterpret_cast< char * >( data ), nValues * sizeof(p) );
     ByteSwapper<ValueType>::SwapRangeFromSystemToBigEndian(data,nValues);
+    return data;
   }
 
   template <typename ValueType>
-  Rcpp::NumericMatrix ReadVKTBinaryMatrix(  std::ifstream infile, unsigned long nRows, unsigned long nCols ) {
-    Rcpp::NumericMatrix mat( nRows, nCols );
-    ValueType * vec = ReadVTKBinaryData(infile, nRows*nCols);
-    unsigned long idx = 0;
-    for ( unsigned long i=0; i<nRows; i++ ) {
-      for (unsigned long j=0; j<nCols; j++ ) {
-        mat(i,j) = vec[idx];
-        ++idx;
+  bool ReadVTKBinaryMatrix(  MatrixType normMatrix ) {
+    ValueType * vec = ReadVTKBinaryData<ValueType>(normMatrix.rows()*normMatrix.cols());
+    for ( unsigned long i=0; i<normMatrix.rows()*normMatrix.cols(); i++ ) {
+      normMatrix[i] = vec[i];
       }
-    }
     delete [] vec;
-    return mat;
+    return true;
   }
 
 protected:
@@ -178,8 +174,16 @@ protected:
   typename LineSetType::Pointer                        m_Vertices;
   typename LineSetType::Pointer                        m_Strips;
 
+  typedef enum { Scalars, ColorScalars, LookupTable, Vectors, Normals, TextureCoordinates, Tensors, Field } VTKDataSetType;
+
   typename MatrixSetType::Pointer                 m_PointNormals;
   typename MatrixSetType::Pointer                 m_CellNormals;
+
+  typename MatrixSetType::Pointer                 m_PointVectors;
+  typename MatrixSetType::Pointer                 m_CellVectors;
+
+  typename MatrixSetType::Pointer                 m_PointTextureCoordinates;
+  typename MatrixSetType::Pointer                 m_CellTextureCoordinates;
 
   bool                                            m_BinaryData;
   std::ifstream                                   m_InputFile;
@@ -206,8 +210,12 @@ private:
   bool ReadVTKStrips(unsigned long nLines, unsigned long nValues);
   bool ReadVTKPointData(unsigned long nPoints);
   bool ReadVTKCellData(unsigned long nCells);
+
+  bool ReadVTKDataSet(std::string dataName, std::string dataType, VTKDataSetType type, unsigned long nRows, unsigned long nCols, bool isPointData);
+
   bool ReadVTKScalars(std::string dataName, std::string dataType, unsigned long nPoints, unsigned long nComponents, bool isPointData);
-  bool ReadVTKNormals(std::string dataName, std::string dataType, unsigned long nPoints, bool isPointData);
+  bool ReadVTKVectors(std::string dataName, std::string dataType, unsigned long nPoints, bool isPointData, bool isNormal);
+  bool ReadVTKTextureCoordinates(std::string dataName, std::string dataType, unsigned long nRows, unsigned long dim, bool isPointData);
 
 
 };
