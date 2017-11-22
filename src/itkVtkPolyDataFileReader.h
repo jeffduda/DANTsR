@@ -70,6 +70,8 @@ public:
   typedef typename Rcpp::NumericMatrix            MatrixType;
   typedef VectorContainer<long, MatrixType>       MatrixSetType;
 
+  typedef VectorContainer<long, std::string>      DataNameSetType;
+
   typedef Array<unsigned long>                    LineType;
   typedef VectorContainer<long,
     MultiComponentScalarType>                     MultiComponentScalarSetType;
@@ -153,6 +155,17 @@ public:
     return true;
   }
 
+  bool ReadVTKASCIIMatrix( MatrixType matrix ) {
+    double value=0;
+    for (unsigned long i=0; i<matrix.rows()*matrix.cols(); i++) {
+      this->m_InputFile >> value;
+      matrix[i] = value;
+    }
+    std::string line;
+    std::getline( this->m_InputFile, line );
+    return true;
+  }
+
 protected:
   VtkPolyDataFileReader();
   ~VtkPolyDataFileReader() {}
@@ -179,11 +192,26 @@ protected:
   typename MatrixSetType::Pointer                 m_PointNormals;
   typename MatrixSetType::Pointer                 m_CellNormals;
 
+  typename DataNameSetType::Pointer               m_PointNormalsNames;
+  typename DataNameSetType::Pointer               m_CellNormalsNames;
+
   typename MatrixSetType::Pointer                 m_PointVectors;
   typename MatrixSetType::Pointer                 m_CellVectors;
 
+  typename DataNameSetType::Pointer               m_PointVectorsNames;
+  typename DataNameSetType::Pointer               m_CellVectorsNames;
+
   typename MatrixSetType::Pointer                 m_PointTextureCoordinates;
   typename MatrixSetType::Pointer                 m_CellTextureCoordinates;
+
+  typename DataNameSetType::Pointer               m_PointTextureCoordinatesNames;
+  typename DataNameSetType::Pointer               m_CellTextureCoordinatesNames;
+
+  typename MatrixSetType::Pointer                 m_PointTensors;
+  typename MatrixSetType::Pointer                 m_CellTensors;
+
+  typename DataNameSetType::Pointer               m_PointTensorsNames;
+  typename DataNameSetType::Pointer               m_CellTensorsNames;
 
   bool                                            m_BinaryData;
   std::ifstream                                   m_InputFile;
@@ -196,9 +224,9 @@ private:
   void operator=( const Self& ); // purposely not implemented
 
   void ReadVTKFile();
-  void ReadPointsFromVTKFile();
-  void ReadScalarsFromVTKFile();
-  void ReadLinesFromVTKFile();
+  //void ReadPointsFromVTKFile();
+  //void ReadScalarsFromVTKFile();
+  //void ReadLinesFromVTKFile();
 
   bool ReadVTKPolyDataFile();
   bool ReadVTKPolyData();
@@ -208,14 +236,15 @@ private:
   bool ReadVTKPolygons(unsigned long nLines, unsigned long nValues);
   bool ReadVTKVertices(unsigned long nLines, unsigned long nValues);
   bool ReadVTKStrips(unsigned long nLines, unsigned long nValues);
-  bool ReadVTKPointData(unsigned long nPoints);
-  bool ReadVTKCellData(unsigned long nCells);
+  //bool ReadVTKPointData(unsigned long nPoints);
+  //bool ReadVTKCellData(unsigned long nCells);
 
-  bool ReadVTKDataSet(std::string dataName, std::string dataType, VTKDataSetType type, unsigned long nRows, unsigned long nCols, bool isPointData);
+  bool ReadVTKData(unsigned long n, bool isPointData);
+
+  MatrixType ReadVTKDataMatrix(std::string dataType, unsigned long nRows, unsigned long nCols);
+
 
   bool ReadVTKScalars(std::string dataName, std::string dataType, unsigned long nPoints, unsigned long nComponents, bool isPointData);
-  bool ReadVTKVectors(std::string dataName, std::string dataType, unsigned long nPoints, bool isPointData, bool isNormal);
-  bool ReadVTKTextureCoordinates(std::string dataName, std::string dataType, unsigned long nRows, unsigned long dim, bool isPointData);
 
 
 };
