@@ -120,24 +120,29 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
     .Call("antsrMesh_GetPoint", mesh, identifier, package="DANTsR")
   }
 
-  #' @title antsrMeshGetPoints
-  #' @description get all points in mesh
-  #' @param mesh an 'antsrMesh'
-  #' @param identifier identifier of point to get
-  #' @examples
-  #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-  #' antsrMeshSetPoint( x, 0, c(0,0,0) )
-  #' pt = antsrMeshGetPoints(x, 0)
-  #' @export
-    antsrMeshGetPoints = function( mesh, identifiers=NULL) {
-      if ( is.null(identifiers) ) {
-        identifiers = numeric(0)
-      }
-      .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
+#' @title antsrMeshGetPoints
+#' @description get all points in mesh
+#' @param mesh an 'antsrMesh'
+#' @param identifier identifier of point to get
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=128 )
+#' antsrMeshSetPoint( x, 0, c(0,0,0) )
+#' pt = antsrMeshGetPoints(x, 0)
+#' @export
+  antsrMeshGetPoints = function( mesh, identifiers=NULL) {
+    if ( is.null(identifiers) ) {
+      identifiers = numeric(0)
     }
+    .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
+  }
 
 read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
-  # FIXME - check for .vtk extension
-
-  .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, package="DANTsR")
+  mesh = NA
+  if ( grepl(".vtk", filename ) ) {
+    mesh = .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, package="DANTsR")
+  }
+  else if ( grepl(".Bfloat", filename ) ) {
+    mesh = .Call("antsrMesh_ReadCamino", filename, pixeltype="float", package="DANTsR")
+  }
+  return(mesh)
 }
