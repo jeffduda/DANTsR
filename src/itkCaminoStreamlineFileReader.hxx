@@ -74,7 +74,7 @@ CaminoStreamlineFileReader<TOutputMesh>
     float nTractPoints[1];
     this->m_InputFile.read( reinterpret_cast< char * >( nTractPoints ), sizeof(n) );
     float skip[(int)nTractPoints[0]+1];
-    this->m_InputFile.read( reinterpret_cast< char * >( skip ), (nTractPoints[0]+1)*sizeof(n) );
+    this->m_InputFile.read( reinterpret_cast< char * >( skip ), (3*nTractPoints[0]+1)*sizeof(n) );
     nPoints += nTractPoints[0];
     nTracts++;
   }
