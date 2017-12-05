@@ -479,10 +479,42 @@ antsrMesh_ReadVTK( SEXP r_filename )
   typename ReaderType::LineSetType * lines = reader->GetLines();
   Rcpp::Rcout << "Number of lines: " << lines->Size() << std::endl;
 
-    typename ReaderType::LineSetType * poly = reader->GetPolygons();
-    Rcpp::Rcout << "Number of polygons: " << poly->Size() << std::endl;
+  typename ReaderType::LineSetType * poly = reader->GetPolygons();
+  Rcpp::Rcout << "Number of polygons: " << poly->Size() << std::endl;
 
-  return Rcpp::wrap(mesh);
+  Rcpp::List pointScalarList( reader->GetPointScalars()->Size() );
+  Rcpp::CharacterVector pointScalarNames( reader->GetPointScalars()->Size() );
+  for (unsigned int i=0; i<reader->GetPointScalars()->Size(); i++ ) {
+   pointScalarList[i] = reader->GetPointScalars()->ElementAt(i);
+   pointScalarNames[i] = reader->GetPointScalarsNames()->ElementAt(i);
+  }
+  pointScalarList.attr("names") = pointScalarNames;
+
+  unsigned long nLinePoints = 0;
+  for ( unsigned long i=0; i<reader->GetLines()->Size(); i++ ) {
+    nLinePoints += reader->GetLines()->GetElement(i).GetSize();
+  }
+  Rcpp::Rcout << "Number of points in lines " << nLinePoints << std::endl;
+
+  Rcpp::NumericVector lineVector( nLinePoints + reader->GetLines()->Size() );
+  unsigned long idx=0;
+  for ( unsigned long i=0; i<reader->GetLines()->Size(); i++ ) {
+    lineVector[idx] = reader->GetLines()->GetElement(i).GetSize();
+    idx++;
+
+    for ( unsigned long j=0; j<reader->GetLines()->GetElement(i).GetSize(); j++ ) {
+      lineVector[idx] = reader->GetLines()->GetElement(i)[j];
+      idx++;
+    }
+  }
+
+  Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh),
+                                       Rcpp::Named("Lines")=lineVector,
+                                       Rcpp::Named("PointScalars")=pointScalarList);
+  return Rcpp::wrap(list);
+
+
+  //return Rcpp::wrap(mesh);
 
   //MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
   //return( Rcpp::wrap(mesh->GetNumberOfPoints()) );
@@ -524,7 +556,7 @@ try
     else if ( dimension == 3 ) {
       typedef itk::Mesh<PrecisionType,3> MeshType;
       return antsrMesh_ReadVTK<MeshType>(r_filename);
-        }
+      }
     else if ( dimension == 4 ) {
       typedef itk::Mesh<PrecisionType,4> MeshType;
       return antsrMesh_ReadVTK<MeshType>(r_filename);
@@ -577,10 +609,10 @@ antsrMesh_ReadCamino( SEXP r_filename )
   //typename ReaderType::LineSetType * poly = reader->GetPolygons();
   //Rcpp::Rcout << "Number of polygons: " << poly->Size() << std::endl;
 
-  return Rcpp::wrap(mesh);
+  //return Rcpp::List::create( Rcpp::Named("mesh")=Rcpp::wrap(mesh), Rcpp::Named("PointScalars")=reader->m_PointScalarList);
 
   //MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  //return( Rcpp::wrap(mesh->GetNumberOfPoints()) );
+  return( Rcpp::wrap(mesh->GetNumberOfPoints()) );
 }
 
 //pixeltype, precision, dimension, type, isVector

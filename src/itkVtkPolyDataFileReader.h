@@ -24,6 +24,7 @@
 #include "itkByteSwapper.h"
 #include "itkImage.h"
 #include "itkVectorContainer.h"
+#include "itkLineCell.h"
 
 #include <vector>
 #include <fstream>
@@ -67,6 +68,10 @@ public:
   typedef typename MeshTraits::PixelType          PixelType;
   typedef Array<float>                            MultiComponentScalarType;
 
+  typedef typename OutputMeshType::CellType       CellType;
+  typedef typename CellType::CellAutoPointer      CellAutoPointer;
+  typedef typename itk::LineCell< CellType >      LineCellType;
+
   typedef typename Rcpp::NumericMatrix            MatrixType;
   typedef VectorContainer<long, MatrixType>       MatrixSetType;
 
@@ -91,6 +96,10 @@ public:
   itkSetStringMacro( FileName );
   itkGetStringMacro( FileName );
 
+  itkGetObjectMacro( PointScalars, MatrixSetType);
+
+  itkGetObjectMacro( PointScalarsNames, DataNameSetType);
+
   itkSetMacro( ExtractBoundaryPoints, bool );
   itkGetMacro( ExtractBoundaryPoints, bool );
   itkBooleanMacro( ExtractBoundaryPoints );
@@ -100,6 +109,8 @@ public:
    */
   itkSetClampMacro( RandomPercentage, double, 0.0, 1.0 );
   itkGetConstMacro( RandomPercentage, double );
+
+  Rcpp::List * m_PointScalarList;
 
   LabelSetType* GetLabelSet() { return &this->m_LabelSet; }
   unsigned int GetNumberOfLabels() { return this->m_LabelSet.size(); }
@@ -189,6 +200,12 @@ protected:
 
   typedef enum { Scalars, ColorScalars, LookupTable, Vectors, Normals, TextureCoordinates, Tensors, Field } VTKDataSetType;
 
+  typename MatrixSetType::Pointer                  m_PointScalars;
+  typename MatrixSetType::Pointer                  m_CellScalars;
+
+  typename DataNameSetType::Pointer               m_PointScalarsNames;
+  typename DataNameSetType::Pointer               m_CellScalarsNames;
+
   typename MatrixSetType::Pointer                 m_PointNormals;
   typename MatrixSetType::Pointer                 m_CellNormals;
 
@@ -227,6 +244,8 @@ private:
   //void ReadPointsFromVTKFile();
   //void ReadScalarsFromVTKFile();
   //void ReadLinesFromVTKFile();
+
+
 
   bool ReadVTKPolyDataFile();
   bool ReadVTKPolyData();

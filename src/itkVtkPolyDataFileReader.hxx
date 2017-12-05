@@ -50,6 +50,8 @@ VtkPolyDataFileReader<TOutputMesh>
   this->m_Vertices = LineSetType::New();
   this->m_Strips = LineSetType::New();
 
+  this->m_PointScalars = MatrixSetType::New();
+  this->m_CellScalars = MatrixSetType::New();
   this->m_PointNormals = MatrixSetType::New();
   this->m_CellNormals = MatrixSetType::New();
   this->m_PointVectors = MatrixSetType::New();
@@ -59,6 +61,8 @@ VtkPolyDataFileReader<TOutputMesh>
   this->m_PointTensors = MatrixSetType::New();
   this->m_CellTensors = MatrixSetType::New();
 
+  this->m_PointScalarsNames = DataNameSetType::New();
+  this->m_CellScalarsNames = DataNameSetType::New();
   this->m_PointNormalsNames = DataNameSetType::New();
   this->m_CellNormalsNames = DataNameSetType::New();
   this->m_PointVectorsNames = DataNameSetType::New();
@@ -126,77 +130,24 @@ VtkPolyDataFileReader<TOutputMesh>
     return;
     }
 
-  if( this->m_RandomPercentage < 1.0 )
-    {
-    typedef Statistics::MersenneTwisterRandomVariateGenerator GeneratorType;
-    typename GeneratorType::Pointer generator = GeneratorType::New();
-    generator->SetSeed();
+  Rcpp::Rcout << "# Points: " << this->GetOutput()->GetNumberOfPoints() << std::endl;
+  Rcpp::Rcout << "# PointScalarSets: " << this->m_PointScalars->Size() << std::endl;
+  for ( unsigned int i=0; i<this->m_PointScalars->Size(); i++ ) {
+    Rcpp::Rcout << "  " << this->m_PointScalarsNames->ElementAt((long)i) << std::endl;
+  }
+  Rcpp::Rcout << "# CellScalarSets: " << this->m_CellScalars->Size() << std::endl;
+  for ( unsigned int i=0; i<this->m_CellScalars->Size(); i++ ) {
+    Rcpp::Rcout << "  " << this->m_CellScalarsNames->ElementAt((long)i) << std::endl;
+  }
+  Rcpp::Rcout << "# PointVectorSets: " << this->m_PointVectors->Size() << std::endl;
+  for ( unsigned int i=0; i<this->m_PointVectors->Size(); i++ ) {
+    Rcpp::Rcout << "  " << this->m_PointVectorsNames->ElementAt((long)i) << std::endl;
+  }
+  Rcpp::Rcout << "# CellVectorSets: " << this->m_CellVectors->Size() << std::endl;
+  for ( unsigned int i=0; i<this->m_CellVectors->Size(); i++ ) {
+    Rcpp::Rcout << "  " << this->m_CellVectorsNames->ElementAt((long)i) << std::endl;
+  }
 
-    typename OutputMeshType::Pointer output = OutputMeshType::New();
-    output->Initialize();
-
-    if( this->GetOutput()->GetNumberOfPoints() > 0 )
-      {
-      typename OutputMeshType::PointsContainerIterator It =
-        this->GetOutput()->GetPoints()->Begin();
-
-      unsigned long count = 0;
-      while( It != this->GetOutput()->GetPoints()->End() )
-        {
-        if( generator->GetVariateWithClosedRange() <= this->m_RandomPercentage )
-          {
-          output->SetPoint( count, It.Value() );
-          PixelType label;
-          bool elementExists = this->GetOutput()->GetPointData()
-            ->GetElementIfIndexExists( It.Index(), &label );
-          if( elementExists )
-            {
-            output->SetPointData( count, label );
-            }
-          count++;
-          }
-        ++It;
-        }
-      }
-    this->GraftOutput( output );
-    }
-  this->m_LabelSet.clear();
-
-  /**
-   * If the number of points does not match the number of
-   * point data, fill the point data with zeros
-   */
-  if( !this->GetOutput()->GetPointData() ||
-    this->GetOutput()->GetPointData()->Size() !=
-    this->GetOutput()->GetPoints()->Size() )
-    {
-    //itkWarningMacro( "Number of points does not match number of labels. "
-    //  << "Filling point data with label zero." );
-     typename OutputMeshType::PointsContainerIterator It =
-       this->GetOutput()->GetPoints()->Begin();
-
-     while( It != this->GetOutput()->GetPoints()->End() )
-       {
-       this->GetOutput()->SetPointData( It.Index(),
-         NumericTraits<PixelType>::Zero );
-       ++It;
-       }
-    }
-
-  if( this->GetOutput()->GetNumberOfPoints() > 0 )
-    {
-    typename OutputMeshType::PointDataContainerIterator ItD =
-      this->GetOutput()->GetPointData()->Begin();
-    while( ItD != this->GetOutput()->GetPointData()->End() )
-      {
-      if( find( this->m_LabelSet.begin(),
-        this->m_LabelSet.end(), ItD.Value() ) == this->m_LabelSet.end() )
-        {
-        this->m_LabelSet.push_back( ItD.Value() );
-        }
-      ++ItD;
-      }
-    }
 }
 
 template<class TOutputMesh>
@@ -377,10 +328,10 @@ VtkPolyDataFileReader<TOutputMesh>
       }
     else if (line.find("CELL_DATA") != std::string::npos)
       {
-      Rcpp::Rcout << "Found CELL_DATA" << std::endl;
       std::string::size_type sp1 = line.find( " " );
-
       unsigned long nCells = std::atoi( std::string( line, sp1, line.length()-1 ).c_str() );
+
+      Rcpp::Rcout << "Found CELL_DATA " << nCells << std::endl;
 
       if (!this->ReadVTKData( nCells, false ))
         {
@@ -469,12 +420,12 @@ VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKLines( unsigned long nLines, unsigned long nValues )
 {
 
-  Rcpp::Rcout << "Reading " << nLines << " lines" << std::endl;
+  std::cout << "Reading " << nLines << " lines with " << nValues << " values" << std::endl;
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   this->m_Lines->Initialize();
 
-  //std::cout << "Reading " << nLines << " lines with " << nValues << " values" << std::endl;
-
+  outputMesh->GetCells()->Initialize();
+  //outputMesh->GetCells()->Reserve( 5 );
 
   if (!this->m_BinaryData)
   {
@@ -486,6 +437,9 @@ VtkPolyDataFileReader<TOutputMesh>
       this->m_InputFile >> lineSize;
 
       LineType line(lineSize);
+
+      CellAutoPointer lineCell;
+      lineCell.TakeOwnership( new LineCellType );
 
       for (unsigned long j=0; j<lineSize; j++)
       {
@@ -516,8 +470,12 @@ VtkPolyDataFileReader<TOutputMesh>
       LineType polyLine;
       polyLine.SetSize( lineLength );
 
+      CellAutoPointer lineCell;
+      lineCell.TakeOwnership( new LineCellType );
+
       for (unsigned long i = 0; i < lineLength; i++)
         {
+        //lineCell->SetPointId(i, lineData[valueId]);
         polyLine[i] = lineData[valueId];
         ++valueId;
         }
@@ -525,6 +483,8 @@ VtkPolyDataFileReader<TOutputMesh>
       this->m_Lines->InsertElement( lineId, polyLine );
       ++lineId;
     }
+
+
 
     delete [] lineData;
 
@@ -727,6 +687,21 @@ VtkPolyDataFileReader<TOutputMesh>
   std::string line;
   std::getline(this->m_InputFile, line);
 
+  // When a POINT_DATA or CELl_DATA line is included with no data after it
+  if ( line.find("POINT_DATA") != std::string::npos) {
+    std::string::size_type sp1 = line.find( " " );
+    unsigned long nPoints = std::atoi( std::string( line, sp1, line.length()-1 ).c_str() );
+    Rcpp::Rcout << "Found POINT_DATA " << nPoints << std::endl;
+    return this->ReadVTKData(nPoints, true);
+
+  }
+  else if (line.find("CELL_DATA") != std::string::npos) {
+    std::string::size_type sp1 = line.find( " " );
+    unsigned long nCells = std::atoi( std::string( line, sp1, line.length()-1 ).c_str() );
+    Rcpp::Rcout << "Found CELL_DATA " << nCells << std::endl;
+    return this->ReadVTKData(nCells, false);
+  }
+
   while (line.length() > 0)
   {
     if (line.find("SCALARS") != std::string::npos)
@@ -762,14 +737,27 @@ VtkPolyDataFileReader<TOutputMesh>
         unsigned long nValues = std::atoi( std::string( line, sp3+1, line.length()-sp2-1 ).c_str()  );
 
         // unsigned char for binary, float for ASCII
-        if ( this->m_BinaryData) {
+        if ( this->m_BinaryData ) {
           dataType = "unsigned char";
         }
         MatrixType dat2 = this->ReadVTKDataMatrix(dataType, nValues, 4);
 
       }
-
-      Rcpp::Rcout << "Read " << n << " SCALARS: isPointData=" << (int)isPointData << std::endl;
+      if (isPointData) {
+        long idx = this->m_PointScalars->Size();
+        this->m_PointScalars->CreateIndex(idx);
+        this->m_PointScalars->InsertElement(idx, dat);
+        this->m_PointScalarsNames->CreateIndex(idx);
+        this->m_PointScalarsNames->InsertElement(idx, dataName);
+      }
+      else {
+        long idx = this->m_CellScalars->Size();
+        this->m_CellScalars->CreateIndex(idx);
+        this->m_CellScalars->InsertElement(idx, dat);
+        this->m_CellScalarsNames->CreateIndex(idx);
+        this->m_CellScalarsNames->InsertElement(idx, dataName);
+      }
+      Rcpp::Rcout << "Read " << n << " SCALARS named " << dataName << " isPointData=" << (int)isPointData << std::endl;
     }
     else if (line.find("COLOR_SCALARS") != std::string::npos)
     {
@@ -819,7 +807,7 @@ VtkPolyDataFileReader<TOutputMesh>
       std::string::size_type sp1 = line.find( " " );
       std::string::size_type sp2 = line.find( " ", sp1+1);
       std::string::size_type sp3 = line.find( " ", sp2+1);
-      dim = std::atoi( std::string( line, sp2+1, (sp3-sp2)-1 ).c_str()  );
+      dim = std::atoi( std::string( line, sp2+1, (sp3-sp2)-1 ).c_str() );
       std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
       std::string dataType = std::string( line, sp3+1, line.length()-sp2-1 );
       MatrixType dat = this->ReadVTKDataMatrix(dataType, n, dim);
@@ -852,7 +840,26 @@ VtkPolyDataFileReader<TOutputMesh>
     }
     else if (line.find("FIELD") != std::string::npos)
     {
-      Rcpp::Rcout << "FIELD not yet supported" << std::endl;
+      Rcpp::Rcout << "FIELD not yet fully supported" << std::endl;
+      std::string::size_type sp1 = line.find( " " );
+      std::string::size_type sp2 = line.find( " ", sp1+1);
+      std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
+      unsigned int nFields = std::atoi( std::string( line, sp2+1, line.length()-sp1-1 ).c_str() );
+      Rcpp::Rcout << "FIELD named " << dataName << " has " << nFields << " data arrays" << std::endl;
+      for (unsigned int i=0; i<nFields; i++) {
+        std::getline(this->m_InputFile, line);
+        sp1 = line.find( " " );
+        sp2 = line.find( " ", sp1+1);
+        std::string::size_type sp3 = line.find( " ", sp2+1);
+
+        std::string dataName = std::string( line, 0, sp1-1 );
+        unsigned int nComponents = std::atoi( std::string( line, sp1+1, (sp2-sp1)-1 ).c_str() );
+        unsigned int nTuples = std::atoi( std::string( line, sp2+1, (sp3-sp2)-1 ).c_str() );
+        std::string dataType = std::string( line, sp3+1, line.length()-sp3-1 );
+
+        MatrixType dat = this->ReadVTKDataMatrix(dataType, nComponents, nTuples);
+        Rcpp::Rcout << "Read array " << dataName << " : " << nComponents << "x" << nTuples << " values of type " << dataType << std::endl;
+      }
     }
 
     std::getline( this->m_InputFile, line );
@@ -935,7 +942,7 @@ typename VtkPolyDataFileReader<TOutputMesh>::MatrixType
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKDataMatrix( std::string dataType, unsigned long nRows, unsigned long nCols )
 {
-  Rcpp::Rcout << "ReadVTKDataMatrix() - ";
+  Rcpp::Rcout << "ReadVTKDataMatrix(" << nRows << "," << nCols << ") - ";
   MatrixType matrix(nRows, nCols);
 
   if (!this->m_BinaryData)
@@ -947,8 +954,14 @@ VtkPolyDataFileReader<TOutputMesh>
     if ( !dataType.compare("unsigned char") ) {
       this->ReadVTKBinaryMatrix<unsigned char>( matrix );
     }
+    else if ( !dataType.compare("char") ) {
+      this->ReadVTKBinaryMatrix<char>( matrix );
+    }
     else if ( !dataType.compare("int") ) {
       this->ReadVTKBinaryMatrix<int>( matrix );
+    }
+    else if ( !dataType.compare("long") ) {
+      this->ReadVTKBinaryMatrix<long>( matrix );
     }
     else if ( !dataType.compare("float") ) {
       this->ReadVTKBinaryMatrix<float>( matrix );

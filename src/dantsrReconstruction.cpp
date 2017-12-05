@@ -115,7 +115,7 @@ try
   //bool isVector = Rcpp::as<bool>( antsimage.slot("isVector") );
 
   if ( dimension != 3 ) {
-    Rcpp::Rcout << "Only 3D images are supported" << std::endl;
+    Rcpp::Rcout << "Only 3D multichannel images are supported" << std::endl;
   }
   const int ImageDimension = 3;
 
