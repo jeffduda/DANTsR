@@ -19,6 +19,7 @@
 
 #include "itkMesh.h"
 #include "itkMeshSource.h"
+#include "itkLineCell.h"
 
 #include "itkArray.h"
 #include "itkByteSwapper.h"
@@ -61,6 +62,11 @@ public:
 
   /** Hold on to the type information specified by the template parameters. */
   typedef TOutputMesh                             OutputMeshType;
+  typedef typename OutputMeshType::CellType                CellType;
+  typedef typename CellType::CellAutoPointer               CellAutoPointer;
+
+  typedef LineCell<CellType>                      LineCellType;
+
   typedef typename OutputMeshType::MeshTraits     MeshTraits;
   typedef typename OutputMeshType::Superclass     PointSetType;
   typedef typename OutputMeshType::PointType      PointType;

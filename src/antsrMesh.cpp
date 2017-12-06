@@ -612,7 +612,7 @@ antsrMesh_ReadCamino( SEXP r_filename )
   //return Rcpp::List::create( Rcpp::Named("mesh")=Rcpp::wrap(mesh), Rcpp::Named("PointScalars")=reader->m_PointScalarList);
 
   //MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  return( Rcpp::wrap(mesh->GetNumberOfPoints()) );
+  return( Rcpp::wrap(mesh) );
 }
 
 //pixeltype, precision, dimension, type, isVector
