@@ -25,8 +25,8 @@
  *  please refer to the NOTICE file at the top of the ITK source tree.
  *
  *=========================================================================*/
-#ifndef itkPolygonCell_h
-#define itkPolygonCell_h
+#ifndef itkPolyLineCell_h
+#define itkPolyLineCell_h
 
 #include "itkLineCell.h"
 #include "itkPoint.h"
@@ -35,10 +35,10 @@
 
 namespace itk
 {
-/** \class PolygonCell
+/** \class PolyLineCell
  *  \brief Represents a polygon in a Mesh.
  *
- * PolygonCell represents a polygon for a Mesh.
+ * PolyLineCell represents a polygon for a Mesh.
  *  the points of the polygon can be dynamically changed.
  *
  * \tparam TPixelType The type associated with a point, cell, or boundary
@@ -50,15 +50,15 @@ namespace itk
  * \ingroup ITKCommon
  */
 template< typename TCellInterface >
-class PolygonCell:public TCellInterface
+class PolyLineCell:public TCellInterface
 {
 public:
   /** Standard class typedefs. */
-  itkCellCommonTypedefs(PolygonCell);
+  itkCellCommonTypedefs(PolyLineCell);
   itkCellInheritedTypedefs(TCellInterface);
 
   /** Standard part of every itk Object. */
-  itkTypeMacro(PolygonCell, CellInterface);
+  itkTypeMacro(PolyLineCell, CellInterface);
 
   /** Save some template parameter information. */
   itkStaticConstMacro(CellDimension, unsigned int, 2);
@@ -74,12 +74,12 @@ public:
   typedef FixedArray< int, 2 >   EdgeInfo;
   typedef std::deque< EdgeInfo > EdgeInfoDQ;
 
-  /** Need to add POLYGON_CELL into CellInterface. */
-  itkCellVisitMacro(Superclass::POLYGON_CELL);
+  /** Need to add POLYLINE_CELL into CellInterface. */
+  itkCellVisitMacro(Superclass::POLYLINE_CELL);
 
   /** Implement the standard CellInterface. */
   virtual CellGeometry GetType(void) const ITK_OVERRIDE
-  { return Superclass::POLYGON_CELL; }
+  { return Superclass::POLYLINE_CELL; }
   virtual void MakeCopy(CellAutoPointer &) const ITK_OVERRIDE;
 
   virtual unsigned int GetDimension(void) const ITK_OVERRIDE;
@@ -121,8 +121,8 @@ public:
   virtual bool GetEdge(CellFeatureIdentifier, EdgeAutoPointer &);
 
   /** Constructor and destructor */
-  PolygonCell() {}
-  PolygonCell(PointIdentifier NumberOfPoints)
+  PolyLineCell() {}
+  PolyLineCell(PointIdentifier NumberOfPoints)
   {
     for ( PointIdentifier i = 0; i < NumberOfPoints; i++ )
       {
@@ -131,20 +131,20 @@ public:
     this->BuildEdges();
   }
 
-  ~PolygonCell() {}
+  ~PolyLineCell() {}
 
 protected:
   std::vector< EdgeInfo >        m_Edges;
   std::vector< PointIdentifier > m_PointIds;
 
 private:
-  PolygonCell(const Self &) ITK_DELETE_FUNCTION;
+  PolyLineCell(const Self &) ITK_DELETE_FUNCTION;
   void operator=(const Self &) ITK_DELETE_FUNCTION;
 };
 } //end namespace
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPolygonCell.hxx"
+#include "itkPolyLineCell.hxx"
 #endif
 
 #endif
