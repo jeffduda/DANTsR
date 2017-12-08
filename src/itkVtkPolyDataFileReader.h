@@ -25,6 +25,9 @@
 #include "itkImage.h"
 #include "itkVectorContainer.h"
 #include "itkLineCell.h"
+#include "itkPolygonCell.h"
+#include "itkTriangleCell.h"
+#include "itkVertexCell.h"
 
 #include <vector>
 #include <fstream>
@@ -68,9 +71,13 @@ public:
   typedef typename MeshTraits::PixelType          PixelType;
   typedef Array<float>                            MultiComponentScalarType;
 
+  typedef typename OutputMeshType::CellsContainer CellsContainer;
   typedef typename OutputMeshType::CellType       CellType;
   typedef typename CellType::CellAutoPointer      CellAutoPointer;
   typedef typename itk::LineCell< CellType >      LineCellType;
+  typedef typename itk::PolygonCell< CellType >   PolygonCellType;
+  typedef typename itk::TriangleCell<CellType>    TriangleCellType;
+  typedef typename itk::VertexCell<CellType>      VertexCellType;
 
   typedef typename Rcpp::NumericMatrix            MatrixType;
   typedef VectorContainer<long, MatrixType>       MatrixSetType;

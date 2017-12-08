@@ -1,28 +1,67 @@
 #' @title niftiToITK
-#' @description return image values at points or indices
-#' @param img an antsImage
+#' @description convert world coordinates from NIFTI to ITK
+#' @param niftiImage an antsImage
 #' @param points the locations of interest
 #' @param type 'point' or 'index'
 #' @param interpolation options are: 'linear'
 #' @export
-niftiToItk = function(points, direction, dimension=3)
+
+library(RNifti)
+
+niftiToItk = function(points, niftiImage=NA, antsImage=NA, filename=NA)
 {
 
-  if ( ! dim(points)[2] == dimension ) {
+  if ( !is.na(filename) ) {
+    if ( is.na(niftiImage) ) {
+      niftiImage = readNifti(filename)
+    }
+    if ( is.na(antsImage) ) {
+      antsImage = antsImageRead(filename)
+    }
+  }
+
+  if ( class(niftiImage)[1] != "niftiImage") {
+    stop("Invalid niftiImage")
+  }
+  if ( class(antsImage)[1] != "antsImage") {
+    stop("Invalid antsImage")
+  }
+
+  if ( dim(points)[2] != antsImage@dimension ) {
     print(dim(points))
+    print(antsImage)
+    print(niftiImage)
     stop("Incompatible dimensions")
 
   }
 
-  niftimat = matrix(0,dimension,dimension)
-  niftimat[1,1] = -1
-  niftimat[2,2] = -1
-  if ( dimension > 2 ) {
-    niftimat[3,3] = 1
+  return(antsTransformIndexToPhysicalPoint(antsImage, worldToVoxel(points, niftiImage)))
+
+}
+
+itkToNifti = function(points, niftiImage=NA, antsImage=NA, filename=NA)
+{
+
+  if ( !is.na(filename) ) {
+    if ( is.na(niftiImage) ) {
+      niftiImage = readNifti(filename)
+    }
+    if ( is.na(antsImage) ) {
+      antsImage = antsImageRead(filename)
+    }
   }
 
-  mat = t(niftimat %*% direction) %*% direction
+  if ( class(niftiImage)[1] != "niftiImage") {
+    stop("Invalid niftiImage")
+  }
+  if ( class(antsImage)[1] != "antsImage") {
+    stop("Invalid antsImage")
+  }
 
-  return (points %*% mat)
+  if ( dim(points)[2] == antsImage@dimension ) {
+    stop("Incompatible dimensions")
+  }
+
+  return(voxelToWorld(antsTransformIndexToPhysicalPoint(antsImage, points), niftiImage))
 
 }

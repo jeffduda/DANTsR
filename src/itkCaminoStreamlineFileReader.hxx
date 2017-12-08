@@ -46,6 +46,9 @@ CaminoStreamlineFileReader<TOutputMesh>
   typename TOutputMesh::Pointer output = TOutputMesh::New();
   this->ProcessObject::SetNumberOfRequiredOutputs( 1 );
   this->ProcessObject::SetNthOutput( 0, output.GetPointer() );
+
+  this->m_Lines = LineSetType::New();
+  this->m_Seeds = SeedSetType::New();
 }
 
 
@@ -92,8 +95,14 @@ CaminoStreamlineFileReader<TOutputMesh>
   outputMesh->GetPoints()->Initialize();
   outputMesh->GetPoints()->Reserve(nPoints);
 
+  CellAutoPointer lineSegment;
+
   long pointId = 0;
   long cellId = 0;
+  long lineId = 0;
+  this->m_Lines->Initialize();
+  this->m_Seeds->Initialize();
+
   while (!this->m_InputFile.eof()) {
     float * nTractPoints = new float;
     this->m_InputFile.read( reinterpret_cast< char * >( nTractPoints ), sizeof(n) );
@@ -103,34 +112,37 @@ CaminoStreamlineFileReader<TOutputMesh>
     this->m_InputFile.read( reinterpret_cast< char * >( pts ), (3*nTractPoints[0]+1)*sizeof(n) );
     ByteSwapper<float>::SwapRangeFromSystemToBigEndian(pts, (3*nTractPoints[0])+1);
 
+    this->m_Seeds->InsertElement(cellId,(unsigned long)pts[0]);
+
+    LineType polyLine;
+    polyLine.SetSize( nTractPoints[0] );
+
+    PolygonCellType poly = PolygonCellType(nTractPoints[0]);
+
     for (unsigned long i=0; i<nTractPoints[0]; i++) {
       typename OutputMeshType::PointType point;
       point[0] = pts[3*i + 1];
       point[1] = pts[3*i + 2];
       point[2] = pts[3*i + 3];
-      outputMesh->GetPoints()->InsertElement(i,point);
+      outputMesh->GetPoints()->InsertElement(pointId,point);
+      polyLine[i] = pointId;
+
+      // ITK mesh only support line segments, not full polylines
+      if ( i > 0 ) {
+        lineSegment.TakeOwnership( new LineCellType );
+        lineSegment->SetPointId(0,pointId-1);
+        lineSegment->SetPointId(1,pointId);
+        outputMesh->SetCell(cellId, lineSegment);
+        ++cellId;
+      }
+
+      ++pointId;
+
     }
 
-    Rcpp::Rcout << "Done reading, testing stuff" << std::endl;
+    this->m_Lines->InsertElement(lineId, polyLine);
+    ++lineId;
 
-    typename OutputMeshType::Pointer m2 = OutputMeshType::New();
-    m2->Initialize();
-    PointType p0;
-    PointType p1;
-    PointType p2;
-    p0[0] = -1.0; p0[1] = 0.0; p0[2] = 0.0;
-    p1[0] =  1.0; p1[1] = 0.0; p1[2] = 0.0;
-    p2[0] =  1.0; p2[1] = 1.0; p2[2] = 0.0;
-    m2->SetPoint( 0, p0 );
-    m2->SetPoint( 1, p1 );
-    m2->SetPoint( 2, p2 );
-
-
-    CellAutoPointer line0;
-    line0.TakeOwnership( new LineCellType );
-    line0->SetPointId( 0, 0 ); // line between points 0 and 1
-    line0->SetPointId( 1, 1 );
-    m2->SetCell( 0, line0 );
   }
 
 

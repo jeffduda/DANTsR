@@ -20,6 +20,7 @@
 #include "itkMesh.h"
 #include "itkMeshSource.h"
 #include "itkLineCell.h"
+#include "itkPolygonCell.h"
 
 #include "itkArray.h"
 #include "itkByteSwapper.h"
@@ -62,10 +63,11 @@ public:
 
   /** Hold on to the type information specified by the template parameters. */
   typedef TOutputMesh                             OutputMeshType;
-  typedef typename OutputMeshType::CellType                CellType;
-  typedef typename CellType::CellAutoPointer               CellAutoPointer;
+  typedef typename OutputMeshType::CellType       CellType;
+  typedef typename CellType::CellAutoPointer      CellAutoPointer;
 
   typedef LineCell<CellType>                      LineCellType;
+  typedef PolygonCell<CellType>                   PolygonCellType;
 
   typedef typename OutputMeshType::MeshTraits     MeshTraits;
   typedef typename OutputMeshType::Superclass     PointSetType;
@@ -77,6 +79,7 @@ public:
   typedef VectorContainer<long, MatrixType>       MatrixSetType;
 
   typedef VectorContainer<long, std::string>      DataNameSetType;
+  typedef VectorContainer<long, unsigned long>    SeedSetType;
 
   typedef Array<unsigned long>                    LineType;
   typedef VectorContainer<long,
@@ -100,6 +103,10 @@ public:
   itkSetMacro( ExtractBoundaryPoints, bool );
   itkGetMacro( ExtractBoundaryPoints, bool );
   itkBooleanMacro( ExtractBoundaryPoints );
+
+  itkGetObjectMacro( Lines, LineSetType);
+
+  itkGetObjectMacro( Seeds, SeedSetType);
 
   template <typename ValueType>
   ValueType * ReadVTKBinaryData( unsigned long nValues ) {
@@ -145,6 +152,7 @@ protected:
 
   typename MultiComponentScalarMultiSetType::Pointer   m_MultiComponentScalarSets;
   typename MultiComponentScalarMultiSetType::Pointer   m_CellMultiComponentScalarSets;
+  typename SeedSetType::Pointer                        m_Seeds;
   typename LineSetType::Pointer                        m_Lines;
   typename LineSetType::Pointer                        m_Polygons;
   typename LineSetType::Pointer                        m_Vertices;
