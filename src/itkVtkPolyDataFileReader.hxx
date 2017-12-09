@@ -505,7 +505,7 @@ VtkPolyDataFileReader<TOutputMesh>
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   this->m_Polygons->Initialize();
 
-  AutoCellPointer polyCell;
+  CellAutoPointer polyCell;
 
   if (!this->m_BinaryData)
   {
@@ -541,7 +541,7 @@ VtkPolyDataFileReader<TOutputMesh>
     unsigned long valueId = 0;
     unsigned long lineId = 0;
 
-    AutoCellPointer polyCell;
+    CellAutoPointer polyCell;
     while (valueId < nValues)
     {
       unsigned int lineLength = lineData[valueId];
@@ -559,7 +559,7 @@ VtkPolyDataFileReader<TOutputMesh>
         ++valueId;
         }
 
-      outputMesh->SetCell(lineId, polyLine);
+      //outputMesh->SetCell(lineId, polyLine);
       this->m_Polygons->InsertElement( lineId, polyLine );
       ++lineId;
     }
@@ -580,7 +580,7 @@ VtkPolyDataFileReader<TOutputMesh>
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   this->m_Vertices->Initialize();
 
-  AutoCellPointer vertexCell;
+  CellAutoPointer vertexCell;
 
   if (!this->m_BinaryData)
     {
@@ -615,7 +615,7 @@ VtkPolyDataFileReader<TOutputMesh>
     unsigned long valueId = 0;
     unsigned long lineId = 0;
 
-    AutoCellPointer vertexCell;
+    CellAutoPointer vertexCell;
 
     while (valueId < nValues)
       {
@@ -629,7 +629,7 @@ VtkPolyDataFileReader<TOutputMesh>
       for (unsigned long i = 0; i < vertexLength; i++)
         {
         polyVertex[i] = vertexData[valueId];
-        vertexCellType->SetPointId(vertexData[valueId]);
+        vertexCell->SetPointId(i, vertexData[valueId]);
         ++valueId;
         }
       outputMesh->SetCell(lineId, vertexCell);

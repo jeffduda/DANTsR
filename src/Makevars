@@ -1,10 +1,10 @@
 myantssource=${PWD}/ants/
-ITK=/Library/Frameworks/R.framework/Versions/3.2/Resources/library/ITKR/libs/include/ITK-4.12/
-PKG_CPPFLAGS = -I${ITK} -I${PWD}    -I/Library/Frameworks/R.framework/Versions/3.2/Resources/library/ANTsRCore/include/   -I../inst/include/ 
+ITK=/usr/local/lib/R/3.3/site-library/ITKR/libs/include/ITK-4.11/
+PKG_CPPFLAGS = -I${ITK} -I${PWD}    -I/usr/local/lib/R/3.3/site-library/ANTsRCore/include/   -I../inst/include/ 
 CXX_STD = CXX11
-myantslib=/Library/Frameworks/R.framework/Versions/3.2/Resources/library/ANTsRCore/libs/lib/
-libants=`find /Library/Frameworks/R.framework/Versions/3.2/Resources/library/ANTsRCore/libs/lib/ -name "lib*.a"`
-libitk=`find /Library/Frameworks/R.framework/Versions/3.2/Resources/library/ITKR/libs/lib/ -name "lib*.a"`
+myantslib=/usr/local/lib/R/3.3/site-library/ANTsRCore/libs/lib/
+libants=`find /usr/local/lib/R/3.3/site-library/ANTsRCore/libs/lib/ -name "lib*.a"`
+libitk=`find /usr/local/lib/R/3.3/site-library/ITKR/libs/lib/ -name "lib*.a"`
 PKG_LIBS=${libitk} ${libants} ${libitk} ${libants} ${libitk}                  ${libants} ${libitk} ${libants} ${itklib} ${libants}                  ${libitk} ${libants} ${itklib} ${libants} ${itklib}                  ${libants} ${libitk} ${libants} ${itklib}
 .PHONY: all libs
 all: $(SHLIB)

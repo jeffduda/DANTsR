@@ -117,7 +117,7 @@ CaminoStreamlineFileReader<TOutputMesh>
     LineType polyLine;
     polyLine.SetSize( nTractPoints[0] );
 
-    PolygonCellType poly = PolygonCellType(nTractPoints[0]);
+    PolygonCellType poly(nTractPoints[0]);
 
     for (unsigned long i=0; i<nTractPoints[0]; i++) {
       typename OutputMeshType::PointType point;
