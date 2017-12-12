@@ -74,12 +74,12 @@ public:
   typedef FixedArray< int, 2 >   EdgeInfo;
   typedef std::deque< EdgeInfo > EdgeInfoDQ;
 
-  /** Need to add POLYLINE_CELL into CellInterface. */
-  itkCellVisitMacro(Superclass::POLYLINE_CELL);
+  /** Need to add POLYGON_CELL into CellInterface. */
+  itkCellVisitMacro(Superclass::POLYGON_CELL);
 
   /** Implement the standard CellInterface. */
   virtual CellGeometry GetType(void) const ITK_OVERRIDE
-  { return Superclass::POLYLINE_CELL; }
+  { return Superclass::POLYGON_CELL; }
   virtual void MakeCopy(CellAutoPointer &) const ITK_OVERRIDE;
 
   virtual unsigned int GetDimension(void) const ITK_OVERRIDE;

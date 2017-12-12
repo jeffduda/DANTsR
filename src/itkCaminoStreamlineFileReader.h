@@ -21,6 +21,7 @@
 #include "itkMeshSource.h"
 #include "itkLineCell.h"
 #include "itkPolygonCell.h"
+#include "itkPolyLineCell.h"
 
 #include "itkArray.h"
 #include "itkByteSwapper.h"
@@ -66,6 +67,7 @@ public:
   typedef typename OutputMeshType::CellType       CellType;
   typedef typename CellType::CellAutoPointer      CellAutoPointer;
 
+  // Need a PolyLine but doesn't currently exist in ITK
   typedef LineCell<CellType>                      LineCellType;
   typedef PolygonCell<CellType>                   PolygonCellType;
 

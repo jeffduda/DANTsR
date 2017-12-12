@@ -7,6 +7,7 @@
 
 #include "antsUtilities.h"
 #include "itkMesh.h"
+#include "itkByteSwapper.h"
 #include "itkCaminoStreamlineFileReader.h"
 #include "itkVtkPolyDataFileReader.h"
 
@@ -174,6 +175,83 @@ return Rcpp::wrap(NA_REAL); //not reached
 
 template< class MeshType >
 SEXP
+antsrMesh_GetNumberOfCells( SEXP rMesh )
+{
+  typedef typename MeshType::Pointer MeshPointerType;
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
+  return( Rcpp::wrap(mesh->GetNumberOfCells()) );
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_GetNumberOfCells( SEXP r_mesh )
+{
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  unsigned int dimension = rMesh.slot("dimension");
+
+  if ( (dimension < 2) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  }
+
+  if ( precision=="double") {
+    typedef double PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
+    }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
+    }
+  }
+  else if (precision=="float") {
+    typedef float PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
+        }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
+    }
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
 antsrMesh_GetPoint( SEXP r_mesh, SEXP r_identifier )
 {
   Rcpp::S4 rMesh( r_mesh );
@@ -235,6 +313,199 @@ try
     else if ( dimension == 4 ) {
       typedef itk::Mesh<PrecisionType,4> MeshType;
       return antsrMesh_GetPoint<MeshType>(r_mesh, r_identifier);
+    }
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
+antsrMesh_GetCell( SEXP r_mesh, SEXP r_identifier )
+{
+  Rcpp::S4 rMesh( r_mesh );
+  unsigned int dimension = rMesh.slot("dimension");
+
+  typedef typename MeshType::Pointer            MeshPointerType;
+  typedef typename MeshType::CellType           CellType;
+  typedef typename CellType::CellAutoPointer    CellAutoPointer;
+
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+
+  CellAutoPointer cell;
+  if ( !mesh->GetCell(id, cell) ) {
+    Rcpp::stop("Cell not read");
+  }
+
+  Rcpp::NumericVector ids( cell->GetNumberOfPoints() );
+  for (unsigned int i=0; i<cell->GetNumberOfPoints(); i++ ) {
+    ids[i] = cell->GetPointIds()[i];
+  }
+
+  return( Rcpp::wrap(ids) );
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_GetCell( SEXP r_mesh, SEXP r_identifier )
+{
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  unsigned int dimension = rMesh.slot("dimension");
+
+  if ( (dimension < 2) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  }
+
+  if ( precision=="double") {
+    typedef double PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
+    }
+  }
+  else if (precision=="float") {
+    typedef float PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
+        }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
+    }
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
+antsrMesh_GetCellPoints( SEXP r_mesh, SEXP r_identifier )
+{
+  Rcpp::S4 rMesh( r_mesh );
+  unsigned int dimension = rMesh.slot("dimension");
+
+  typedef typename MeshType::Pointer            MeshPointerType;
+  typedef typename MeshType::CellType           CellType;
+  typedef typename CellType::CellAutoPointer    CellAutoPointer;
+
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+
+  CellAutoPointer cell;
+  if ( !mesh->GetCell(id, cell) ) {
+    Rcpp::stop("Cell not read");
+  }
+
+  Rcpp::NumericMatrix pts( cell->GetNumberOfPoints(), dimension );
+  for (unsigned int i=0; i<cell->GetNumberOfPoints(); i++ ) {
+    typename MeshType::PointType pt = mesh->GetPoint( cell->GetPointIds()[i] );
+    for (unsigned int j=0; j<dimension; j++) {
+      pts(i,j) = pt[j];
+    }
+  }
+
+  return( Rcpp::wrap(pts) );
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_GetCellPoints( SEXP r_mesh, SEXP r_identifier )
+{
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  unsigned int dimension = rMesh.slot("dimension");
+
+  if ( (dimension < 2) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  }
+
+  if ( precision=="double") {
+    typedef double PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
+    }
+  }
+  else if (precision=="float") {
+    typedef float PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
+        }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
     }
   }
   else {
@@ -593,6 +864,8 @@ antsrMesh_ReadCamino( SEXP r_filename )
 {
   typedef typename MeshType::Pointer                 MeshPointerType;
   typedef itk::CaminoStreamlineFileReader<MeshType>  ReaderType;
+  typedef typename MeshType::CellType                CellType;
+  typedef typename CellType::CellAutoPointer         CellAutoPointer;
 
   std::string filename = Rcpp::as<std::string>( r_filename );
 
@@ -605,7 +878,7 @@ antsrMesh_ReadCamino( SEXP r_filename )
   for ( unsigned long i=0; i<reader->GetLines()->Size(); i++ ) {
     nLinePoints += reader->GetLines()->GetElement(i).GetSize();
   }
-  Rcpp::Rcout << "Number of points in lines " << nLinePoints << std::endl;
+  //Rcpp::Rcout << "Number of points in lines " << nLinePoints << std::endl;
 
   unsigned long idx = 0;
   Rcpp::NumericVector lineArray( nLinePoints + reader->GetLines()->Size() );
@@ -621,7 +894,6 @@ antsrMesh_ReadCamino( SEXP r_filename )
       ++idx;
     }
   }
-
 
   Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh),
                                        Rcpp::Named("Lines")=lineArray,
@@ -645,6 +917,92 @@ try
     typedef float PrecisionType;
     typedef itk::Mesh<PrecisionType,3> MeshType;
     return antsrMesh_ReadCamino<MeshType>(r_filename);
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
+antsrMesh_WriteCamino( SEXP r_mesh, SEXP r_filename, SEXP r_seeds )
+{
+  typedef typename MeshType::Pointer                 MeshPointerType;
+  typedef itk::CaminoStreamlineFileReader<MeshType>  ReaderType;
+  typedef typename MeshType::CellType                CellType;
+  typedef typename CellType::CellAutoPointer         CellAutoPointer;
+
+  std::string filename = Rcpp::as<std::string>( r_filename );
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
+  Rcpp::NumericVector seeds( r_seeds );
+
+  std::ofstream outFile;
+  outFile.close();
+  outFile.open( filename.c_str(), std::ofstream::binary );
+
+  float n=0.0;
+  unsigned long count=0;
+
+  for ( unsigned long i=0; i<mesh->GetNumberOfCells(); i++ ) {
+    CellAutoPointer cell;
+    mesh->GetCell(i,cell);
+    unsigned long nPoints = cell->GetNumberOfPoints();
+    float data[3*nPoints + 2];
+    data[0] = static_cast<float>( nPoints );
+    data[1] = static_cast<float>( seeds[i] );
+    for ( unsigned long j=0; j<nPoints; j++ ) {
+      typename MeshType::PointType pt = mesh->GetPoint( cell->GetPointIds()[j] );
+      data[2 + 3*j] = pt[0];
+      data[2 + 3*j + 1] = pt[1];
+      data[2 + 3*j + 2] = pt[2];
+      ++count;
+    }
+    itk::ByteSwapper<float>::SwapRangeFromSystemToBigEndian(data, 3*nPoints + 2);
+    outFile.write( reinterpret_cast< char * >( data ), (3*nPoints+2)*sizeof(n) );
+  }
+  outFile.close();
+
+  return Rcpp::wrap(1);
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_WriteCamino( SEXP r_mesh, SEXP r_filename, SEXP r_seeds )
+{
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  unsigned int dimension = rMesh.slot("dimension");
+
+  if ( precision=="double") {
+    typedef double PrecisionType;
+    typedef itk::Mesh<PrecisionType,3> MeshType;
+    return antsrMesh_WriteCamino<MeshType>(r_mesh, r_filename, r_seeds);
+  }
+  else if (precision=="float") {
+    typedef float PrecisionType;
+    typedef itk::Mesh<PrecisionType,3> MeshType;
+    return antsrMesh_WriteCamino<MeshType>(r_mesh, r_filename, r_seeds);
   }
   else {
     Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");

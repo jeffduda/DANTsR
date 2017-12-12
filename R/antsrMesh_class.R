@@ -26,6 +26,7 @@ setMethod(f = "show", "antsrMesh", function(object){
     cat("  Dimension :", object@dimension, "\n")
     cat("  Precision :", object@precision, "\n")
     cat("  Points    :", antsrMeshGetNumberOfPoints(object), "\n")
+    cat("  Cells     :", antsrMeshGetNumberOfCells(object), "\n")
     cat("\n")
 })
 
@@ -81,6 +82,17 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
     .Call("antsrMesh_GetNumberOfPoints", mesh, package="DANTsR")
   }
 
+#' @title antsrMeshGetNumberOfCells
+#' @description get number of cells in an antsrMesh
+#' @param mesh an 'antsrMesh'
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=128 )
+#' antsrMeshGetNumberOfCells(x)
+#' @export
+  antsrMeshGetNumberOfCells = function( mesh) {
+    .Call("antsrMesh_GetNumberOfCells", mesh, package="DANTsR")
+  }
+
 
 #' @title antsrMeshAddPoint
 #' @description add point to mesh
@@ -120,6 +132,32 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
     .Call("antsrMesh_GetPoint", mesh, identifier, package="DANTsR")
   }
 
+#' @title antsrMeshGetCell
+#' @description get a given cell in mesh
+#' @param mesh an 'antsrMesh'
+#' @param identifier identifier of point to get
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=128 )
+#' antsrMeshSetPoint( x, 0, c(0,0,0) )
+#' c = antsrMeshGetCell(x, 0)
+#' @export
+  antsrMeshGetCell = function( mesh, identifier ) {
+    .Call("antsrMesh_GetCell", mesh, identifier, package="DANTsR")
+  }
+
+#' @title antsrMeshGetCellPoints
+#' @description get points for a given cell in mesh
+#' @param mesh an 'antsrMesh'
+#' @param identifier identifier of point to get
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=128 )
+#' antsrMeshSetPoint( x, 0, c(0,0,0) )
+#' c = antsrMeshGetCellPoints(x, 0)
+#' @export
+  antsrMeshGetCellPoints = function( mesh, identifier ) {
+    .Call("antsrMesh_GetCellPoints", mesh, identifier, package="DANTsR")
+  }
+
 #' @title antsrMeshGetPoints
 #' @description get all points in mesh
 #' @param mesh an 'antsrMesh'
@@ -145,4 +183,23 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
     mesh = .Call("antsrMesh_ReadCamino", filename, pixeltype="float", package="DANTsR")
   }
   return(mesh)
+}
+
+
+write.antsrMesh = function( mesh, filename, seeds=NULL ) {
+  if ( grepl(".vtk", filename ) ) {
+    #mesh = .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, package="DANTsR")
+  }
+  else if ( grepl(".Bfloat", filename ) ) {
+    if (is.null(seeds) ) {
+      stop("Camino file needs seeds")
+    }
+    else {
+      print(typeof(mesh))
+      print(typeof(filename))
+      print(typeof(seeds))
+      .Call("antsrMesh_WriteCamino", mesh, filename, seeds, package="DANTsR")
+    }
+  }
+  return(0)
 }

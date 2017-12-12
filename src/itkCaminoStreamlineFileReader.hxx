@@ -66,7 +66,7 @@ CaminoStreamlineFileReader<TOutputMesh>
   this->m_InputFile.open( this->m_FileName.c_str(), std::ifstream::binary );
   if (!this->m_InputFile )
     {
-    std::cerr << "Unable to open file: " << this->m_FileName << std::endl;
+    itkExceptionMacro("Unable to open input file: ");
     return;
     }
 
@@ -82,11 +82,10 @@ CaminoStreamlineFileReader<TOutputMesh>
     float skip[(int)(3*nTractPoints[0])+1];
     this->m_InputFile.read( reinterpret_cast< char * >( skip ), (3*nTractPoints[0]+1)*sizeof(n) );
     //ByteSwapper<float>::SwapRangeFromSystemToBigEndian(skip, (3*nTractPoints[0])+1);
+
     nPoints += nTractPoints[0];
     nTracts++;
   }
-
-  Rcpp::Rcout << "Reading " << nTracts << " streamlines with " << nPoints << " points" << std::endl;
 
   this->m_InputFile.close();
   this->m_InputFile.open( this->m_FileName.c_str(), std::ifstream::binary );
@@ -95,7 +94,7 @@ CaminoStreamlineFileReader<TOutputMesh>
   outputMesh->GetPoints()->Initialize();
   outputMesh->GetPoints()->Reserve(nPoints);
 
-  CellAutoPointer lineSegment;
+  outputMesh->SetCellsAllocationMethod( OutputMeshType::CellsAllocatedDynamicallyCellByCell );
 
   long pointId = 0;
   long cellId = 0;
@@ -103,49 +102,60 @@ CaminoStreamlineFileReader<TOutputMesh>
   this->m_Lines->Initialize();
   this->m_Seeds->Initialize();
 
+  CellAutoPointer streamline;
+
   while (!this->m_InputFile.eof()) {
     float * nTractPoints = new float;
     this->m_InputFile.read( reinterpret_cast< char * >( nTractPoints ), sizeof(n) );
     ByteSwapper<float>::SwapRangeFromSystemToBigEndian(nTractPoints,1);
 
-    float pts[(int)(3*nTractPoints[0])+1];
-    this->m_InputFile.read( reinterpret_cast< char * >( pts ), (3*nTractPoints[0]+1)*sizeof(n) );
-    ByteSwapper<float>::SwapRangeFromSystemToBigEndian(pts, (3*nTractPoints[0])+1);
+    if ( nTractPoints[0] > 0 ) {
 
-    this->m_Seeds->InsertElement(cellId,(unsigned long)pts[0]);
+      float pts[(int)(3*nTractPoints[0])+1];
+      this->m_InputFile.read( reinterpret_cast< char * >( pts ), (3*nTractPoints[0]+1)*sizeof(n) );
+      ByteSwapper<float>::SwapRangeFromSystemToBigEndian(pts, (3*nTractPoints[0])+1);
 
-    LineType polyLine;
-    polyLine.SetSize( nTractPoints[0] );
+      this->m_Seeds->InsertElement(lineId,(unsigned long)pts[0]);
 
-    PolygonCellType poly(nTractPoints[0]);
+      unsigned int nPoints = static_cast<unsigned int>( nTractPoints[0] );
 
-    for (unsigned long i=0; i<nTractPoints[0]; i++) {
-      typename OutputMeshType::PointType point;
-      point[0] = pts[3*i + 1];
-      point[1] = pts[3*i + 2];
-      point[2] = pts[3*i + 3];
-      outputMesh->GetPoints()->InsertElement(pointId,point);
-      polyLine[i] = pointId;
+      LineType polyLine;
+      polyLine.SetSize( nPoints );
 
-      // ITK mesh only support line segments, not full polylines
-      if ( i > 0 ) {
-        lineSegment.TakeOwnership( new LineCellType );
-        lineSegment->SetPointId(0,pointId-1);
-        lineSegment->SetPointId(1,pointId);
-        outputMesh->SetCell(cellId, lineSegment);
-        ++cellId;
+      typename OutputMeshType::PointIdentifier polyPoints[ nPoints ];
+
+      for (unsigned long i=0; i<nPoints; i++) {
+        typename OutputMeshType::PointType point;
+        point[0] = pts[3*i + 1];
+        point[1] = pts[3*i + 2];
+        point[2] = pts[3*i + 3];
+        outputMesh->SetPoint(pointId,point);
+        polyPoints[i] = pointId;
+
+        polyLine[i] = pointId;
+        ++pointId;
       }
 
-      ++pointId;
+      PolygonCellType * polygon = new PolygonCellType;
+      polygon->SetPointIds( 0, nPoints, polyPoints );
+      streamline.TakeOwnership( polygon );
+      outputMesh->SetCell(lineId, streamline);
+
+      this->m_Lines->InsertElement(lineId, polyLine);
+
+      if ( lineId == 0 ) {
+        Rcpp::Rcout << nPoints << std::endl;
+        Rcpp::Rcout << polygon->GetNumberOfPoints() << std::endl;
+        Rcpp::Rcout << streamline->GetNumberOfPoints() << std::endl;
+        CellAutoPointer getCell;
+        outputMesh->GetCell(0, getCell);
+        Rcpp::Rcout << getCell->GetNumberOfPoints() << std::endl;
+      }
+
+      ++lineId;
 
     }
-
-    this->m_Lines->InsertElement(lineId, polyLine);
-    ++lineId;
-
   }
-
-
 }
 
 
