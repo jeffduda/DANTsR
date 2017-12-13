@@ -142,18 +142,7 @@ CaminoStreamlineFileReader<TOutputMesh>
       outputMesh->SetCell(lineId, streamline);
 
       this->m_Lines->InsertElement(lineId, polyLine);
-
-      if ( lineId == 0 ) {
-        Rcpp::Rcout << nPoints << std::endl;
-        Rcpp::Rcout << polygon->GetNumberOfPoints() << std::endl;
-        Rcpp::Rcout << streamline->GetNumberOfPoints() << std::endl;
-        CellAutoPointer getCell;
-        outputMesh->GetCell(0, getCell);
-        Rcpp::Rcout << getCell->GetNumberOfPoints() << std::endl;
-      }
-
       ++lineId;
-
     }
   }
 }

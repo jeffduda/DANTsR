@@ -26,6 +26,7 @@
 #include "itkVectorContainer.h"
 #include "itkLineCell.h"
 #include "itkPolygonCell.h"
+#include "itkPolyLineCell.h"
 #include "itkTriangleCell.h"
 #include "itkVertexCell.h"
 
@@ -76,6 +77,7 @@ public:
   typedef typename CellType::CellAutoPointer      CellAutoPointer;
   typedef typename itk::LineCell< CellType >      LineCellType;
   typedef typename itk::PolygonCell< CellType >   PolygonCellType;
+  typedef typename itk::PolyLineCell< CellType >  PolyLineCellType;  
   typedef typename itk::TriangleCell<CellType>    TriangleCellType;
   typedef typename itk::VertexCell<CellType>      VertexCellType;
 

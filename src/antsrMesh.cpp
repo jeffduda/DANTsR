@@ -745,13 +745,7 @@ antsrMesh_ReadVTK( SEXP r_filename )
   reader->Update();
   MeshPointerType mesh = reader->GetOutput();
 
-  Rcpp::Rcout << "Number of points in mesh: " << mesh->GetNumberOfPoints() << std::endl;
-
   typename ReaderType::LineSetType * lines = reader->GetLines();
-  Rcpp::Rcout << "Number of lines: " << lines->Size() << std::endl;
-
-  typename ReaderType::LineSetType * poly = reader->GetPolygons();
-  Rcpp::Rcout << "Number of polygons: " << poly->Size() << std::endl;
 
   Rcpp::List pointScalarList( reader->GetPointScalars()->Size() );
   Rcpp::CharacterVector pointScalarNames( reader->GetPointScalars()->Size() );
@@ -765,7 +759,6 @@ antsrMesh_ReadVTK( SEXP r_filename )
   for ( unsigned long i=0; i<reader->GetLines()->Size(); i++ ) {
     nLinePoints += reader->GetLines()->GetElement(i).GetSize();
   }
-  Rcpp::Rcout << "Number of points in lines " << nLinePoints << std::endl;
 
   Rcpp::NumericVector lineVector( nLinePoints + reader->GetLines()->Size() );
   unsigned long idx=0;
@@ -780,7 +773,6 @@ antsrMesh_ReadVTK( SEXP r_filename )
   }
 
   Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh),
-                                       Rcpp::Named("Lines")=lineVector,
                                        Rcpp::Named("PointScalars")=pointScalarList);
   return Rcpp::wrap(list);
 
@@ -896,7 +888,6 @@ antsrMesh_ReadCamino( SEXP r_filename )
   }
 
   Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh),
-                                       Rcpp::Named("Lines")=lineArray,
                                        Rcpp::Named("Seeds")=seeds);
   return Rcpp::wrap(list);
 }
