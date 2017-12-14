@@ -77,7 +77,7 @@ public:
   typedef typename CellType::CellAutoPointer      CellAutoPointer;
   typedef typename itk::LineCell< CellType >      LineCellType;
   typedef typename itk::PolygonCell< CellType >   PolygonCellType;
-  typedef typename itk::PolyLineCell< CellType >  PolyLineCellType;  
+  typedef typename itk::PolyLineCell< CellType >  PolyLineCellType;
   typedef typename itk::TriangleCell<CellType>    TriangleCellType;
   typedef typename itk::VertexCell<CellType>      VertexCellType;
 
@@ -106,8 +106,10 @@ public:
   itkGetStringMacro( FileName );
 
   itkGetObjectMacro( PointScalars, MatrixSetType);
-
   itkGetObjectMacro( PointScalarsNames, DataNameSetType);
+
+  itkGetObjectMacro( CellScalars, MatrixSetType);
+  itkGetObjectMacro( CellScalarsNames, DataNameSetType);
 
   itkSetMacro( ExtractBoundaryPoints, bool );
   itkGetMacro( ExtractBoundaryPoints, bool );

@@ -172,7 +172,7 @@ VtkPolyDataFileReader<TOutputMesh>
     for ( unsigned int i=0; i<this->m_PointTensors->Size(); i++ ) {
       Rcpp::Rcout << "  " << this->m_PointTensorsNames->ElementAt((long)i) << std::endl;
     }
-    Rcpp::Rcout << "# CellNormalsSets: " << this->m_CellTensors->Size() << std::endl;
+    Rcpp::Rcout << "# CellTensorsSets: " << this->m_CellTensors->Size() << std::endl;
     for ( unsigned int i=0; i<this->m_CellTensors->Size(); i++ ) {
       Rcpp::Rcout << "  " << this->m_CellTensorsNames->ElementAt((long)i) << std::endl;
     }  }
@@ -385,7 +385,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKPoints( unsigned long nPoints, std::string itkNotUsed(dataType) )
 {
-  //Rcpp::Rcout << "Reading " << nPoints << " points" << std::endl;
+  Rcpp::Rcout << "Reading " << nPoints << " points" << std::endl;
 
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   outputMesh->GetPoints()->Initialize();
@@ -447,7 +447,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKLines( unsigned long nLines, unsigned long nValues )
 {
-  //std::cout << "Reading " << nLines << " lines with " << nValues << " values" << std::endl;
+  std::cout << "Reading " << nLines << " lines with " << nValues << " values" << std::endl;
   this->m_Lines->Initialize();
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
 
@@ -528,70 +528,68 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKPolygons( unsigned long nPolygons, unsigned long nValues )
 {
-  //Rcpp::Rcout << "Reading " << nPolygons << " polygons" << std::endl;
+  Rcpp::Rcout << "Reading " << nPolygons << " polygons" << std::endl;
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   this->m_Polygons->Initialize();
 
   CellAutoPointer polyCell;
 
+  unsigned long polySize;
+  unsigned long index;
+
   if (!this->m_BinaryData)
   {
     for (unsigned long i=0; i<nPolygons; i++)
     {
-      unsigned long lineSize;
-      this->m_InputFile >> lineSize;
+      this->m_InputFile >> polySize;
+      typename OutputMeshType::PointIdentifier polyPoints[ polySize ];
 
-      LineType line(lineSize);
-      polyCell.TakeOwnership( new PolygonCellType );
-
-      for (unsigned long j=0; j<lineSize; j++)
+      for (unsigned long j=0; j<polySize; j++)
       {
-        unsigned long index;
         this->m_InputFile >> index;
-        line[j] = index;
-        polyCell->SetPointId( j, index );
+        polyPoints[i] = index;
       }
 
-      outputMesh->SetCell(i, polyCell);
-      this->m_Polygons->InsertElement(i,line);
+      PolygonCellType * polygon = new PolygonCellType;
+      polygon->SetPointIds( 0, polySize, polyPoints );
+      polyCell.TakeOwnership( polygon );
 
+      outputMesh->SetCell(i, polyCell);
     }
   }
   else
   {
-
     int p;
-    int * lineData = new int [ nValues ];
-    this->m_InputFile.read( reinterpret_cast< char * >( lineData ), nValues * sizeof(p) );
-    ByteSwapper<int>::SwapRangeFromSystemToBigEndian(lineData,nValues);
+    int * polyData = new int [ nValues ];
+    this->m_InputFile.read( reinterpret_cast< char * >( polyData ), nValues * sizeof(p) );
+    ByteSwapper<int>::SwapRangeFromSystemToBigEndian(polyData,nValues);
 
     unsigned long valueId = 0;
-    unsigned long lineId = 0;
+    unsigned long polyId = 0;
 
     CellAutoPointer polyCell;
     while (valueId < nValues)
     {
-      unsigned int lineLength = lineData[valueId];
+      unsigned int polySize = polyData[valueId];
       ++valueId;
 
-      LineType polyLine;
-      polyLine.SetSize( lineLength );
+      typename OutputMeshType::PointIdentifier polyPoints[ polySize ];
 
-      polyCell.TakeOwnership( new PolygonCellType );
-
-      for (unsigned long i = 0; i < lineLength; i++)
+      for (unsigned long i = 0; i < polySize; i++)
         {
-        polyLine[i] = lineData[valueId];
-        polyCell->SetPointId(i, lineData[valueId]);
+        polyPoints[i] = polyData[valueId];
         ++valueId;
         }
 
-      //outputMesh->SetCell(lineId, polyLine);
-      this->m_Polygons->InsertElement( lineId, polyLine );
-      ++lineId;
+      PolygonCellType * polygon = new PolygonCellType;
+      polygon->SetPointIds( 0, polySize, polyPoints );
+      polyCell.TakeOwnership( polygon );
+
+      outputMesh->SetCell(polyId, polyCell);
+      ++polyId;
     }
 
-    delete [] lineData;
+    delete [] polyData;
 
   }
 
@@ -603,7 +601,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKVertices( unsigned long nVertices, unsigned long nValues )
 {
-  //Rcpp::Rcout << "Reading " << nVertices << " vertices" << std::endl;
+  Rcpp::Rcout << "Reading " << nVertices << " vertices" << std::endl;
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   this->m_Vertices->Initialize();
 
@@ -627,6 +625,7 @@ VtkPolyDataFileReader<TOutputMesh>
         vertex[j] = index;
         vertexCell->SetPointId(j, index);
         }
+
       outputMesh->SetCell(i, vertexCell);
       this->m_Vertices->InsertElement(i,vertex);
       }
@@ -674,7 +673,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKStrips( unsigned long nStrips, unsigned long nValues )
 {
-  //Rcpp::Rcout << "Reading " << nStrips << " strips" << std::endl;
+  Rcpp::Rcout << "Reading " << nStrips << " strips" << std::endl;
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   this->m_Vertices->Initialize();
 

@@ -755,32 +755,22 @@ antsrMesh_ReadVTK( SEXP r_filename )
   }
   pointScalarList.attr("names") = pointScalarNames;
 
-  unsigned long nLinePoints = 0;
-  for ( unsigned long i=0; i<reader->GetLines()->Size(); i++ ) {
-    nLinePoints += reader->GetLines()->GetElement(i).GetSize();
+  Rcpp::List cellScalarList( reader->GetCellScalars()->Size() );
+  Rcpp::CharacterVector cellScalarNames( reader->GetCellScalars()->Size() );
+  for (unsigned int i=0; i<reader->GetCellScalars()->Size(); i++ ) {
+   cellScalarList[i] = reader->GetCellScalars()->ElementAt(i);
+   cellScalarNames[i] = reader->GetCellScalarsNames()->ElementAt(i);
   }
-
-  Rcpp::NumericVector lineVector( nLinePoints + reader->GetLines()->Size() );
-  unsigned long idx=0;
-  for ( unsigned long i=0; i<reader->GetLines()->Size(); i++ ) {
-    lineVector[idx] = reader->GetLines()->GetElement(i).GetSize();
-    idx++;
-
-    for ( unsigned long j=0; j<reader->GetLines()->GetElement(i).GetSize(); j++ ) {
-      lineVector[idx] = reader->GetLines()->GetElement(i)[j];
-      idx++;
-    }
-  }
+  cellScalarList.attr("names") = cellScalarNames;
 
   Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh),
-                                       Rcpp::Named("PointScalars")=pointScalarList);
+                                       Rcpp::Named("PointScalars")=pointScalarList,
+                                       Rcpp::Named("CellScalars")=cellScalarList);
   return Rcpp::wrap(list);
 
 
-  //return Rcpp::wrap(mesh);
 
-  //MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  //return( Rcpp::wrap(mesh->GetNumberOfPoints()) );
+
 }
 
 //pixeltype, precision, dimension, type, isVector
