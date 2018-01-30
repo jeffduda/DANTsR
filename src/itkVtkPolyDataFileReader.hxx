@@ -453,22 +453,20 @@ VtkPolyDataFileReader<TOutputMesh>
 
   CellAutoPointer streamline;
   unsigned long cellId = 0;
+  unsigned long index;
+  unsigned long lineSize;
 
   if (!this->m_BinaryData)
   {
     for (unsigned long i=0; i<nLines; i++)
     {
-      unsigned long lineSize;
       this->m_InputFile >> lineSize;
-      LineType line(lineSize);
 
       typename OutputMeshType::PointIdentifier polyPoints[ lineSize ];
 
       for (unsigned long j=0; j<lineSize; j++)
       {
-        unsigned long index;
         this->m_InputFile >> index;
-        line[j] = index;
         polyPoints[i] = index;
       }
 
@@ -476,8 +474,6 @@ VtkPolyDataFileReader<TOutputMesh>
       polygon->SetPointIds( 0, lineSize, polyPoints );
       streamline.TakeOwnership( polygon );
       outputMesh->SetCell(i, streamline);
-
-      this->m_Lines->InsertElement(i,line);
     }
   }
   else
@@ -497,14 +493,10 @@ VtkPolyDataFileReader<TOutputMesh>
       unsigned int lineLength = lineData[valueId];
       ++valueId;
 
-      LineType polyLine;
-      polyLine.SetSize( lineLength );
-
       typename OutputMeshType::PointIdentifier polyPoints[ lineLength ];
 
       for (unsigned long i = 0; i < lineLength; i++)
         {
-        polyLine[i] = lineData[valueId];
         polyPoints[i] = lineData[valueId];
         ++valueId;
         }
@@ -513,8 +505,6 @@ VtkPolyDataFileReader<TOutputMesh>
       polygon->SetPointIds( 0, lineLength, polyPoints );
       streamline.TakeOwnership( polygon );
       outputMesh->SetCell(lineId, streamline);
-
-      this->m_Lines->InsertElement( lineId, polyLine );
       ++lineId;
     }
     delete [] lineData;
@@ -553,7 +543,6 @@ VtkPolyDataFileReader<TOutputMesh>
       PolygonCellType * polygon = new PolygonCellType;
       polygon->SetPointIds( 0, polySize, polyPoints );
       polyCell.TakeOwnership( polygon );
-
       outputMesh->SetCell(i, polyCell);
     }
   }
@@ -607,27 +596,29 @@ VtkPolyDataFileReader<TOutputMesh>
 
   CellAutoPointer vertexCell;
 
+  unsigned long vertexSize;
+  unsigned long index;
+
+
   if (!this->m_BinaryData)
     {
     for (unsigned long i=0; i<nVertices; i++)
       {
-      unsigned long vertexSize;
       this->m_InputFile >> vertexSize;
 
-      LineType vertex(vertexSize);
+      typename OutputMeshType::PointIdentifier polyPoints[ vertexSize ];
+      VertexCellType * vertex = new VertexCellType;
 
-      vertexCell.TakeOwnership( new VertexCellType );
+      if ( vertexSize != 1 ) {
+        itkExceptionMacro("Only single-point vertices are supported");
+        return false;
+      }
 
-      for (unsigned long j=0; j<vertexSize; j++)
-        {
-        unsigned long index;
-        this->m_InputFile >> index;
-        vertex[j] = index;
-        vertexCell->SetPointId(j, index);
-        }
+      this->m_InputFile >> index;
+      vertex->SetPointId(0, index);
 
+      vertexCell.TakeOwnership( vertex );
       outputMesh->SetCell(i, vertexCell);
-      this->m_Vertices->InsertElement(i,vertex);
       }
     }
   else
@@ -643,23 +634,23 @@ VtkPolyDataFileReader<TOutputMesh>
 
     CellAutoPointer vertexCell;
 
+    unsigned int vertexLength;
+
     while (valueId < nValues)
       {
-      unsigned int vertexLength = vertexData[valueId];
+      vertexLength = vertexData[valueId];
       ++valueId;
 
-      LineType polyVertex;
-      polyVertex.SetSize( vertexLength );
+      if ( vertexLength != 1 ) {
+        itkExceptionMacro("Only single-point vertices are supported");
+        return false;
+      }
+      VertexCellType * vertex = new VertexCellType;
+      vertex->SetPointId(0, vertexData[valueId]);
+      ++valueId;
+      vertexCell.TakeOwnership( vertex );
 
-      vertexCell.TakeOwnership(new VertexCellType);
-      for (unsigned long i = 0; i < vertexLength; i++)
-        {
-        polyVertex[i] = vertexData[valueId];
-        vertexCell->SetPointId(i, vertexData[valueId]);
-        ++valueId;
-        }
       outputMesh->SetCell(lineId, vertexCell);
-      this->m_Vertices->InsertElement( lineId, polyVertex );
       ++lineId;
       }
     delete [] vertexData;
