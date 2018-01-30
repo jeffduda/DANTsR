@@ -14,7 +14,7 @@ dtiColorMap = function(img, weight="FractionalAnisotropy")
 
   weight = tolower(weight)
 
-  fa = dtiAnisotropyImage(img, method=weight)
+  fa = dtiAnisotropy(img, method=weight)
   fa[fa<0]=0
   fa[fa>1]=1
 
