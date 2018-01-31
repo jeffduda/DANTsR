@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-//#include <RcppANTsR.h>
 #include <RcppDANTsR.h>
 
 #include "antsUtilities.h"

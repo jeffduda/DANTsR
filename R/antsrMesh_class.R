@@ -3,7 +3,7 @@
 
 
 
-#' @rdname antsrMeh
+#' @rdname antsrMesh
 #' @title An S4 class for a statial mesh
 #'
 #' @description C++ type used to represent an ITK image mesh
@@ -173,6 +173,28 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
     }
     .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
   }
+
+#' @title applyAntsrTransformToMesh
+#' @description Apply transform/s to an antsrMesh
+#' @param transform antsrTransform
+#' @param image antsrMesh to transform
+#' @param interpolation type of interpolator to use
+#' @return antsImage
+#' @examples
+#' img <- antsImageRead(getANTsRData("r16"))
+#' tx = new("antsrTransform", precision="float", type="AffineTransform", dimension=2 )
+#' setAntsrTransformParameters(tx, c(0.9,0,0,1.1,10,11) )
+#' img2 = applyAntsrTransformToImage(tx, img, img)
+#' # plot(img,img2)
+#' @export
+applyAntsrTransformToImage <- function(transform, image, reference, interpolation="linear") {
+  if ( typeof(transform) == "list")
+  {
+    transform <- composeAntsrTransforms(transform)
+  }
+  return(.Call("antsrTransform_TransformImage", transform, image, reference, tolower(interpolation), PACKAGE = "ANTsRCore"))
+}
+
 
 read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
   mesh = NA

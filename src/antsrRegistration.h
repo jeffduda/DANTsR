@@ -1,4 +1,4 @@
-#include <RcppANTsR.h>
+#include <RcppDANTsR.h>
 #include "itkImage.h"
 #include "itkAffineTransform.h"
 #include "itkTranslationTransform.h"
@@ -10,20 +10,23 @@
  * sets up the registration, runs it, and returns results
  */
 template<class RegistrationType>
-SEXP antsrRegistrationUpdateFilterRun( SEXP r_registrationObject );
+SEXP antsrRegistrationMethodRun( SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving );
+
+template< class RegistrationType >
+SEXP antsrRegistrationTest(SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving );
 
 /*
  * itkImageRegistrationMethod_UpdateFilter
  * handles the templating over different registration methods
  */
 template< class ImageType >
-SEXP antsrRegistrationUpdateFilter( SEXP r_registrationObject );
+SEXP antsrRegistrationMethod( SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving );
 
 /*
  * itkImageRegistrationMethod_UpdateFilter
  * handles the interfacing with R
  */
-RcppExport SEXP antsrRegistrationUpdateFilter( SEXP r_registrationObject );
+RcppExport SEXP antsrRegistrationRun( SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving );
 
 
 /**
