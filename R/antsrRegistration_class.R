@@ -23,15 +23,15 @@ setClass(Class = "antsrRegistration",
            sampling="numeric", metric="character",
            iterations="numeric", shrink="numeric",
            samplingStrategy="character", convergence="numeric",
-           smoothingPhysical="integer" ),
+           smoothingPhysical="integer", nLevels="integer" ),
          prototype( precision="float", dimension=as.integer(2),
            components=as.integer(1), pixeltype="float",
            smoothing=c(1), transform="translation",
            optimizer="regularStepGradientDescent", interpolator="linear",
-           sampling=1.0, metric="meanSquares",
+           sampling=0.20, metric="meanSquares",
            iterations=c(20), shrink=c(1),
            samplingStrategy="regular", convergence=c(1e-6),
-           smoothingPhysical=as.integer(0) ) )
+           smoothingPhysical=as.integer(0), nLevels=as.integer(1) ) )
 
 #' @rdname antsrRegistration
 #' @aliases show,antsrRegistration-method

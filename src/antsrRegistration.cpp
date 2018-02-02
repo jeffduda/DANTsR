@@ -22,6 +22,8 @@
 #include "itkCommandIterationUpdate.h"
 #include "itkTimeProbe.h"
 
+#include "itkantsRegistrationHelper.h"
+
 
 template< class ImageType >
 itk::Vector<double, ImageType::ImageDimension> geometricCenterInitialize( typename ImageType::Pointer fixed,
@@ -491,15 +493,14 @@ SEXP antsrRegistrationMethod( SEXP r_registrationObject, SEXP r_fixed, SEXP r_mo
       typedef itk::TranslationTransform<PrecisionType,ImageType::ImageDimension>  TransformType;
       typedef itk::ImageRegistrationMethodv4<ImageType,ImageType,TransformType>   RegistrationType;
 
-      return antsrRegistrationTest<RegistrationType>( r_registrationObject, r_fixed, r_moving );
+      return antsrRegistrationStage<RegistrationType>( r_registrationObject, r_fixed, r_moving );
       }
-    //else if ( transformName == "rigid")
-    //  {
-      //typedef typename RigidTransformTraits<PrecisionType,ImageType::ImageDimension>::TransformType TransformType;
-      //typedef itk::ImageRegistrationMethodv4<ImageType,ImageType,TransformType>                     RegistrationType;
-
-      //return antsrRegistrationMethodRun<RegistrationType>( r_registrationObject, r_fixed, r_moving );
-    //  }
+    else if ( transformName == "rigid")
+      {
+      typedef typename RigidTransformTraits<PrecisionType,ImageType::ImageDimension>::TransformType TransformType;
+      typedef itk::ImageRegistrationMethodv4<ImageType,ImageType,TransformType>                     RegistrationType;
+      return antsrRegistrationStage<RegistrationType>( r_registrationObject, r_fixed, r_moving );
+      }
     else
       {
       Rcpp::Rcout << "Unsupported transform type: " << transformName << std::endl;
@@ -515,15 +516,14 @@ SEXP antsrRegistrationMethod( SEXP r_registrationObject, SEXP r_fixed, SEXP r_mo
       typedef itk::TranslationTransform<PrecisionType,ImageType::ImageDimension>  TransformType;
       typedef itk::ImageRegistrationMethodv4<ImageType,ImageType,TransformType>   RegistrationType;
 
-      return antsrRegistrationTest<RegistrationType>( r_registrationObject, r_fixed, r_moving );
+      return antsrRegistrationWithHelper<RegistrationType>( r_registrationObject, r_fixed, r_moving );
       }
-    //else if ( transformName == "rigid")
-    //  {
-    //  typedef typename RigidTransformTraits<PrecisionType,ImageType::ImageDimension>::TransformType  TransformType;
-    //  typedef itk::ImageRegistrationMethodv4<ImageType,ImageType,TransformType>              RegistrationType;
-
-    //  return antsrRegistrationMethodRun<RegistrationType>( r_registrationObject, r_fixed, r_moving );
-    //  }
+    else if ( transformName == "rigid")
+      {
+      typedef typename RigidTransformTraits<PrecisionType,ImageType::ImageDimension>::TransformType  TransformType;
+      typedef itk::ImageRegistrationMethodv4<ImageType,ImageType,TransformType>              RegistrationType;
+      return antsrRegistrationStage<RegistrationType>( r_registrationObject, r_fixed, r_moving );
+      }
     else
       {
       Rcpp::Rcout << "Unsupported transform type: " << transformName << std::endl;
@@ -538,8 +538,43 @@ SEXP antsrRegistrationMethod( SEXP r_registrationObject, SEXP r_fixed, SEXP r_mo
 
 }
 
+template<class HelperType>
+void setupRegistrationHelper( typename HelperType::Pointer helper, SEXP r_registrationObject )
+{
+  Rcpp::Rcout << "setupRegistrationHelper(X,Y)" << std::endl;
+  nullStream cnul;
+  helper->SetLogStream(cnul);
+  helper->SetLogStream( Rcpp::Rcout );
+
+
+
+}
+
+template<class RegistrationType>
+SEXP antsrRegistrationWithHelper( SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving )
+{
+  Rcpp::Rcout << "antsrRegistrationWithHelper(SEXP,SEXP,SEXP)" << std::endl;
+  typedef typename RegistrationType::OutputTransformType  TransformType;
+  typedef typename TransformType::ScalarType              PrecisionType;
+  typedef typename RegistrationType::FixedImageType       ImageType;
+  typedef typename ImageType::Pointer                     ImagePointerType;
+  typedef typename ants::RegistrationHelper<PrecisionType, ImageType::ImageDimension> RegistrationHelperType;
+
+  ImagePointerType fixed = Rcpp::as<ImagePointerType>( r_fixed );
+  ImagePointerType moving = Rcpp::as<ImagePointerType>( r_moving );
+
+  typename RegistrationHelperType::Pointer regHelper = RegistrationHelperType::New();
+
+
+  setupRegistrationHelper<RegistrationHelperType>( regHelper, r_registrationObject );
+
+
+  return Rcpp::wrap(NA_REAL);
+}
+
+
 template< class RegistrationType >
-SEXP antsrRegistrationTest( SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving )
+SEXP antsrRegistrationStage( SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving )
 {
   Rcpp::Rcout << "antsrRegistrationTest<ImageType>(SEXP,SEXP,SEXP)" << std::endl;
 
@@ -551,6 +586,16 @@ SEXP antsrRegistrationTest( SEXP r_registrationObject, SEXP r_fixed, SEXP r_movi
   ImagePointerType fixed = Rcpp::as<ImagePointerType>( r_fixed );
   ImagePointerType moving = Rcpp::as<ImagePointerType>( r_moving );
 
+  Rcpp::S4 registrationObject( r_registrationObject );
+  std::string transformName = Rcpp::as< std::string >( registrationObject.slot( "transform" ) );
+  std::string interpolatorName = Rcpp::as< std::string >( registrationObject.slot( "interpolator" ) );
+  std::string metricName = Rcpp::as< std::string >( registrationObject.slot( "metric" ) );
+  Rcpp::NumericVector sampling( registrationObject.slot("sampling") );
+  std::string samplingStrategy = Rcpp::as< std::string >( registrationObject.slot( "samplingStrategy" ) );
+  Rcpp::NumericVector smoothing( registrationObject.slot("smoothing") );
+  Rcpp::NumericVector shrinking( registrationObject.slot("shrink") );
+  unsigned int nLevels = Rcpp::as<unsigned int > ( registrationObject.slot("nLevels") );
+
   //typedef itk::TranslationTransform< double, ImageType::ImageDimension > TransformType;
 
   typedef itk::RegularStepGradientDescentOptimizerv4<PrecisionType> OptimizerType;
@@ -559,7 +604,7 @@ SEXP antsrRegistrationTest( SEXP r_registrationObject, SEXP r_fixed, SEXP r_movi
 
   //typedef itk::ImageRegistrationMethodv4<ImageType,ImageType,TransformType>    RegistrationType;
 
-  typename MetricType::Pointer         metric        = MetricType::New();
+  //typename MetricType::Pointer         metric        = MetricType::New();
   typename OptimizerType::Pointer      optimizer     = OptimizerType::New();
   typename RegistrationType::Pointer   registration  = RegistrationType::New();
 
@@ -567,19 +612,102 @@ SEXP antsrRegistrationTest( SEXP r_registrationObject, SEXP r_fixed, SEXP r_movi
   //typedef typename OptimizerBaseType::Pointer                         OptimizerBasePointer;
   //OptimizerBasePointer optimizerBase;
 
+  //typedef itk::LinearInterpolateImageFunction<ImageType,double> FixedLinearInterpolatorType;
+  //typedef itk::LinearInterpolateImageFunction<ImageType,double> MovingLinearInterpolatorType;
+
+  /** Interpolator **/
+  typedef itk::InterpolateImageFunction<ImageType,PrecisionType>  InterpolatorBaseType;
+  typedef typename InterpolatorBaseType::Pointer                  InterpolatorBasePointer;
+  InterpolatorBasePointer fixedInterpolatorBase;
+  InterpolatorBasePointer movingInterpolatorBase;
+
+  if ( interpolatorName == "linear")
+    {
+    typedef itk::LinearInterpolateImageFunction<ImageType, PrecisionType>   InterpolatorType;
+    typename InterpolatorType::Pointer   fixedInterpolator  = InterpolatorType::New();
+    typename InterpolatorType::Pointer   movingInterpolator  = InterpolatorType::New();
+    fixedInterpolatorBase = dynamic_cast<InterpolatorBaseType*>(fixedInterpolator.GetPointer());
+    movingInterpolatorBase = dynamic_cast<InterpolatorBaseType*>(movingInterpolator.GetPointer());
+    }
+  else if ( interpolatorName == "nearestNeighbor")
+    {
+    typedef itk::NearestNeighborInterpolateImageFunction<ImageType, PrecisionType>   InterpolatorType;
+    typename InterpolatorType::Pointer   fixedInterpolator  = InterpolatorType::New();
+    typename InterpolatorType::Pointer   movingInterpolator  = InterpolatorType::New();
+    fixedInterpolatorBase = dynamic_cast<InterpolatorBaseType*>(fixedInterpolator.GetPointer());
+    movingInterpolatorBase = dynamic_cast<InterpolatorBaseType*>(movingInterpolator.GetPointer());
+    }
+  else
+    {
+    Rcpp::Rcout << "Unsupported interpolator type: " << interpolatorName << std::endl;
+    return Rcpp::wrap(NA_REAL);
+    }
+
+
+  /** Image Metric **/
+  if ( metricName == "mutualInformation")
+    {
+    typedef itk::MattesMutualInformationImageToImageMetricv4<ImageType,ImageType,ImageType,PrecisionType> MetricType;
+    typename MetricType::Pointer metric = MetricType::New();
+    metric->SetNumberOfHistogramBins( 32 );
+    metric->SetUseMovingImageGradientFilter( false );
+    metric->SetUseFixedImageGradientFilter( false );
+    metric->SetFixedInterpolator( fixedInterpolatorBase );
+    metric->SetMovingInterpolator( movingInterpolatorBase );
+    registration->SetMetric( metric );
+    }
+  else if ( metricName == "meanSquares")
+    {
+    typedef itk::MeanSquaresImageToImageMetricv4<ImageType,ImageType,ImageType,PrecisionType> MetricType;
+    typename MetricType::Pointer metric = MetricType::New();
+    metric->SetFixedInterpolator( fixedInterpolatorBase );
+    metric->SetMovingInterpolator( movingInterpolatorBase );
+    registration->SetMetric( metric );
+    }
+  else
+    {
+    Rcpp::Rcout << "Unsupported metric type: " << metricName << std::endl;
+    return Rcpp::wrap(NA_REAL);
+    }
+
+  typename RegistrationType::MetricSamplingPercentageArrayType metricSampling;
+  metricSampling.SetSize( nLevels );
+
+  typename RegistrationType::ShrinkFactorsArrayType shrinkFactorsPerLevel;
+  shrinkFactorsPerLevel.SetSize( nLevels );
+
+  typename RegistrationType::SmoothingSigmasArrayType smoothingSigmasPerLevel;
+  smoothingSigmasPerLevel.SetSize( nLevels );
+
+  for ( unsigned int i=0; i<nLevels; i++)
+    {
+    shrinkFactorsPerLevel[i] = shrinking[i];
+    smoothingSigmasPerLevel[i] = smoothing[i];
+    metricSampling[i] = sampling[i];
+    // = maxIterations[i];
+    }
+
+  registration->SetNumberOfLevels ( nLevels );
+  registration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
+  //registration->SetSmoothingSigmasAreSpecifiedInPhysicalUnits( usePhysical );
+  registration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
+  registration->SetMetricSamplingPercentagePerLevel( metricSampling );
+
+  if ( samplingStrategy == "random")
+    {
+    registration->SetMetricSamplingStrategy( RegistrationType::RANDOM );
+    }
+  else if (samplingStrategy == "regular")
+    {
+    registration->SetMetricSamplingStrategy( RegistrationType::REGULAR );
+    }
 
 
 
-  registration->SetMetric(        metric        );
+  //registration->SetMetric(        metric        );
   registration->SetOptimizer(     optimizer     );
 
-  typedef itk::LinearInterpolateImageFunction<ImageType,double> FixedLinearInterpolatorType;
-  typedef itk::LinearInterpolateImageFunction<ImageType,double> MovingLinearInterpolatorType;
 
-  typename FixedLinearInterpolatorType::Pointer fixedInterpolator =
-    FixedLinearInterpolatorType::New();
-  typename MovingLinearInterpolatorType::Pointer movingInterpolator =
-    MovingLinearInterpolatorType::New();
 
   registration->SetFixedImage( fixed );
   registration->SetMovingImage( moving );
@@ -590,9 +718,20 @@ SEXP antsrRegistrationTest( SEXP r_registrationObject, SEXP r_fixed, SEXP r_movi
   typename TransformType::Pointer movingInitialTransform = TransformType::New();
   typename TransformType::ParametersType initialParameters(
     movingInitialTransform->GetNumberOfParameters() );
-  for ( unsigned int i=0; i<ImageType::ImageDimension; i++ )
-  {
-    initialParameters[i] = offset[i];  // Initial offset in mm along X
+
+  movingInitialTransform->SetIdentity();
+
+  if ( transformName == "translation" ) {
+    for ( unsigned int i=0; i<movingInitialTransform->GetNumberOfParameters(); i++ )
+    {
+    initialParameters[i] = 0; //offset[i];  // Initial offset in mm along X
+    }
+  }
+  else if ( transformName == "rigid" ) {
+    for ( unsigned int i=0; i<movingInitialTransform->GetNumberOfParameters(); i++ )
+    {
+    initialParameters[i] = 0;
+    }
   }
 
   movingInitialTransform->SetParameters( initialParameters );
@@ -605,24 +744,27 @@ SEXP antsrRegistrationTest( SEXP r_registrationObject, SEXP r_fixed, SEXP r_movi
   optimizer->SetLearningRate( 4 );
   optimizer->SetMinimumStepLength( 0.001 );
   optimizer->SetRelaxationFactor( 0.5 );
+  //optimizer->SetGradientMagnitudeTolerance( 0.00001 );
 
-
+/*
   bool useEstimator = false;
   if( useEstimator )
     {
     typedef itk::RegistrationParameterScalesFromPhysicalShift<MetricType> ScalesEstimatorType;
     typename ScalesEstimatorType::Pointer scalesEstimator = ScalesEstimatorType::New();
-    scalesEstimator->SetMetric( metric );
+    scalesEstimator->SetMetric( registration->GetMetric() );
     scalesEstimator->SetTransformForward( true );
     optimizer->SetScalesEstimator( scalesEstimator );
     optimizer->SetDoEstimateLearningRateOnce( true );
     }
+*/
 
   optimizer->SetNumberOfIterations( 200 );
 
   typename CommandIterationUpdate<OptimizerType>::Pointer observer = CommandIterationUpdate<OptimizerType>::New();
   optimizer->AddObserver( itk::IterationEvent(), observer );
 
+  /*
   const unsigned int numberOfLevels = 1;
   typename RegistrationType::ShrinkFactorsArrayType shrinkFactorsPerLevel;
   shrinkFactorsPerLevel.SetSize( 1 );
@@ -633,6 +775,7 @@ SEXP antsrRegistrationTest( SEXP r_registrationObject, SEXP r_fixed, SEXP r_movi
   registration->SetNumberOfLevels ( numberOfLevels );
   registration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
   registration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
+  */
 
   try
     {
@@ -713,14 +856,14 @@ try
       else if (dimension == 3)
         {
         Rcpp::Rcout << "Dimension=3" << std::endl;
-        //typedef itk::Image<float,3> ImageType;
-        //return antsrRegistrationTest<ImageType>(r_registrationObject, r_fixed, r_moving);
+        typedef itk::Image<float,3> ImageType;
+        return antsrRegistrationMethod<ImageType>(r_registrationObject, r_fixed, r_moving);
         }
       else if (dimension == 4)
         {
         Rcpp::Rcout << "Dimension=4" << std::endl;
-        //typedef itk::Image<float,4> ImageType;
-        //return antsrRegistrationTest<ImageType>(r_registrationObject, r_fixed, r_moving);
+        typedef itk::Image<float,4> ImageType;
+        return antsrRegistrationMethod<ImageType>(r_registrationObject, r_fixed, r_moving);
         }
       else
         {

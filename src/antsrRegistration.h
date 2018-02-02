@@ -13,7 +13,10 @@ template<class RegistrationType>
 SEXP antsrRegistrationMethodRun( SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving );
 
 template< class RegistrationType >
-SEXP antsrRegistrationTest(SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving );
+SEXP antsrRegistrationStage(SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving );
+
+template<class RegistrationType>
+SEXP antsrRegistrationWithHelper(SEXP r_registrationObject, SEXP r_fixed, SEXP r_moving );
 
 /*
  * itkImageRegistrationMethod_UpdateFilter
