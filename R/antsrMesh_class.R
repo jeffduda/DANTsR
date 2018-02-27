@@ -30,17 +30,17 @@ setMethod(f = "show", "antsrMesh", function(object){
     cat("\n")
 })
 
-#' @rdname antsrTransform
+#' @rdname antsrMesh
 #' @aliases initialize,antsrTransform-method
 setMethod(f = "initialize", signature(.Object = "antsrMesh"), definition = function(.Object,
-  dimension = 3, precision = "float") {
-  mesh = .Call("antsrMesh", precision, dimension, PACKAGE = "DANTsR")
+  dimension = 3, precision = "float", reserve=0) {
+  mesh = .Call("antsrMesh", precision, dimension, reserve, PACKAGE = "DANTsR")
   return( mesh )
 })
 
 
-#' @title antsrMetricCreate
-#' @description create object that measures similarity between two images
+#' @title antsrMeshCreate
+#' @description create a mesh
 #' @param dimension number of dimensions
 #' @param percision use 'float' or 'double' for values
 #' @param reserve number of points to allocate on creation
@@ -102,8 +102,12 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
 #' antsrMeshAddPoint( x, c(0,0,0) )
 #' @export
-  antsrMeshAddPoint = function( mesh, point ) {
-    #invisible(.Call("antsrMesh_AddPoint", mesh, point, package="DANTsR"))
+  antsrMeshAddPoint = function( mesh, point, identifier=NA ) {
+    if ( is.na(identifier) )  {
+      identifer = antsrMeshGetNumberOfPoints(mesh)
+    }
+
+    invisible(.Call("antsrMesh_AddPoint", mesh, identifier, point, package="DANTsR"))
   }
 
 #' @title antsrMeshSetPoint
@@ -113,9 +117,9 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @param point spatial point to set in mesh
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-#' antsrMeshSetPoint( x, 0, c(0,0,0) )
+#' antsrMeshSetPoint( x, c(0,0,0), 0 )
 #' @export
-  antsrMeshSetPoint = function( mesh, identifier, point ) {
+  antsrMeshSetPoint = function( mesh, point, identifier ) {
     invisible(.Call("antsrMesh_SetPoint", mesh, identifier, point, package="DANTsR"))
   }
 
@@ -125,7 +129,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @param identifier identifier of point to get
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-#' antsrMeshSetPoint( x, 0, c(0,0,0) )
+#' antsrMeshSetPoint( x, c(0,0,0), 0 )
 #' pt = antsrMeshGetPoint(x, 0)
 #' @export
   antsrMeshGetPoint = function( mesh, identifier ) {
@@ -138,8 +142,8 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @param identifier identifier of point to get
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-#' antsrMeshSetPoint( x, 0, c(0,0,0) )
-#' c = antsrMeshGetCell(x, 0)
+#' antsrMeshAddPoint( x, c(0,0,0) )
+#'
 #' @export
   antsrMeshGetCell = function( mesh, identifier ) {
     .Call("antsrMesh_GetCell", mesh, identifier, package="DANTsR")
@@ -151,8 +155,8 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @param identifier identifier of point to get
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-#' antsrMeshSetPoint( x, 0, c(0,0,0) )
-#' c = antsrMeshGetCellPoints(x, 0)
+#' antsrMeshAddPoint( x, c(0,0,0) )
+#'
 #' @export
   antsrMeshGetCellPoints = function( mesh, identifier ) {
     .Call("antsrMesh_GetCellPoints", mesh, identifier, package="DANTsR")
@@ -164,7 +168,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @param identifier identifier of point to get
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-#' antsrMeshSetPoint( x, 0, c(0,0,0) )
+#' antsrMeshAddPoint( x, c(0,0,0) )
 #' pt = antsrMeshGetPoints(x, 0)
 #' @export
   antsrMeshGetPoints = function( mesh, identifiers=NULL) {
@@ -180,22 +184,23 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @param image antsrMesh to transform
 #' @param interpolation type of interpolator to use
 #' @return antsImage
-#' @examples
-#' img <- antsImageRead(getANTsRData("r16"))
-#' tx = new("antsrTransform", precision="float", type="AffineTransform", dimension=2 )
-#' setAntsrTransformParameters(tx, c(0.9,0,0,1.1,10,11) )
-#' img2 = applyAntsrTransformToImage(tx, img, img)
-#' # plot(img,img2)
 #' @export
-applyAntsrTransformToImage <- function(transform, image, reference, interpolation="linear") {
+applyAntsrTransformToMesh <- function(transform, image, reference, interpolation="linear") {
   if ( typeof(transform) == "list")
   {
     transform <- composeAntsrTransforms(transform)
   }
-  return(.Call("antsrTransform_TransformImage", transform, image, reference, tolower(interpolation), PACKAGE = "ANTsRCore"))
+  #return(.Call("antsrTransform_TransformImage", transform, image, reference, tolower(interpolation), PACKAGE = "ANTsRCore"))
+  return(NA)
 }
 
-
+#' @title read.antsrMesh
+#' @description read a file into an antsrMesh
+#' @param filename name of the file to read
+#' @param dimension dimension of point data in mesh
+#' @param pixeltype float or double
+#' @return antsrMesh
+#' @export
 read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
   mesh = NA
   if ( grepl(".vtk", filename ) ) {
@@ -207,7 +212,12 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
   return(mesh)
 }
 
-
+#' @title write.antsrMesh
+#' @description write an antsrMesh to a file
+#' @param mesh antsrMesh to write
+#' @param filename name of the file to read
+#' @param seeds seed indices (for Camino files)
+#' @export
 write.antsrMesh = function( mesh, filename, seeds=NULL ) {
   if ( grepl(".vtk", filename ) ) {
     #mesh = .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, package="DANTsR")

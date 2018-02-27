@@ -3,12 +3,15 @@
 #' @param img a 6-channel antsImage or and eigen sytem list
 #' @param method the summary meaure to return
 #' \itemize{
-#'   \time{Trace}{Sum of eigenvalues}
+#'   \item{Trace}{Sum of eigenvalues}
 #'   \item{MeanDiffusion}{Average eigenvalue}
 #'   \item{AxialDiffusion}{Largest eigenvalue}
 #'   \item{RadialDiffusion}{Mean of two smallest eigenvalues}
 #' }
-#' @param method which type of anisotropy index to calculate
+#' @param method the reconstruction algorithm to use (default = "itk-svd")
+#' \itemize{
+#'   \item{itk-svd}{uses the itk::DiffusionTensor3DReconstructionImageFilter filter}
+#' }
 #' @export
 dtiReconstruction = function(dwi, gradients, method)
 {

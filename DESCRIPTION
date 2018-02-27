@@ -1,8 +1,8 @@
 Package: DANTsR
 Type: Package
 Title: Diffusion Image Support for ANTsR
-Version: 1.0
-Date: 2017-09-01
+Version: 0.1
+Date: 2018-02-27
 Author: Jeffrey T. Duda
 Maintainer: Jeffrey T. Duda <jeff.duda@gmail.com>
 Description: More details about what the package does. See
@@ -10,6 +10,6 @@ Description: More details about what the package does. See
         for details on how to write this part.
 License: Apache License 2.0
 Depends: Rcpp, ANTsR, ITKR, ANTsRCore, RNifti
-Imports: Rcpp, ANTsR, ITKR, ANTsRCore
+Imports: Rcpp, ANTsR, ITKR, ANTsRCore, RNifti
 LinkingTo: Rcpp, ANTsR, ITKR, ANTsRCore
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.0.1

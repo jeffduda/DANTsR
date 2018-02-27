@@ -3,7 +3,7 @@
 #' @param img a 6-channel antsImage or and eigen sytem list
 #' @param method the summary meaure to return
 #' \itemize{
-#'   \time{Trace}{Sum of eigenvalues}
+#'   \item{Trace}{Sum of eigenvalues}
 #'   \item{MeanDiffusion}{Average eigenvalue}
 #'   \item{AxialDiffusion}{Largest eigenvalue}
 #'   \item{RadialDiffusion}{Mean of two smallest eigenvalues}

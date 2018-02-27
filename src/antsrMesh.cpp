@@ -10,7 +10,6 @@
 #include "itkCaminoStreamlineFileReader.h"
 #include "itkVtkPolyDataFileReader.h"
 
-
 template< class MeshType >
 typename MeshType::Pointer antsrMesh( itk::IdentifierType reserve )
 {
@@ -93,7 +92,6 @@ catch(...)
   }
 return Rcpp::wrap(NA_REAL); //not reached
 }
-
 
 template< class MeshType >
 SEXP
@@ -634,6 +632,100 @@ catch(...)
 return Rcpp::wrap(NA_REAL); //not reached
 }
 
+template< class MeshType >
+SEXP
+antsrMesh_AddPoint( SEXP r_mesh, SEXP r_identifier, SEXP r_point )
+{
+  Rcpp::S4 rMesh( r_mesh );
+  unsigned int dimension = rMesh.slot("dimension");
+
+  typedef typename MeshType::Pointer MeshPointerType;
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+
+  Rcpp::NumericVector pt = Rcpp::as<Rcpp::NumericVector>( r_point );
+  if ( pt.size() != dimension ) {
+    Rcpp::stop("Point has incorrect size");
+  }
+
+  typename MeshType::PointType itkPoint;
+
+  for ( unsigned int i=0; i<dimension; i++ ) {
+    itkPoint[i] = pt(i);
+  }
+
+  mesh->GetPoints()->InsertElement(id, itkPoint);
+
+  return( Rcpp::wrap(NA_REAL) );
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_AddPoint( SEXP r_mesh, SEXP r_identifier, SEXP r_point )
+{
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  unsigned int dimension = rMesh.slot("dimension");
+
+  if ( (dimension < 2) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  }
+
+  if ( precision=="double") {
+    typedef double PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
+    }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
+    }
+  }
+  else if (precision=="float") {
+    typedef float PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
+        }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
+    }
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
 
 template< class MeshType >
 SEXP
