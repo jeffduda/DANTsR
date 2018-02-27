@@ -3,7 +3,7 @@
 *.so
 *.o
 
-# things to ignore in directory ANTsR/src
+# things to ignore in directory DANTsR/src
 src/Makevars
 extdata/
 src/*.o
