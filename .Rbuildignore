@@ -1,0 +1,6 @@
+^\.travis\.yml$
+src/Makevars
+src/*.o
+src/*.so
+^.*\.Rproj$
+^appveyor\.yml$
