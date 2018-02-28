@@ -3,13 +3,12 @@ Type: Package
 Title: Diffusion Image Support for ANTsR
 Version: 0.1
 Date: 2018-02-27
-Author: Jeffrey T. Duda
-Maintainer: Jeffrey T. Duda <jeff.duda@gmail.com>
-Description: More details about what the package does. See
-        <http://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file>
-        for details on how to write this part.
+Authors@R: c(person(given = "Jeffrey T.", family = "Duda", 
+  email = "jeff.duda@gmail.com", role = c("aut", "cre")))
+Description: Supports imagie processing of diffusion tensor imaging ('DTI') 
+    and other diffusion-weighted magnetic resonance imaging (MRI) using the 
+    'ANTsR' package.
 License: Apache License 2.0
-Depends: Rcpp, ANTsR, ITKR, ANTsRCore, RNifti
-Imports: Rcpp, ANTsR, ITKR, ANTsRCore, RNifti
+Imports: ITKR, ANTsRCore (>= 0.5.0), RNifti
 LinkingTo: Rcpp, ANTsR, ITKR, ANTsRCore
 RoxygenNote: 6.0.1
