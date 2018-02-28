@@ -4,8 +4,6 @@
 #' @param antsImage an antsImage
 #' @param filename name of image file
 #' @param points the locations of interest
-#' @param type 'point' or 'index'
-#' @param interpolation options are: 'linear'
 #' @export
 
 #library(RNifti)
@@ -46,9 +44,6 @@ niftiToItk = function(points, niftiImage=NA, antsImage=NA, filename=NA)
 #' @param antsImage an antsImage
 #' @param filename name of image file
 #' @param points the locations of interest
-#' @param points the locations of interest
-#' @param type 'point' or 'index'
-#' @param interpolation options are: 'linear'
 #' @export
 itkToNifti = function(points, niftiImage=NA, antsImage=NA, filename=NA)
 {

@@ -1,6 +1,7 @@
 #' @title dtiColorMap
 #' @description calculate an RGB map of primary direction weighted by anisotropy
 #' @param img a 6-channel antsImage
+#' @param weight method used to weight color values'
 #' @export
 dtiColorMap = function(img, weight="FractionalAnisotropy")
 {

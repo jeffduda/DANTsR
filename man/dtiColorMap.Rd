@@ -8,6 +8,8 @@ dtiColorMap(img, weight = "FractionalAnisotropy")
 }
 \arguments{
 \item{img}{a 6-channel antsImage}
+
+\item{weight}{method used to weight color values'}
 }
 \description{
 calculate an RGB map of primary direction weighted by anisotropy

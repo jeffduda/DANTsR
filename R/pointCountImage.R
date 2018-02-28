@@ -2,8 +2,6 @@
 #' @description return image values at points or indices
 #' @param img an antsImage
 #' @param points the locations of interest
-#' @param type 'point' or 'index'
-#' @param interpolation options are: 'linear'
 #' @export
 pointCountImage = function(points, img)
 {

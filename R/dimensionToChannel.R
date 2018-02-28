@@ -1,6 +1,7 @@
 #' @title dimensionToChannel
 #' @description create multichannel image by reducing dimension by one
 #' @param img an antsImage
+#' @param dimension the dimension that is converted to a channel
 #' @export
 dimensionToChannel = function(img, dimension=length(dim(img)))
 {

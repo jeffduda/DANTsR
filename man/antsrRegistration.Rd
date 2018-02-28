@@ -10,12 +10,6 @@
 }
 \arguments{
 \item{object}{input object to convert}
-
-\item{.Object}{input object to convert}
-
-\item{precision}{string e.g. "float" or "double"}
-
-\item{dimension}{dimensionality of the transform (2,3,or 4)}
 }
 \description{
 C++ type used to represent an ITK image registration filter
@@ -27,6 +21,32 @@ C++ type used to represent an ITK image registration filter
 
 \item{\code{precision}}{math precision is float or double'}
 
-\item{\code{pointer}}{to the memory location of the itk object}
+\item{\code{components}}{number of components in image}
+
+\item{\code{pixeltype}}{pixeltype of images}
+
+\item{\code{smoothing}}{smoothing for each level}
+
+\item{\code{transform}}{type of transform}
+
+\item{\code{optimizer}}{optimizer type to use}
+
+\item{\code{interpolator}}{interpolator type to use}
+
+\item{\code{sampling}}{sampling type for image-to-image metric}
+
+\item{\code{metric}}{image-to-image metric for registration}
+
+\item{\code{iterations}}{max iterations at each level}
+
+\item{\code{shrink}}{shrink factor for each level}
+
+\item{\code{samplingStrategy}}{type of metric sampling}
+
+\item{\code{convergence}}{metric convergence value}
+
+\item{\code{smoothingPhysical}}{flag indicating smoothing values are in mm (default in in voxels)}
+
+\item{\code{nLevels}}{number of levels in registration}
 }}
 

@@ -21,6 +21,8 @@
 \item{dimension}{dimensionality of the transform (2,3,or 4)}
 
 \item{precision}{string e.g. "float" or "double"}
+
+\item{reserve}{number of points to allocate on creation}
 }
 \description{
 class for point sets and meshes

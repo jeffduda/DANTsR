@@ -10,6 +10,8 @@ antsrMeshAddPoint(mesh, point, identifier = NA)
 \item{mesh}{an 'antsrMesh'}
 
 \item{point}{spatial point to add to mesh}
+
+\item{identifier}{index of point to add}
 }
 \description{
 add point to mesh

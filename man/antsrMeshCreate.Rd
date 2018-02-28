@@ -9,9 +9,9 @@ antsrMeshCreate(dimension = 3, precision = "float", reserve = 0)
 \arguments{
 \item{dimension}{number of dimensions}
 
-\item{reserve}{number of points to allocate on creation}
+\item{precision}{use 'float' or 'double' for values}
 
-\item{percision}{use 'float' or 'double' for values}
+\item{reserve}{number of points to allocate on creation}
 }
 \value{
 antsrMesh

@@ -1,20 +1,27 @@
 # this file defines the S4 classes related to 'antsrRegistration' and the associated
 # methods
 
-
-
 #' @rdname antsrRegistration
 #' @title antsrRegsitration
-#'
 #' @description C++ type used to represent an ITK image registration filter
-#'
 #' @param object input object to convert
-#' @param .Object input object to convert
-#' @param precision string e.g. "float" or "double"
-#' @param dimension dimensionality of the transform (2,3,or 4)
+# @param .Object input object to convert
 #' @slot dimension usually 2 or 3 but can be 4
 #' @slot precision math precision is float or double'
-#' @slot pointer to the memory location of the itk object
+#' @slot components number of components in image
+#' @slot pixeltype pixeltype of images
+#' @slot smoothing smoothing for each level
+#' @slot transform type of transform
+#' @slot optimizer optimizer type to use
+#' @slot interpolator interpolator type to use
+#' @slot sampling sampling type for image-to-image metric
+#' @slot metric image-to-image metric for registration
+#' @slot iterations max iterations at each level
+#' @slot shrink shrink factor for each level
+#' @slot samplingStrategy type of metric sampling
+#' @slot convergence metric convergence value
+#' @slot smoothingPhysical flag indicating smoothing values are in mm (default in in voxels)
+#' @slot nLevels number of levels in registration
 setClass(Class = "antsrRegistration",
          representation(precision= "character", dimension = "integer",
            components = "integer", pixeltype="character",
@@ -35,7 +42,7 @@ setClass(Class = "antsrRegistration",
 
 #' @rdname antsrRegistration
 #' @aliases show,antsrRegistration-method
-setMethod(f = "show", "antsrRegistration", function(object){
+setMethod(f = "show", "antsrRegistration", function(object) {
     cat("antsrRegistration\n")
     cat("  Dimension    :", object@dimension, "\n")
     cat("  Precision    :", object@precision, "\n")
@@ -50,8 +57,8 @@ setMethod(f = "show", "antsrRegistration", function(object){
     cat("\n")
 })
 
-#' @rdname antsrRegsitration
-#' @aliases initialize,antsrRegistration-method
+# @rdname antsrRegsitration
+# @aliases initialize,antsrRegistration-method
 #setMethod(f = "initialize", signature(.Object = "antsrRegistration"), definition = function(.Object,
 #  dimension = 3, precision = "float") {
 #  reg = .Call("antsrRegistration", precision, dimension, PACKAGE = "DANTsR")

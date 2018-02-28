@@ -4,18 +4,17 @@
 \alias{applyAntsrTransformToMesh}
 \title{applyAntsrTransformToMesh}
 \usage{
-applyAntsrTransformToMesh(transform, image, reference,
-  interpolation = "linear")
+applyAntsrTransformToMesh(transform, mesh, interpolation = "linear")
 }
 \arguments{
 \item{transform}{antsrTransform}
 
-\item{image}{antsrMesh to transform}
+\item{mesh}{antsrMesh to transform}
 
 \item{interpolation}{type of interpolator to use}
 }
 \value{
-antsImage
+antsrMesh
 }
 \description{
 Apply transform/s to an antsrMesh

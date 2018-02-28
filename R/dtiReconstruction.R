@@ -1,13 +1,7 @@
 #' @title dtiReconstruction
 #' @description calculate an anistropy image from DTI
-#' @param img a 6-channel antsImage or and eigen sytem list
-#' @param method the summary meaure to return
-#' \itemize{
-#'   \item{Trace}{Sum of eigenvalues}
-#'   \item{MeanDiffusion}{Average eigenvalue}
-#'   \item{AxialDiffusion}{Largest eigenvalue}
-#'   \item{RadialDiffusion}{Mean of two smallest eigenvalues}
-#' }
+#' @param dwi an N-channel antsImage
+#' @param gradients Nx4 matrix of gradient directions and b-values
 #' @param method the reconstruction algorithm to use (default = "itk-svd")
 #' \itemize{
 #'   \item{itk-svd}{uses the itk::DiffusionTensor3DReconstructionImageFilter filter}

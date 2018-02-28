@@ -8,6 +8,8 @@ dimensionToChannel(img, dimension = length(dim(img)))
 }
 \arguments{
 \item{img}{an antsImage}
+
+\item{dimension}{the dimension that is converted to a channel}
 }
 \description{
 create multichannel image by reducing dimension by one

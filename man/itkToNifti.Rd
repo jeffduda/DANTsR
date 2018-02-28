@@ -14,12 +14,6 @@ itkToNifti(points, niftiImage = NA, antsImage = NA, filename = NA)
 \item{antsImage}{an antsImage}
 
 \item{filename}{name of image file}
-
-\item{points}{the locations of interest}
-
-\item{type}{'point' or 'index'}
-
-\item{interpolation}{options are: 'linear'}
 }
 \description{
 convert world coordinates from ITK to NIFTI

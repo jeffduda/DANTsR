@@ -1,4 +1,4 @@
-# this file defines the S4 classes related to 'antsrTransform' and the associated
+# this file defines the S4 classes related to 'antsrMesh and the associated
 # methods
 
 
@@ -7,7 +7,6 @@
 #' @title antsrMesh
 #'
 #' @description class for point sets and meshes
-#'
 #' @param object input object to convert
 #' @param .Object input object to convert
 #' @param precision string e.g. "float" or "double"
@@ -32,6 +31,7 @@ setMethod(f = "show", "antsrMesh", function(object){
 
 #' @rdname antsrMesh
 #' @aliases initialize,antsrTransform-method
+#' @param reserve number of points to allocate on creation
 setMethod(f = "initialize", signature(.Object = "antsrMesh"), definition = function(.Object,
   dimension = 3, precision = "float", reserve=0) {
   mesh = .Call("antsrMesh", precision, dimension, reserve, PACKAGE = "DANTsR")
@@ -42,7 +42,7 @@ setMethod(f = "initialize", signature(.Object = "antsrMesh"), definition = funct
 #' @title antsrMeshCreate
 #' @description create a mesh
 #' @param dimension number of dimensions
-#' @param percision use 'float' or 'double' for values
+#' @param precision use 'float' or 'double' for values
 #' @param reserve number of points to allocate on creation
 #' @return antsrMesh
 #' @examples
@@ -98,6 +98,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @description add point to mesh
 #' @param mesh an 'antsrMesh'
 #' @param point spatial point to add to mesh
+#' @param identifier index of point to add
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
 #' antsrMeshAddPoint( x, c(0,0,0) )
@@ -165,7 +166,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @title antsrMeshGetPoints
 #' @description get all points in mesh
 #' @param mesh an 'antsrMesh'
-#' @param identifier identifier of point to get
+#' @param identifiers identifiers of points to get
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
 #' antsrMeshAddPoint( x, c(0,0,0) )
@@ -181,16 +182,17 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @title applyAntsrTransformToMesh
 #' @description Apply transform/s to an antsrMesh
 #' @param transform antsrTransform
-#' @param image antsrMesh to transform
+#' @param mesh antsrMesh to transform
 #' @param interpolation type of interpolator to use
-#' @return antsImage
+#' @return antsrMesh
 #' @export
-applyAntsrTransformToMesh <- function(transform, image, reference, interpolation="linear") {
+applyAntsrTransformToMesh <- function(transform, mesh, interpolation="linear") {
   if ( typeof(transform) == "list")
   {
     transform <- composeAntsrTransforms(transform)
   }
   #return(.Call("antsrTransform_TransformImage", transform, image, reference, tolower(interpolation), PACKAGE = "ANTsRCore"))
+  stop("This fuction is still a WIP")
   return(NA)
 }
 

@@ -1,15 +1,20 @@
 Package: DANTsR
 Type: Package
-Title: Diffusion Image Support for ANTsR
+Title: Diffusion Imaging Support for ANTsR
 Version: 0.1
 Date: 2018-02-27
-Author: Jeffrey T. Duda
-Maintainer: Jeffrey T. Duda <jeff.duda@gmail.com>
-Description: More details about what the package does. See
-        <http://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file>
-        for details on how to write this part.
+Authors@R: person("Jeffrey", "Duda", email = "jeff.duda@gmail.com",
+                  role = c("aut", "cre"))
+Description: Diffusion imaging support for the ANTsR* packages is provided here.
+  In addition, it provides a mesh class intended to be used as a point set
+  as well as a class for streamlines obtained via fiber tracking.
 License: Apache License 2.0
-Depends: Rcpp, ANTsR, ITKR, ANTsRCore, RNifti
-Imports: Rcpp, ANTsR, ITKR, ANTsRCore, RNifti
-LinkingTo: Rcpp, ANTsR, ITKR, ANTsRCore
+Imports:
+  methods,
+  Rcpp,
+  ITKR,
+  ANTsRCore,
+  RNifti
+Suggests: ANTsR
+LinkingTo: Rcpp, ITKR, ANTsRCore
 RoxygenNote: 6.0.1
