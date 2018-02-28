@@ -4,19 +4,19 @@
 \alias{antsrMeshSetPoint}
 \title{antsrMeshSetPoint}
 \usage{
-antsrMeshSetPoint(mesh, identifier, point)
+antsrMeshSetPoint(mesh, point, identifier)
 }
 \arguments{
 \item{mesh}{an 'antsrMesh'}
 
-\item{identifier}{identified for point to set}
-
 \item{point}{spatial point to set in mesh}
+
+\item{identifier}{identified for point to set}
 }
 \description{
 set a given point in mesh
 }
 \examples{
 x =  antsrMeshCreate( 3, "float", reserve=128 )
-antsrMeshSetPoint( x, 0, c(0,0,0) )
+antsrMeshSetPoint( x, c(0,0,0), 0 )
 }

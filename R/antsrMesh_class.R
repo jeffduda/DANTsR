@@ -4,9 +4,9 @@
 
 
 #' @rdname antsrMesh
-#' @title An S4 class for a statial mesh
+#' @title antsrMesh
 #'
-#' @description C++ type used to represent an ITK image mesh
+#' @description class for point sets and meshes
 #'
 #' @param object input object to convert
 #' @param .Object input object to convert

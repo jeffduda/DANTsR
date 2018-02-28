@@ -16,6 +16,6 @@ get points for a given cell in mesh
 }
 \examples{
 x =  antsrMeshCreate( 3, "float", reserve=128 )
-antsrMeshSetPoint( x, 0, c(0,0,0) )
-c = antsrMeshGetCellPoints(x, 0)
+antsrMeshAddPoint( x, c(0,0,0) )
+
 }

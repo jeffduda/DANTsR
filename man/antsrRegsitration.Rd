@@ -3,23 +3,23 @@
 \name{antsrRegistrationRun}
 \alias{antsrRegistrationRun}
 \alias{initialize,antsrRegistration-method}
-\title{antsrRegistrationCreate}
+\title{antsrRegistrationRun}
 \usage{
 antsrRegistrationRun(stages, fixed, moving)
 }
 \arguments{
-\item{dimension}{number of dimensions}
+\item{stages}{antsrRegistration parameters}
 
-\item{percision}{use 'float' or 'double' for values}
+\item{fixed}{fixed image}
 
-\item{reserve}{number of points to allocate on creation}
+\item{moving}{moving image}
 }
 \value{
-antsrRegistration
+antsrMesh
 }
 \description{
-create object that registers two images
+run a linear registration
 }
 \examples{
-x =  antsrRegistrationCreate( 3, "float", reserve=128 )
+x =  antsrMeshCreate( 3, "float", reserve=128 )
 }

@@ -13,6 +13,6 @@ antsrMeshGetNumberOfCells(mesh)
 get number of cells in an antsrMesh
 }
 \examples{
-ro
+x =  antsrMeshCreate( 3, "float", reserve=128 )
 antsrMeshGetNumberOfCells(x)
 }

@@ -4,7 +4,7 @@
 \name{antsrRegistration-class}
 \alias{antsrRegistration-class}
 \alias{show,antsrRegistration-method}
-\title{An S4 class for registration}
+\title{antsrRegsitration}
 \usage{
 \S4method{show}{antsrRegistration}(object)
 }

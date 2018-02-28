@@ -6,7 +6,7 @@
 \alias{show,antsrMesh-method}
 \alias{initialize,antsrMesh-method}
 \alias{initialize,antsrTransform-method}
-\title{An S4 class for a statial mesh}
+\title{antsrMesh}
 \usage{
 \S4method{show}{antsrMesh}(object)
 
@@ -23,7 +23,7 @@
 \item{precision}{string e.g. "float" or "double"}
 }
 \description{
-C++ type used to represent an ITK image mesh
+class for point sets and meshes
 }
 \section{Slots}{
 

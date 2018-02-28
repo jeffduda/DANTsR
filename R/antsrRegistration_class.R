@@ -4,7 +4,7 @@
 
 
 #' @rdname antsrRegistration
-#' @title An S4 class for registration
+#' @title antsrRegsitration
 #'
 #' @description C++ type used to represent an ITK image registration filter
 #'
@@ -59,15 +59,15 @@ setMethod(f = "show", "antsrRegistration", function(object){
 #})
 
 
-#' @title antsrRegistrationCreate
-#' @description create object that registers two images
-#' @param dimension number of dimensions
-#' @param percision use 'float' or 'double' for values
-#' @param reserve number of points to allocate on creation
-#' @return antsrRegistration
-#' @examples
-#' x =  antsrRegistrationCreate( 3, "float", reserve=128 )
-#' @export
+# @title antsrRegistrationCreate
+# @description create object that registers two images
+# @param dimension number of dimensions
+# @param percision use 'float' or 'double' for values
+# @param reserve number of points to allocate on creation
+# @return antsrRegistration
+# @examples
+# x =  antsrRegistrationCreate( 3, "float", reserve=128 )
+# @export
 #antsrRegsitrationCreate <- function(dimension=3, precision="float", reserve=0)
 #{
 
@@ -91,7 +91,15 @@ setMethod(f = "show", "antsrRegistration", function(object){
 #  return(reg)
 #  }
 
-
+#' @title antsrRegistrationRun
+#' @description run a linear registration
+#' @param stages antsrRegistration parameters
+#' @param fixed fixed image
+#' @param moving moving image
+#' @return antsrMesh
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=128 )
+#' @export
 antsrRegistrationRun <- function( stages, fixed, moving ) {
 
   # Check parameters for validity

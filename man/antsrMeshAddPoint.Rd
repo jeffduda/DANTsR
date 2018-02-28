@@ -4,7 +4,7 @@
 \alias{antsrMeshAddPoint}
 \title{antsrMeshAddPoint}
 \usage{
-antsrMeshAddPoint(mesh, point)
+antsrMeshAddPoint(mesh, point, identifier = NA)
 }
 \arguments{
 \item{mesh}{an 'antsrMesh'}
