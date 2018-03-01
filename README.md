@@ -5,7 +5,7 @@
 # DANTsR
 Diffusion imaging extension to ANTsR.
 
-Travis-CI status: [![Travis-CI Build Status](https://travis-ci.org/jeffduda/DANTsR.svg?branch=master)](https://travis-ci.org/jeffduda/DANTsR)
+Travis-CI status: [![Travis-CI Build Status](https://travis-ci.org/jeffduda/DANTsR.png?branch=master)](https://travis-ci.org/jeffduda/DANTsR)
 
 img = antsImageRead("yourfile.nii.gz")
 

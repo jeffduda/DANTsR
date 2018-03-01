@@ -19,7 +19,7 @@ typename MeshType::Pointer antsrMesh( itk::IdentifierType reserve )
     mesh->GetPoints()->Reserve(reserve);
   }
 
-  Rcpp::Rcout << "Created mesh: " << mesh->GetNumberOfPoints() << std::endl;
+  //Rcpp::Rcout << "Created mesh: " << mesh->GetNumberOfPoints() << std::endl;
 
   return mesh;
 
