@@ -59,7 +59,7 @@ jobs:
       - source ~/.R/Makevars
       - export_clang_cxx
       - cd ..
-      - travis_wait 100 R CMD build ANTsR ${R_BUILD_ARGS}
+      - travis_wait 100 R CMD build DANTsR ${R_BUILD_ARGS}
       - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
       - travis_wait 100 R CMD check ${R_CHECK_ARGS} "${PKG_FILE_NAME}" --no-manual;
       - check_fail
@@ -70,7 +70,7 @@ jobs:
       - source ~/.R/Makevars
       - export_clang_cxx
       - cd ..
-      - travis_wait 100 R CMD build ANTsR ${R_BUILD_ARGS}
+      - travis_wait 100 R CMD build DANTsR ${R_BUILD_ARGS}
       - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
       - travis_wait 100 R CMD check ${R_CHECK_ARGS} "${PKG_FILE_NAME}" --no-manual;
       - check_fail
@@ -82,11 +82,11 @@ jobs:
       - source ~/.R/Makevars
       - export_clang_cxx
       - cd ..
-      - travis_wait 100 R CMD build ANTsR ${R_BUILD_ARGS}
+      - travis_wait 100 R CMD build DANTsR ${R_BUILD_ARGS}
       - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
       - if [[ ${#TRAVIS_TAG} -gt 0 ]];
         then
-          R CMD INSTALL --debug --build ANTsR;
+          R CMD INSTALL --debug --build DANTsR;
           PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1);
           if [ "$TRAVIS_OS_NAME" == "osx" ];
             then
@@ -111,11 +111,11 @@ jobs:
       - source ~/.R/Makevars
       - export_clang_cxx
       - cd ..
-      - travis_wait 100 R CMD build ANTsR ${R_BUILD_ARGS}
+      - travis_wait 100 R CMD build DANTsR ${R_BUILD_ARGS}
       - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
       - if [[ ${#TRAVIS_TAG} -gt 0 ]];
         then
-          R CMD INSTALL --debug --build ANTsR;
+          R CMD INSTALL --debug --build DANTsR;
           PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1);
           if [ "$TRAVIS_OS_NAME" == "osx" ];
             then
@@ -151,23 +151,20 @@ jobs:
 after_success:
   - echo ${TRAVIS_BUILD_DIR}
   - dn=`dirname ${TRAVIS_BUILD_DIR}`
-  - cat ${dn}/ANTsR.Rcheck/00check.log
-  - cat ${dn}/ANTsR.Rcheck/00install.out
+  - cat ${dn}/DANTsR.Rcheck/00check.log
+  - cat ${dn}/DANTsR.Rcheck/00install.out
   - export PATH=${ORIG_PATH}
 
 after_failure:
   - echo ${TRAVIS_BUILD_DIR}
   - dn=`dirname ${TRAVIS_BUILD_DIR}`
-  - cat ${dn}/ANTsR.Rcheck/00install.out
-  - cat ${dn}/ANTsR.Rcheck/00check.log
+  - cat ${dn}/DANTsR.Rcheck/00install.out
+  - cat ${dn}/DANTsR.Rcheck/00check.log
 # send e-mails if stuff changes
 
 notifications:
   email:
     recipients:
-    - muschellij2@gmail.com
-    - stnava@gmail.com
-    - arman.eshaghi@gmail.com
     - jeff.duda@gmail.com
     on_success: change
     on_failure: always
