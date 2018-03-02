@@ -105,9 +105,8 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @export
   antsrMeshAddPoint = function( mesh, point, identifier=NA ) {
     if ( is.na(identifier) )  {
-      identifer = antsrMeshGetNumberOfPoints(mesh)
+      identifier = antsrMeshGetNumberOfPoints(mesh)
     }
-
     invisible(.Call("antsrMesh_AddPoint", mesh, identifier, point, package="DANTsR"))
   }
 
