@@ -1100,3 +1100,158 @@ catch(...)
   }
 return Rcpp::wrap(NA_REAL); //not reached
 }
+
+
+
+// Apply transform to image
+template< class MeshType, class TransformType >
+SEXP antsrMesh_TransformMesh( SEXP r_transform, SEXP r_mesh, SEXP r_inplace )
+{
+  typedef typename MeshType::Pointer                 MeshPointerType;
+  typedef typename TransformType::Pointer            TransformPointerType;
+
+  const unsigned int Dimension = TransformType::InputSpaceDimension;
+
+  bool inplace = Rcpp::as<bool>(r_inplace);
+
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
+  TransformPointerType transform = Rcpp::as<TransformPointerType>( r_transform );
+
+  typedef typename TransformType::ParametersValueType                   PrecisionType;
+  typedef typename MeshType::PixelType PixelType;
+
+  typedef typename MeshType::PointType      MeshPointType;
+
+  typename MeshType::Pointer outMesh = NULL;
+  if ( !inplace ) {
+    outMesh = MeshType::New();
+    outMesh->GetPoints()->Reserve(mesh->GetNumberOfPoints());
+  }
+  else {
+    outMesh = mesh;
+  }
+
+  typename TransformType::InputPointType inPoint;
+  typename TransformType::OutputPointType outPoint;
+  for (unsigned int i=0; i<mesh->GetNumberOfPoints(); i++ ) {
+    MeshPointType mPoint = mesh->GetPoint(i);
+    for (unsigned int j=0; j<Dimension; j++) {
+      inPoint[j] = static_cast<PrecisionType>(mPoint[j]);
+    }
+
+    outPoint = transform->TransformPoint( inPoint );
+    for (unsigned int j=0; j<Dimension; j++) {
+      mPoint[j] = static_cast<PixelType>(outPoint[j]);
+    }
+
+    outMesh->SetPoint(i, mPoint);
+  }
+
+  return Rcpp::wrap<MeshPointerType>( outMesh );
+}
+
+template< class MeshType >
+SEXP antsrMesh_TransformMesh( SEXP r_transform, SEXP r_mesh, SEXP r_inplace )
+{
+  Rcpp::S4 transform( r_transform );
+  std::string type = Rcpp::as<std::string>( transform.slot("type") );
+  std::string precision = Rcpp::as<std::string>( transform.slot("precision") );
+
+  Rcpp::S4 rMesh( r_mesh );
+  std::string pixeltype = rMesh.slot("precision");
+
+  const unsigned int Dimension = MeshType::PointDimension;
+
+  if ( precision == "double" )
+  {
+    typedef itk::Transform<double, Dimension, Dimension> TransformType;
+    return antsrMesh_TransformMesh<MeshType, TransformType>( r_transform, r_mesh, r_inplace );
+  }
+  else if ( precision == "float" )
+  {
+    typedef itk::Transform<float, Dimension, Dimension> TransformType;
+    return antsrMesh_TransformMesh<MeshType, TransformType>( r_transform, r_mesh, r_inplace );
+  }
+  else
+  {
+    Rcpp::stop("Unsupported precision in antsrTransform");
+  }
+
+  return Rcpp::wrap(NA_REAL);
+
+}
+
+RcppExport SEXP antsrMesh_TransformMesh( SEXP r_transform, SEXP r_mesh, SEXP r_inplace )
+{
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string pixeltype = rMesh.slot("precision");
+  unsigned int idimension = rMesh.slot("dimension");
+
+  Rcpp::S4 transform( r_transform );
+  std::string precision = Rcpp::as<std::string>( transform.slot("precision") );
+  unsigned int dimension = Rcpp::as<int>( transform.slot("dimension") );
+
+  if ( (dimension < 2) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  }
+  if ( dimension != idimension ) {
+    Rcpp::stop("Image and transform must have same dimension");
+  }
+
+
+  if ( pixeltype=="double") {
+    typedef double PixelType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PixelType,2> MeshType;
+      return antsrMesh_TransformMesh<MeshType>(r_transform, r_mesh, r_inplace);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PixelType,3> MeshType;
+      return antsrMesh_TransformMesh<MeshType>(r_transform, r_mesh, r_inplace);
+    }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PixelType,4> MeshType;
+      return antsrMesh_TransformMesh<MeshType>(r_transform, r_mesh, r_inplace);
+    }
+  }
+  else if (pixeltype=="float") {
+    typedef float PixelType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PixelType,2> MeshType;
+      return antsrMesh_TransformMesh<MeshType>(r_transform, r_mesh, r_inplace);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PixelType,3> MeshType;
+      return antsrMesh_TransformMesh<MeshType>(r_transform, r_mesh, r_inplace);
+      }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PixelType,4> MeshType;
+      return antsrMesh_TransformMesh<MeshType>(r_transform, r_mesh, r_inplace);
+    }
+  }
+  else {
+    Rcpp::stop( "Unsupported pixel type in mesh - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}

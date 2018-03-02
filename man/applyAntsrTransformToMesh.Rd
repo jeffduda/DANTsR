@@ -4,18 +4,26 @@
 \alias{applyAntsrTransformToMesh}
 \title{applyAntsrTransformToMesh}
 \usage{
-applyAntsrTransformToMesh(transform, mesh, interpolation = "linear")
+applyAntsrTransformToMesh(transform, mesh, in.place = FALSE)
 }
 \arguments{
 \item{transform}{antsrTransform}
 
 \item{mesh}{antsrMesh to transform}
 
-\item{interpolation}{type of interpolator to use}
+\item{in.place}{if true modify the input mesh, if false return a new mesh}
 }
 \value{
 antsrMesh
 }
 \description{
 Apply transform/s to an antsrMesh
+}
+\examples{
+x =  antsrMeshCreate( 3, "float", reserve=1 )
+antsrMeshAddPoint( x, c(1,2,3) )
+tx = new("antsrTransform")
+params = getAntsrTransformParameters(tx)
+setAntsrTransformParameters(tx, params*2)
+x2 = applyAntsrTransformToMesh(tx, x)
 }

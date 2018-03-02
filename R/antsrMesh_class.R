@@ -182,16 +182,22 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @description Apply transform/s to an antsrMesh
 #' @param transform antsrTransform
 #' @param mesh antsrMesh to transform
-#' @param interpolation type of interpolator to use
+#' @param in.place if true modify the input mesh, if false return a new mesh
 #' @return antsrMesh
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=1 )
+#' antsrMeshAddPoint( x, c(1,2,3) )
+#' tx = new("antsrTransform")
+#' params = getAntsrTransformParameters(tx)
+#' setAntsrTransformParameters(tx, params*2)
+#' x2 = applyAntsrTransformToMesh(tx, x)
 #' @export
-applyAntsrTransformToMesh <- function(transform, mesh, interpolation="linear") {
+applyAntsrTransformToMesh <- function(transform, mesh, in.place=FALSE) {
   if ( typeof(transform) == "list")
   {
     transform <- composeAntsrTransforms(transform)
   }
-  #return(.Call("antsrTransform_TransformImage", transform, image, reference, tolower(interpolation), PACKAGE = "ANTsRCore"))
-  stop("This fuction is still a WIP")
+  return(.Call("antsrMesh_TransformMesh", transform, mesh, in.place, PACKAGE = "DANTsR"))
   return(NA)
 }
 
