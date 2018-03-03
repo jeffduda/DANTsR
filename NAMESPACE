@@ -1,5 +1,7 @@
 useDynLib(DANTsR)
+export(antsrMeshAddCell)
 export(antsrMeshAddPoint)
+export(antsrMeshAddPolyline)
 export(antsrMeshCreate)
 export(antsrMeshGetCell)
 export(antsrMeshGetCellPoints)

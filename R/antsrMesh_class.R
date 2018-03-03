@@ -171,12 +171,59 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' antsrMeshAddPoint( x, c(0,0,0) )
 #' pt = antsrMeshGetPoints(x, 0)
 #' @export
-  antsrMeshGetPoints = function( mesh, identifiers=NULL) {
-    if ( is.null(identifiers) ) {
-      identifiers = numeric(0)
-    }
-    .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
+antsrMeshGetPoints = function( mesh, identifiers=NULL) {
+  if ( is.null(identifiers) ) {
+    identifiers = numeric(0)
   }
+  .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
+}
+
+#' @title antsrMeshAddPolyline
+#' @description add a polyline cell to the mesh
+#' @param mesh an 'antsrMesh'
+#' @param points array of point indices
+#' @param identifier index of cell to add
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=128 )
+#' antsrMeshAddPoint( x, c(0,0,0), 0 )
+#' antsrMeshAddPoint( x, c(1,0,0), 1 )
+#' antsrMeshAddPoint( x, c(1,1,0), 2 )
+#' antsrMeshAddPolyline( x, c(0,1,2), 0)
+#' @export
+antsrMeshAddPolyline = function( mesh, points, identifier=NA ) {
+  if ( is.na(identifier) )  {
+    identifier = antsrMeshGetNumberOfCells(mesh)
+  }
+
+  invisible(.Call("antsrMesh_AddPolyline", mesh, identifier, points, package="DANTsR"))
+}
+
+#' @title antsrMeshAddCell
+#' @description add a cell to the mesh
+#' @param mesh an 'antsrMesh'
+#' @param points array of point indices
+#' @param type of cell to add
+#' @param identifier index of cell to add
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=128 )
+#' antsrMeshAddPoint( x, c(0,0,0), 0 )
+#' antsrMeshAddPoint( x, c(1,0,0), 1 )
+#' antsrMeshAddPoint( x, c(1,1,0), 2 )
+#' antsrMeshAddCell( x, c(0,1,2), "polyline", 0)
+#' @export
+antsrMeshAddCell = function( mesh, points, type, identifier=NA ) {
+  if ( is.na(identifier) )  {
+    identifier = antsrMeshGetNumberOfCells(mesh)
+  }
+
+  if ( type=="polyline" ) {
+    invisible(.Call("antsrMesh_AddPolyline", mesh, identifier, points, package="DANTsR"))
+  }
+  else {
+    stop( "Unsupported cell type")
+  }
+
+}
 
 #' @title applyAntsrTransformToMesh
 #' @description Apply transform/s to an antsrMesh

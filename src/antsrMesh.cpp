@@ -10,6 +10,10 @@
 #include "itkCaminoStreamlineFileReader.h"
 #include "itkVtkPolyDataFileReader.h"
 
+#include "itkLineCell.h"
+#include "itkPolygonCell.h"
+#include "itkPolyLineCell.h"
+
 template< class MeshType >
 typename MeshType::Pointer antsrMesh( itk::IdentifierType reserve )
 {
@@ -18,6 +22,13 @@ typename MeshType::Pointer antsrMesh( itk::IdentifierType reserve )
   if ( reserve > 0 ) {
     mesh->GetPoints()->Reserve(reserve);
   }
+
+  // options here are:
+  // CellsAllocationMethodUndefined
+  // CellsAllocatedAsStaticArray
+  // CellsAllocatedAsADynamicArray
+  // CellsAllocatedDynamicallyCellByCell
+  mesh->SetCellsAllocationMethod( MeshType::CellsAllocatedDynamicallyCellByCell );
 
   //Rcpp::Rcout << "Created mesh: " << mesh->GetNumberOfPoints() << std::endl;
 
@@ -821,6 +832,109 @@ catch(...)
   }
 return Rcpp::wrap(NA_REAL); //not reached
 }
+
+template< class MeshType >
+SEXP
+antsrMesh_AddPolyline( SEXP r_mesh, SEXP r_identifier, SEXP r_points )
+{
+  Rcpp::S4 rMesh( r_mesh );
+  unsigned int dimension = rMesh.slot("dimension");
+
+  typedef typename MeshType::Pointer MeshPointerType;
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+
+  typedef typename MeshType::CellType       CellType;
+  typedef typename CellType::CellAutoPointer      CellAutoPointer;
+  typedef typename itk::PolyLineCell< CellType >  PolyLineCellType;
+
+  Rcpp::NumericVector pts = Rcpp::as<Rcpp::NumericVector>( r_points );
+  unsigned int nPoints = pts.size();
+
+  typename MeshType::PointIdentifier polyPoints[ nPoints ];
+
+  for (unsigned long i=0; i<nPoints; i++) {
+    polyPoints[i] = pts[i];
+  }
+
+  PolyLineCellType * polyline = new PolyLineCellType;
+  polyline->SetPointIds( 0, nPoints, polyPoints );
+  CellAutoPointer streamline;
+  streamline.TakeOwnership( polyline );
+  mesh->SetCell(id, streamline);
+
+
+  return( Rcpp::wrap(NA_REAL) );
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_AddPolyline( SEXP r_mesh, SEXP r_identifier, SEXP r_points )
+{
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  unsigned int dimension = rMesh.slot("dimension");
+
+  if ( (dimension < 2) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  }
+
+  if ( precision=="double") {
+    typedef double PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
+    }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
+    }
+  }
+  else if (precision=="float") {
+    typedef float PrecisionType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PrecisionType,2> MeshType;
+      return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PrecisionType,3> MeshType;
+      return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
+        }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PrecisionType,4> MeshType;
+      return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
+    }
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
 
 template< class MeshType >
 SEXP

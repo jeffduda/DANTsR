@@ -10,6 +10,7 @@
 /* .Call calls */
 extern SEXP antsrMesh(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_AddPoint(SEXP, SEXP, SEXP, SEXP);
+extern SEXP antsrMesh_AddPolyline(SEXP, SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_GetCell(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_GetCellPoints(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_GetNumberOfCells(SEXP, SEXP);
@@ -31,6 +32,7 @@ extern SEXP labelsToPoints(SEXP, SEXP, SEXP);
 static const R_CallMethodDef CallEntries[] = {
     {"antsrMesh",                   (DL_FUNC) &antsrMesh,                   3},
     {"antsrMesh_AddPoint",          (DL_FUNC) &antsrMesh_AddPoint,          4},
+    {"antsrMesh_AddPolyline",       (DL_FUNC) &antsrMesh_AddPolyline,       4},
     {"antsrMesh_GetCell",           (DL_FUNC) &antsrMesh_GetCell,           3},
     {"antsrMesh_GetCellPoints",     (DL_FUNC) &antsrMesh_GetCellPoints,     3},
     {"antsrMesh_GetNumberOfCells",  (DL_FUNC) &antsrMesh_GetNumberOfCells,  2},
