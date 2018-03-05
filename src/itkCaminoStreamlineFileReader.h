@@ -143,10 +143,10 @@ public:
 protected:
   CaminoStreamlineFileReader();
   ~CaminoStreamlineFileReader() {}
-  void PrintSelf( std::ostream& os, Indent indent ) const;
+  void PrintSelf( std::ostream& os, Indent indent ) const override;
 
   /** Reads the file */
-  void GenerateData();
+  void GenerateData() override;
 
   bool                                            m_ExtractBoundaryPoints;
 

@@ -353,7 +353,7 @@ SEXP
 antsrMesh_GetCell( SEXP r_mesh, SEXP r_identifier )
 {
   Rcpp::S4 rMesh( r_mesh );
-  unsigned int dimension = rMesh.slot("dimension");
+  //unsigned int dimension = rMesh.slot("dimension");
 
   typedef typename MeshType::Pointer            MeshPointerType;
   typedef typename MeshType::CellType           CellType;
@@ -838,7 +838,7 @@ SEXP
 antsrMesh_AddPolyline( SEXP r_mesh, SEXP r_identifier, SEXP r_points )
 {
   Rcpp::S4 rMesh( r_mesh );
-  unsigned int dimension = rMesh.slot("dimension");
+  //unsigned int dimension = rMesh.slot("dimension");
 
   typedef typename MeshType::Pointer MeshPointerType;
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
@@ -950,7 +950,7 @@ antsrMesh_ReadVTK( SEXP r_filename )
   reader->Update();
   MeshPointerType mesh = reader->GetOutput();
 
-  typename ReaderType::LineSetType * lines = reader->GetLines();
+  //typename ReaderType::LineSetType * lines = reader->GetLines();
 
   Rcpp::List pointScalarList( reader->GetPointScalars()->Size() );
   Rcpp::CharacterVector pointScalarNames( reader->GetPointScalars()->Size() );
@@ -1051,8 +1051,8 @@ antsrMesh_ReadCamino( SEXP r_filename )
 {
   typedef typename MeshType::Pointer                 MeshPointerType;
   typedef itk::CaminoStreamlineFileReader<MeshType>  ReaderType;
-  typedef typename MeshType::CellType                CellType;
-  typedef typename CellType::CellAutoPointer         CellAutoPointer;
+  //typedef typename MeshType::CellType                CellType;
+  //typedef typename CellType::CellAutoPointer         CellAutoPointer;
 
   std::string filename = Rcpp::as<std::string>( r_filename );
 
@@ -1134,7 +1134,6 @@ SEXP
 antsrMesh_WriteCamino( SEXP r_mesh, SEXP r_filename, SEXP r_seeds )
 {
   typedef typename MeshType::Pointer                 MeshPointerType;
-  typedef itk::CaminoStreamlineFileReader<MeshType>  ReaderType;
   typedef typename MeshType::CellType                CellType;
   typedef typename CellType::CellAutoPointer         CellAutoPointer;
 
@@ -1178,7 +1177,7 @@ try
 {
   Rcpp::S4 rMesh( r_mesh );
   std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  //unsigned int dimension = rMesh.slot("dimension");
 
   if ( precision=="double") {
     typedef double PrecisionType;
