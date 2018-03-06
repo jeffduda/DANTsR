@@ -146,6 +146,14 @@ test_that( "cell points can be retrieved from mesh", {
   expect_true( sum(pts)==3 )
 })
 
+test_that( "read vtk polydata", {
+  tmp = tempfile()
+  tmp = paste(sep="", tmp, ".vtk")
+  cat( getExamplePolydata(), file=tmp)
+  x = read.antsrMesh(tmp)
+  expect_true( class(x$Mesh)=="antsrMesh" )
+})
+
 #test_that("matrix of points can be passed to mesh", {
 #  x = antsrMeshCreate()
 #  m = matrix(1:12, 4, 3)
