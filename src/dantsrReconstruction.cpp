@@ -56,11 +56,11 @@ SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method )
       vect3d[1] = gradients(i,1);
       vect3d[2] = gradients(i,2);
       diffusionVectors->InsertElement( i, vect3d );
-      //Rcpp::Rcout << "Set gradient: " << vect3d << std::endl;
+      //Rcpp::Rcout << "Set gradient: " << vect3d << " with bvalue=" << thisB << std::endl;
     }
 
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetNumberOfThreads(1); // due to netlib / vnl_svd
+    filter->SetNumberOfThreads(1); // due to  netlib/dsvdc.c
     filter->SetGradientImage( diffusionVectors, image );
     filter->SetBValue( bValue );
 
@@ -82,7 +82,7 @@ SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method )
 
     it.GoToBegin();
     while( !it.IsAtEnd() ) {
-      VectorType dt;
+      VectorType dt(6);
       dt.SetData( it.Get().GetDataPointer(), 6, false);
       itOut.Set(dt);
       ++it;
