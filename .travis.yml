@@ -12,7 +12,7 @@ osx_image: xcode8.2
 r_build_args: --no-build-vignettes --no-manual
 env:
   global:
-  - R_BUILD_ARGS="--no-manual"
+  - R_BUILD_ARGS="--no-manual --no-build-vignettes"
   - R_CHECK_ARGS="--as-cran"
   - R_CHECK_TIME="TRUE"
   - R_CHECK_TESTS="TRUE"
