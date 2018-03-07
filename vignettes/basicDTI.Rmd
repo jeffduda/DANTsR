@@ -1,0 +1,45 @@
+---
+title: "Diffusion image proccessing"
+author: "Jeffrey T. Duda"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteIndexEntry{Diffusion weighted images}
+    \usepackage[utf8]{inputenc}
+---
+
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+library( knitr )
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+library(DANTsR)
+library(kirby21.dti)
+
+```
+
+## Overview
+This document provides some examples illustrating how [DANTsR](https://github.com/jeffduda/DANTsR)
+may be used to work with diffusion weighted MR images.
+
+```{r dwi2dti,message=FALSE,warnings=FALSE, fig.width=7, fig.height=5, echo=FALSE}
+
+#download_dti_data()
+grad = read.table(get_dti_info_filenames()[1]$fname[1])
+dwi = antsImageRead(get_dti_filenames()[1])
+
+#mag = apply(as.matrix(grad), 1, function(x) sqrt( x[1]*x[1] + x[2]*x[2] + x[3]*x[3] ) )
+#keep = which( asmag <= 1 )
+
+grad=as.matrix(grad[1:33,])
+bvalues = c(rep(1000,32),0)
+grad = cbind(grad, bvalues)
+
+d = dim(dwi)
+d[4] = 33
+dwi = cropIndices(dwi, c(1,1,1,1), d)
+dwi = dimensionToChannel(dwi)
+dt = dtiReconstruction(dwi, grad, method="itk-svd")
+
+fa = dtiAnisotropy(dt, method="fractionalanisotropy")
+plot(fa)
+```
