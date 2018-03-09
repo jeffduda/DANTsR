@@ -21,14 +21,14 @@ library(kirby21.dti)
 This document provides some examples illustrating how [DANTsR](https://github.com/jeffduda/DANTsR)
 may be used to work with diffusion weighted MR images.
 
-```{r dwi2dti,message=FALSE,warnings=FALSE, fig.width=7, fig.height=5, echo=FALSE}
+```{r dwi2dti,message=FALSE,warnings=FALSE, fig.width=7, fig.height=5, echo=TRUE}
 
 #download_dti_data()
 grad = read.table(get_dti_info_filenames()[1]$fname[1])
 dwi = antsImageRead(get_dti_filenames()[1])
 
-#mag = apply(as.matrix(grad), 1, function(x) sqrt( x[1]*x[1] + x[2]*x[2] + x[3]*x[3] ) )
-#keep = which( asmag <= 1 )
+mag = apply(as.matrix(grad), 1, function(x) sqrt( x[1]*x[1] + x[2]*x[2] + x[3]*x[3] ) )
+b0Ids = which( mag == 0 )
 
 grad=as.matrix(grad[1:33,])
 bvalues = c(rep(1000,32),0)

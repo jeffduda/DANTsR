@@ -11,7 +11,7 @@ template< class ImageType >
 SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_interp )
 {
 
-  Rcpp::Rcout << "interpolateImageValues<ImageType>" << std::endl;
+  //Rcpp::Rcout << "interpolateImageValues<ImageType>" << std::endl;
 
   typedef typename ImageType::PixelType PixelType;
   typedef typename ImageType::Pointer ImagePointerType;
@@ -44,11 +44,11 @@ SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_inte
 
     if ( isPoint ) {
       values[i] = function->Evaluate( pt );
-      Rcpp::Rcout << pt << " - " << values[i] << std::endl;
+      //Rcpp::Rcout << pt << " - " << values[i] << std::endl;
     }
     else {
       values[i] = function->EvaluateAtContinuousIndex( idx );
-      Rcpp::Rcout << idx << " - " << values[i] << std::endl;
+      //Rcpp::Rcout << idx << " - " << values[i] << std::endl;
     }
   }
 
@@ -61,7 +61,7 @@ SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_inte
 RcppExport SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_interp ) {
 try
   {
-  Rcpp::Rcout << "interpolateImageValues()" << std::endl;
+  //Rcpp::Rcout << "interpolateImageValues()" << std::endl;
   if( r_img == NULL || r_points == NULL )
     {
       Rcpp::Rcout << "Unspecified Arguments" << std::endl;
@@ -75,7 +75,7 @@ try
   //bool isVector = Rcpp::as<bool>( antsimage.slot("isVector") );
 
   Rcpp::NumericMatrix mat( r_points );
-  Rcpp::Rcout << "Matrix is of size " << mat.nrow() << " x " << mat.ncol() << std::endl;
+  //Rcpp::Rcout << "Matrix is of size " << mat.nrow() << " x " << mat.ncol() << std::endl;
 
   if ( components != 1 ) {
     Rcpp::Rcout << "Input must have 1 components" << std::endl;
