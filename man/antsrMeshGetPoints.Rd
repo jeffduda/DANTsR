@@ -17,5 +17,5 @@ get all points in mesh
 \examples{
 x =  antsrMeshCreate( 3, "float", reserve=128 )
 antsrMeshAddPoint( x, c(0,0,0) )
-pt = antsrMeshGetPoints(x, 0)
+pt = antsrMeshGetPoints(x, 1)
 }

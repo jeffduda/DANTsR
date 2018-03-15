@@ -4,7 +4,7 @@
 \alias{dtiReconstruction}
 \title{dtiReconstruction}
 \usage{
-dtiReconstruction(dwi, gradients, method)
+dtiReconstruction(dwi, gradients, method, mask = NULL)
 }
 \arguments{
 \item{dwi}{an N-channel antsImage}

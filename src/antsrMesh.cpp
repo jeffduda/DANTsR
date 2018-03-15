@@ -15,12 +15,29 @@
 #include "itkPolyLineCell.h"
 
 template< class MeshType >
-typename MeshType::Pointer antsrMesh( itk::IdentifierType reserve )
+typename MeshType::Pointer antsrMesh( itk::IdentifierType reserve, SEXP r_points )
 {
 
   typename MeshType::Pointer mesh = MeshType::New();
+  typename MeshType::PointType itkPoint;
+
+  Rcpp::NumericMatrix points(r_points);
+  //Rcpp::NumericMatrix cells(r_cells);
+
   if ( reserve > 0 ) {
     mesh->GetPoints()->Reserve(reserve);
+  }
+
+  if ( points.ncol() > 1 ) {
+
+    for ( unsigned int i=0; i<points.nrow(); i++ ) {
+
+      for ( unsigned int j=0; j<points.ncol(); j++ ) {
+        itkPoint[j] = points(i,j);
+      }
+
+      mesh->SetPoint(i, itkPoint);
+    }
   }
 
   // options here are:
@@ -37,7 +54,7 @@ typename MeshType::Pointer antsrMesh( itk::IdentifierType reserve )
 }
 
 //pixeltype, precision, dimension, type, isVector
-RcppExport SEXP antsrMesh( SEXP r_precision, SEXP r_dimension, SEXP r_reserve)
+RcppExport SEXP antsrMesh( SEXP r_precision, SEXP r_dimension, SEXP r_reserve, SEXP r_points)
 {
 try
 {
@@ -53,30 +70,30 @@ try
     typedef double PrecisionType;
     if ( dimension == 2 ) {
       typedef itk::Mesh<PrecisionType,2> MeshType;
-      return Rcpp::wrap( antsrMesh<MeshType>(reserve) );
+      return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
     }
     else if ( dimension == 3 ) {
       typedef itk::Mesh<PrecisionType,3> MeshType;
-      return Rcpp::wrap( antsrMesh<MeshType>(reserve) );
+      return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
         }
     else if ( dimension == 4 ) {
       typedef itk::Mesh<PrecisionType,4> MeshType;
-      return Rcpp::wrap( antsrMesh<MeshType>(reserve) );
+      return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
     }
   }
   else if (precision=="float") {
     typedef float PrecisionType;
     if ( dimension == 2 ) {
       typedef itk::Mesh<PrecisionType,2> MeshType;
-      return Rcpp::wrap( antsrMesh<MeshType>(reserve) );
+      return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
     }
     else if ( dimension == 3 ) {
       typedef itk::Mesh<PrecisionType,3> MeshType;
-      return Rcpp::wrap( antsrMesh<MeshType>(reserve) );
+      return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
         }
     else if ( dimension == 4 ) {
       typedef itk::Mesh<PrecisionType,4> MeshType;
-      return Rcpp::wrap( antsrMesh<MeshType>(reserve) );
+      return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
     }
   }
   else {
@@ -267,7 +284,7 @@ antsrMesh_GetPoint( SEXP r_mesh, SEXP r_identifier )
 
   typedef typename MeshType::Pointer MeshPointerType;
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier )-1;
 
   Rcpp::NumericVector pt( dimension );
   typename MeshType::PointType itkPoint;
@@ -360,7 +377,7 @@ antsrMesh_GetCell( SEXP r_mesh, SEXP r_identifier )
   typedef typename CellType::CellAutoPointer    CellAutoPointer;
 
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier )-1;
 
   CellAutoPointer cell;
   if ( !mesh->GetCell(id, cell) ) {
@@ -455,7 +472,7 @@ antsrMesh_GetCellPoints( SEXP r_mesh, SEXP r_identifier )
   typedef typename CellType::CellAutoPointer    CellAutoPointer;
 
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier )-1;
 
   CellAutoPointer cell;
   if ( !mesh->GetCell(id, cell) ) {
@@ -563,7 +580,7 @@ antsrMesh_GetPoints( SEXP r_mesh, SEXP r_identifiers )
 
     itk::IdentifierType id = i;
     if (ids.size() != 0 ) {
-      id = ids[i];
+      id = ids[i]-1;
     }
 
     mesh->GetPoint(id, &itkPoint);
@@ -652,7 +669,7 @@ antsrMesh_AddPoint( SEXP r_mesh, SEXP r_identifier, SEXP r_point )
 
   typedef typename MeshType::Pointer MeshPointerType;
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier )-1;
 
   Rcpp::NumericVector pt = Rcpp::as<Rcpp::NumericVector>( r_point );
   if ( pt.size() != dimension ) {
@@ -747,7 +764,7 @@ antsrMesh_SetPoint( SEXP r_mesh, SEXP r_identifier, SEXP r_point )
 
   typedef typename MeshType::Pointer MeshPointerType;
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier )-1;
 
   Rcpp::NumericVector pt = Rcpp::as<Rcpp::NumericVector>( r_point );
   if ( pt.size() != dimension ) {
@@ -842,7 +859,7 @@ antsrMesh_AddPolyline( SEXP r_mesh, SEXP r_identifier, SEXP r_points )
 
   typedef typename MeshType::Pointer MeshPointerType;
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
-  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier )-1;
 
   typedef typename MeshType::CellType       CellType;
   typedef typename CellType::CellAutoPointer      CellAutoPointer;

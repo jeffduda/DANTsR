@@ -28,8 +28,14 @@ test_that("mesh can be created with antsrMeshCreate()", {
   expect_true( class(x)=="antsrMesh")
 })
 
-test_that("mesh can be created with antsrMeshCreate()", {
+test_that("mesh can be created with antsrMeshCreate() using reserve", {
   x = antsrMeshCreate(reserve=1)
+  expect_true( ( class(x)=="antsrMesh" )  )
+})
+
+test_that("mesh can be created with antsrMeshCreate() using point matrix", {
+  pts = matrix(0, 10, 3)
+  x = antsrMeshCreate(points=pts)
   expect_true( ( class(x)=="antsrMesh" )  )
 })
 
@@ -66,19 +72,19 @@ test_that( "point can be added to a mesh with no index", {
 test_that( "point can be retrieved from mesh", {
   x = antsrMeshCreate()
   antsrMeshAddPoint(x, c(1,2,3) )
-  expect_true( sum(antsrMeshGetPoint(x,0) == c(1,2,3))==3 )
+  expect_true( sum(antsrMeshGetPoint(x,1) == c(1,2,3))==3 )
 })
 
 test_that( "point can be added to a mesh with an index", {
   x = antsrMeshCreate()
   antsrMeshAddPoint(x, c(1,2,3), 5 )
-  expect_true( antsrMeshGetNumberOfPoints(x) == 6)
+  expect_true( antsrMeshGetNumberOfPoints(x) == 5)
 })
 
 test_that( "mesh points can be retrieved as matrix", {
   x = antsrMeshCreate()
   for (i in 1:4) {
-    antsrMeshAddPoint(x, i*c(1,2,3), i-1 )
+    antsrMeshAddPoint(x, i*c(1,2,3), i )
   }
   pts = antsrMeshGetPoints(x)
   expect_true( ( class(pts) == "matrix" ) &
@@ -110,39 +116,39 @@ test_that("mesh points can be transformed in place", {
 
 test_that( "polyline can be added to mesh directly", {
   x =  antsrMeshCreate( 3, "float", reserve=3 )
-  antsrMeshAddPoint( x, c(0,0,0), 0 )
-  antsrMeshAddPoint( x, c(1,0,0), 1 )
-  antsrMeshAddPoint( x, c(1,1,0), 2 )
-  antsrMeshAddPolyline( x, c(0,1,2), 0)
+  antsrMeshAddPoint( x, c(0,0,0), 1 )
+  antsrMeshAddPoint( x, c(1,0,0), 2 )
+  antsrMeshAddPoint( x, c(1,1,0), 3 )
+  antsrMeshAddPolyline( x, c(0,1,2), 1)
   expect_true( antsrMeshGetNumberOfCells(x)==1 )
 })
 
 test_that( "polyline can be added to mesh by name", {
   x =  antsrMeshCreate( 3, "float", reserve=3 )
-  antsrMeshAddPoint( x, c(0,0,0), 0 )
-  antsrMeshAddPoint( x, c(1,0,0), 1 )
-  antsrMeshAddPoint( x, c(1,1,0), 2 )
-  antsrMeshAddCell( x, c(0,1,2), "polyline", 0)
+  antsrMeshAddPoint( x, c(0,0,0), 1 )
+  antsrMeshAddPoint( x, c(1,0,0), 2 )
+  antsrMeshAddPoint( x, c(1,1,0), 3 )
+  antsrMeshAddCell( x, c(0,1,2), "polyline", 1)
   expect_true( antsrMeshGetNumberOfCells(x)==1 )
 })
 
 test_that( "cell can be retrieved from mesh", {
   x =  antsrMeshCreate( 3, "float", reserve=3 )
-  antsrMeshAddPoint( x, c(0,0,0), 0 )
-  antsrMeshAddPoint( x, c(1,0,0), 1 )
-  antsrMeshAddPoint( x, c(1,1,0), 2 )
-  antsrMeshAddPolyline( x, c(0,1,2), 0)
-  c = antsrMeshGetCell(x, 0)
+  antsrMeshAddPoint( x, c(0,0,0), 1 )
+  antsrMeshAddPoint( x, c(1,0,0), 2 )
+  antsrMeshAddPoint( x, c(1,1,0), 3 )
+  antsrMeshAddPolyline( x, c(0,1,2), 1)
+  c = antsrMeshGetCell(x, 1)
   expect_true( length(c)==3 )
 })
 
 test_that( "cell points can be retrieved from mesh", {
   x =  antsrMeshCreate( 3, "float", reserve=3 )
-  antsrMeshAddPoint( x, c(0,0,0), 0 )
-  antsrMeshAddPoint( x, c(1,0,0), 1 )
-  antsrMeshAddPoint( x, c(1,1,0), 2 )
-  antsrMeshAddPolyline( x, c(0,1,2), 0)
-  pts = antsrMeshGetCellPoints(x, 0)
+  antsrMeshAddPoint( x, c(0,0,0), 1 )
+  antsrMeshAddPoint( x, c(1,0,0), 2 )
+  antsrMeshAddPoint( x, c(1,1,0), 3 )
+  antsrMeshAddPolyline( x, c(0,1,2), 1)
+  pts = antsrMeshGetCellPoints(x, 1)
   expect_true( sum(pts)==3 )
 })
 

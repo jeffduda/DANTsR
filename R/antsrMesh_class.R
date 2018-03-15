@@ -34,7 +34,7 @@ setMethod(f = "show", "antsrMesh", function(object){
 #' @param reserve number of points to allocate on creation
 setMethod(f = "initialize", signature(.Object = "antsrMesh"), definition = function(.Object,
   dimension = 3, precision = "float", reserve=0) {
-  mesh = .Call("antsrMesh", precision, dimension, reserve, PACKAGE = "DANTsR")
+  mesh = .Call("antsrMesh", precision, dimension, reserve, matrix(0), PACKAGE = "DANTsR")
   return( mesh )
 })
 
@@ -48,7 +48,7 @@ setMethod(f = "initialize", signature(.Object = "antsrMesh"), definition = funct
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
 #' @export
-antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
+antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NULL, cells=NULL)
 {
 
   # Check for valid dimension
@@ -66,7 +66,30 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
     stop(paste("Unsupported reserve number:", reserve))
   }
 
-  mesh = .Call("antsrMesh", precision, dimension, reserve, PACKAGE = "DANTsR")
+  if ( !is.null(points) )  {
+    if ( reserve == 0 ) {
+      reserve = dim(points)[1]
+    }
+    else if ( reserve < dim(points)[1] ) {
+      stop( "reserve must be >= number of points passed")
+    }
+
+    if ( dim(points)[2] != dimension ) {
+      stop( "dimension and point size matrix don't match")
+    }
+  }
+  else {
+    points = matrix(0)
+  }
+
+  if ( is.null(cells) ) {
+    cells = matrix(0)
+  }
+  else {
+    stop("cells parameters not yet supported")
+  }
+
+  mesh = .Call("antsrMesh", precision, dimension, reserve, points, PACKAGE = "DANTsR")
 
   return(mesh)
   }
@@ -105,7 +128,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @export
   antsrMeshAddPoint = function( mesh, point, identifier=NA ) {
     if ( is.na(identifier) )  {
-      identifier = antsrMeshGetNumberOfPoints(mesh)
+      identifier = antsrMeshGetNumberOfPoints(mesh)+1
     }
     invisible(.Call("antsrMesh_AddPoint", mesh, identifier, point, package="DANTsR"))
   }
@@ -117,7 +140,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @param point spatial point to set in mesh
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-#' antsrMeshSetPoint( x, c(0,0,0), 0 )
+#' antsrMeshSetPoint( x, c(0,0,0), 1 )
 #' @export
   antsrMeshSetPoint = function( mesh, point, identifier ) {
     invisible(.Call("antsrMesh_SetPoint", mesh, identifier, point, package="DANTsR"))
@@ -169,7 +192,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
 #' antsrMeshAddPoint( x, c(0,0,0) )
-#' pt = antsrMeshGetPoints(x, 0)
+#' pt = antsrMeshGetPoints(x, 1)
 #' @export
 antsrMeshGetPoints = function( mesh, identifiers=NULL) {
   if ( is.null(identifiers) ) {
@@ -185,10 +208,10 @@ antsrMeshGetPoints = function( mesh, identifiers=NULL) {
 #' @param identifier index of cell to add
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-#' antsrMeshAddPoint( x, c(0,0,0), 0 )
-#' antsrMeshAddPoint( x, c(1,0,0), 1 )
-#' antsrMeshAddPoint( x, c(1,1,0), 2 )
-#' antsrMeshAddPolyline( x, c(0,1,2), 0)
+#' antsrMeshAddPoint( x, c(0,0,0), 1 )
+#' antsrMeshAddPoint( x, c(1,0,0), 2 )
+#' antsrMeshAddPoint( x, c(1,1,0), 3 )
+#' antsrMeshAddPolyline( x, c(0,1,2), 1)
 #' @export
 antsrMeshAddPolyline = function( mesh, points, identifier=NA ) {
   if ( is.na(identifier) )  {
@@ -206,10 +229,10 @@ antsrMeshAddPolyline = function( mesh, points, identifier=NA ) {
 #' @param identifier index of cell to add
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-#' antsrMeshAddPoint( x, c(0,0,0), 0 )
-#' antsrMeshAddPoint( x, c(1,0,0), 1 )
-#' antsrMeshAddPoint( x, c(1,1,0), 2 )
-#' antsrMeshAddCell( x, c(0,1,2), "polyline", 0)
+#' antsrMeshAddPoint( x, c(0,0,0), 1 )
+#' antsrMeshAddPoint( x, c(1,0,0), 2 )
+#' antsrMeshAddPoint( x, c(1,1,0), 3 )
+#' antsrMeshAddCell( x, c(0,1,2), "polyline", 1)
 #' @export
 antsrMeshAddCell = function( mesh, points, type, identifier=NA ) {
   if ( is.na(identifier) )  {

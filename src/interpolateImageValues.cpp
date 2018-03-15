@@ -6,14 +6,15 @@
 
 #include "itkImage.h"
 #include "itkInterpolateImageFunction.h"
+#include "itkNearestNeighborInterpolateImageFunction.h"
 
 template< class ImageType >
 SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_interp )
 {
 
   //Rcpp::Rcout << "interpolateImageValues<ImageType>" << std::endl;
-
-  typedef typename ImageType::PixelType PixelType;
+  std::string interp = Rcpp::as<std::string>(r_interp);
+  //typedef typename ImageType::PixelType PixelType;
   typedef typename ImageType::Pointer ImagePointerType;
 
   bool isPoint = true;
@@ -26,9 +27,20 @@ SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_inte
   typedef itk::InterpolateImageFunction<ImageType> FunctionType;
   typedef typename FunctionType::Pointer           FunctionPointerType;
 
-  typedef itk::LinearInterpolateImageFunction<ImageType> LinearInterpolatorType;
+  typedef itk::LinearInterpolateImageFunction<ImageType>          LinearInterpolatorType;
+  typedef itk::NearestNeighborInterpolateImageFunction<ImageType> NearestNeighborInterpolatorType;
 
-  FunctionPointerType function = dynamic_cast<FunctionType *>(LinearInterpolatorType::New().GetPointer());
+  FunctionPointerType function = NULL;
+  if ( interp=="linear" ) {
+    function = dynamic_cast<FunctionType *>(LinearInterpolatorType::New().GetPointer());
+  }
+  else if ( interp=="nearestneighbor") {
+    function = dynamic_cast<FunctionType *>(NearestNeighborInterpolatorType::New().GetPointer());
+  }
+  else {
+    Rcpp::Rcout << "Invalid interpolator type: " << interp << std::endl;
+    return Rcpp::wrap( NA_REAL );
+  }
 
   function->SetInputImage( image );
   typename ImageType::PointType pt;

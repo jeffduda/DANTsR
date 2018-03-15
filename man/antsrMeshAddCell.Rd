@@ -20,8 +20,8 @@ add a cell to the mesh
 }
 \examples{
 x =  antsrMeshCreate( 3, "float", reserve=128 )
-antsrMeshAddPoint( x, c(0,0,0), 0 )
-antsrMeshAddPoint( x, c(1,0,0), 1 )
-antsrMeshAddPoint( x, c(1,1,0), 2 )
-antsrMeshAddCell( x, c(0,1,2), "polyline", 0)
+antsrMeshAddPoint( x, c(0,0,0), 1 )
+antsrMeshAddPoint( x, c(1,0,0), 2 )
+antsrMeshAddPoint( x, c(1,1,0), 3 )
+antsrMeshAddCell( x, c(0,1,2), "polyline", 1)
 }

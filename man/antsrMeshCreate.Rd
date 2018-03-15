@@ -4,7 +4,8 @@
 \alias{antsrMeshCreate}
 \title{antsrMeshCreate}
 \usage{
-antsrMeshCreate(dimension = 3, precision = "float", reserve = 0)
+antsrMeshCreate(dimension = 3, precision = "float", reserve = 0,
+  points = NULL, cells = NULL)
 }
 \arguments{
 \item{dimension}{number of dimensions}
