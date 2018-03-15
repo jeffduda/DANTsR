@@ -27,6 +27,7 @@ export(labelsToPoints)
 export(niftiToItk)
 export(pointCountImage)
 export(polylineConnections)
+export(polylineVoxelCount)
 export(read.antsrMesh)
 export(write.antsrMesh)
 

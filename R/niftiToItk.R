@@ -47,7 +47,7 @@ niftiToItk = function(points, niftiImage=NA, antsImage=NA, filename=NA, in.place
 
     if ( in.place ) {
       for ( i in 1:antsrMeshGetNumberOfPoints(points) ) {
-        antsrMeshSetPoint(points, ptMatrix[1,], i)
+        antsrMeshSetPoint(points, ptMatrix[i,], i)
       }
       invisible(NA)
     }
