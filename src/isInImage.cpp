@@ -1,10 +1,5 @@
-
-#include <algorithm>
-#include <vector>
 #include <string>
-#include <RcppDANTsR.h>
-
-#include "itkImage.h"
+#include "isInImage.h"
 
 template< class ImageType >
 SEXP isInImage( SEXP r_image, SEXP r_coordinate, SEXP r_type )
