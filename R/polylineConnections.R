@@ -1,7 +1,10 @@
 #' @title polylineConnections
 #' @description return point coordinates of all voxels with specified label
-#' @param img an antsImage
-#' @param label the value of interest
+#' @param mesh 'antsrMesh' of polylines
+#' @param regions 'antsImage' of labeled regions
+#' @param seeds vector of seed indices
+#' @param method method for determining connections
+#' @param max.regions maximum number of regions that a single polyline can connect 
 #' @export
 polylineConnections = function(mesh, regions, seeds=NULL, method="forward", max.regions=2)
 {

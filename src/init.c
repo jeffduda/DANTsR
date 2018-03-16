@@ -27,6 +27,7 @@ extern SEXP deterministicTracking(SEXP, SEXP, SEXP);
 extern SEXP dtiFilters(SEXP, SEXP, SEXP);
 extern SEXP dtiReconstruction(SEXP, SEXP, SEXP, SEXP);
 extern SEXP interpolateImageValues(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP isInImage(SEXP, SEXP, SEXP);
 extern SEXP labelsToPoints(SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
@@ -49,6 +50,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"dtiFilters",                  (DL_FUNC) &dtiFilters,                  3},
     {"dtiReconstruction",           (DL_FUNC) &dtiReconstruction,           4},
     {"interpolateImageValues",      (DL_FUNC) &interpolateImageValues,      5},
+    {"isInImage",                   (DL_FUNC) &isInImage,                   4},
     {"labelsToPoints",              (DL_FUNC) &labelsToPoints,              3},
     {NULL, NULL, 0}
 };

@@ -4,19 +4,6 @@
 #' @param reference antsImage that defines the physical space to consider
 #' @export
 
-isInImage = function( image, index ) {
-  d = dim(image)
-  for ( i in 1:length(index) ) {
-    if ( index[i] < 1 ) {
-      return(FALSE)
-    }
-    else if ( index[i] > (d[i]+1) ) {
-      return(FALSE)
-    }
-  }
-  return(TRUE)
-}
-
 polylineVoxelCount = function(mesh, reference)
 {
 

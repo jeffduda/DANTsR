@@ -8,9 +8,15 @@ polylineConnections(mesh, regions, seeds = NULL, method = "forward",
   max.regions = 2)
 }
 \arguments{
-\item{img}{an antsImage}
+\item{mesh}{'antsrMesh' of polylines}
 
-\item{label}{the value of interest}
+\item{regions}{'antsImage' of labeled regions}
+
+\item{seeds}{vector of seed indices}
+
+\item{method}{method for determining connections}
+
+\item{max.regions}{maximum number of regions that a single polyline can connect}
 }
 \description{
 return point coordinates of all voxels with specified label
