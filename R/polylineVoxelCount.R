@@ -1,6 +1,6 @@
 #' @title polylineVoxelCount
 #' @description return point coordinates of all voxels with specified label
-#' @param img an antsImage
+#' @param mesh 'antsrMesh' of polylines
 #' @param reference antsImage that defines the physical space to consider
 #' @export
 
@@ -30,7 +30,7 @@ polylineVoxelCount = function(mesh, reference)
           count[ idx[j,1], idx[j,2], idx[j,3] ] = count[ idx[j,1], idx[j,2], idx[j,3] ][1] + 1
         }
         else {
-          print(paste("Invalid point/index: ", point, " / ", idx[j,]))
+          print(paste("Invalid point/index: ", pts[j,], " / ", idx[j,]))
         }
       }
     }

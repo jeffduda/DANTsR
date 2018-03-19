@@ -5,7 +5,7 @@
 \title{antsrMeshCreate}
 \usage{
 antsrMeshCreate(dimension = 3, precision = "float", reserve = 0,
-  points = NULL, cells = NULL)
+  points = NULL)
 }
 \arguments{
 \item{dimension}{number of dimensions}
@@ -13,6 +13,8 @@ antsrMeshCreate(dimension = 3, precision = "float", reserve = 0,
 \item{precision}{use 'float' or 'double' for values}
 
 \item{reserve}{number of points to allocate on creation}
+
+\item{points}{matrix of points in mesh}
 }
 \value{
 antsrMesh

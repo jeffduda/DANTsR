@@ -7,9 +7,9 @@
 polylineVoxelCount(mesh, reference)
 }
 \arguments{
-\item{reference}{antsImage that defines the physical space to consider}
+\item{mesh}{'antsrMesh' of polylines}
 
-\item{img}{an antsImage}
+\item{reference}{antsImage that defines the physical space to consider}
 }
 \description{
 return point coordinates of all voxels with specified label

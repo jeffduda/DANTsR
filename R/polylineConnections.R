@@ -4,7 +4,7 @@
 #' @param regions 'antsImage' of labeled regions
 #' @param seeds vector of seed indices
 #' @param method method for determining connections
-#' @param max.regions maximum number of regions that a single polyline can connect 
+#' @param max.regions maximum number of regions that a single polyline can connect
 #' @export
 polylineConnections = function(mesh, regions, seeds=NULL, method="forward", max.regions=2)
 {
@@ -39,7 +39,7 @@ polylineConnections = function(mesh, regions, seeds=NULL, method="forward", max.
           lineLabels = lineLabels[1:max.regions]
         }
         else if (method=="backward") {
-          lineLabels = lineLabels[ (length(lineLabels)-max.regions+1):length(lineLabel) ]
+          lineLabels = lineLabels[ (length(lineLabels)-max.regions+1):length(lineLabels) ]
         }
       }
     }
@@ -47,7 +47,7 @@ polylineConnections = function(mesh, regions, seeds=NULL, method="forward", max.
        labels1 = lineLabels[1:seed[i]]
        labels2 = lineLabels[seed[i]:length(lineLabels)]
        labels1 = labels1[labels1!=0]
-       labels2 = lables2[labels2!=0]
+       labels2 = labels2[labels2!=0]
 
        lim = max.regions %/% 2
        extra = max.regions %% 2
@@ -55,7 +55,7 @@ polylineConnections = function(mesh, regions, seeds=NULL, method="forward", max.
        if ( length(labels1>lim) ) {
          labels1 = labels1[ (length(labels1)-lim+1):length(labels1) ]
        }
-       if ( lenght(labels2>lim) ) {
+       if ( length(labels2>lim) ) {
          labels2 = labels2[1:lim]
        }
 

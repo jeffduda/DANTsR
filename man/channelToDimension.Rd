@@ -14,11 +14,11 @@ channelToDimension(img, dimension = (img@dimension + 1), spacing = 1,
 
 \item{spacing}{spacing for new dimension}
 
+\item{origin}{origin for new dimension}
+
 \item{dircol}{column values for direction matrix in new dimension}
 
 \item{dirrow}{row values for direction matrix in new dimension}
-
-\item{origing}{origin for new dimension}
 }
 \description{
 convert channels to a dimension

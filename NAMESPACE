@@ -55,3 +55,6 @@ importFrom(ANTsRCore, mergeChannels)
 importFrom(ANTsRCore, getAntsrTransformParameters)
 importFrom(ANTsRCore, setAntsrTransformParameters)
 importFrom(ANTsRCore, applyAntsrTransformToPoint)
+importFrom(ANTsRCore, extractSlice)
+
+importFrom(ANTsR, timeseries2matrix)

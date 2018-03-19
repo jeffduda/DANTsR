@@ -29,7 +29,7 @@ dimensionToChannel = function(img, dimension=length(dim(img)))
 #' @param img a multi component antsImage
 #' @param dimension the channels are converted to
 #' @param spacing spacing for new dimension
-#' @param origing origin for new dimension
+#' @param origin origin for new dimension
 #' @param dircol column values for direction matrix in new dimension
 #' @param dirrow row values for direction matrix in new dimension
 #' @export

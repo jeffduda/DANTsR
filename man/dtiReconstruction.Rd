@@ -11,7 +11,9 @@ dtiReconstruction(dwi, gradients, method, mask = NULL)
 
 \item{gradients}{Nx4 matrix of gradient directions and b-values}
 
-\item{method}{the reconstruction algorithm to use (default = "itk-svd")
+\item{method}{the reconstruction algorithm to use (default = "itk-svd")}
+
+\item{mask}{'antsImage' mask indicating where to perform reconstruction
 \itemize{
   \item{itk-svd}{uses the itk::DiffusionTensor3DReconstructionImageFilter filter}
 }}

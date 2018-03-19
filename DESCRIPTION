@@ -10,15 +10,17 @@ Description: Diffusion imaging support for the ANTsR* packages is provided here.
   as well as a class for streamlines obtained via fiber tracking.
 License: Apache License 2.0
 Depends:
-  ANTsRCore
+  ANTsRCore,
+  ANTsR
 Imports:
   methods,
   Rcpp,
   ITKR,
-  ANTsRCore,
   RNifti
 Suggests:
-  ANTsR,
   testthat
-LinkingTo: Rcpp, ITKR, ANTsRCore
+LinkingTo:
+  Rcpp,
+  ITKR,
+  ANTsRCore
 RoxygenNote: 6.0.1

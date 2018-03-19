@@ -44,11 +44,12 @@ setMethod(f = "initialize", signature(.Object = "antsrMesh"), definition = funct
 #' @param dimension number of dimensions
 #' @param precision use 'float' or 'double' for values
 #' @param reserve number of points to allocate on creation
+#' @param points matrix of points in mesh
 #' @return antsrMesh
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
 #' @export
-antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NULL, cells=NULL)
+antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NULL)
 {
 
   # Check for valid dimension
@@ -80,13 +81,6 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NU
   }
   else {
     points = matrix(0)
-  }
-
-  if ( is.null(cells) ) {
-    cells = matrix(0)
-  }
-  else {
-    stop("cells parameters not yet supported")
   }
 
   mesh = .Call("antsrMesh", precision, dimension, reserve, points, PACKAGE = "DANTsR")
