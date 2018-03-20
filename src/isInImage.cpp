@@ -24,7 +24,7 @@ SEXP isInImage( SEXP r_image, SEXP r_coordinate, SEXP r_type )
   }
   else if ( type=="index" ) {
     for (unsigned int i=0; i<ImageType::ImageDimension; i++) {
-      index[i] = coord[i];
+      index[i] = coord[i]-1;
     }
   }
   else {
