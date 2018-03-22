@@ -32,22 +32,22 @@ polylineConnections = function(mesh, regions, seeds=NULL, method="forward", max.
     }
 
     lineLabels = interpolateImageValues( regions, antsrMeshGetCellPoints(mesh, i), interpolation="nearestneighbor")
-    lineLabels = unique(lineLabels)
-
+    
     if (is.null(seeds)) {
+      lineLabels = unique(lineLabels)
       lineLabels = lineLabels[lineLabels!=0]
       if ( length(lineLabels) > max.regions ) {
         if ( method=="forward" ) {
           lineLabels = lineLabels[1:max.regions]
         }
         else if (method=="backward") {
-          lineLabels = lineLabels[ (length(lineLabels)-max.regions+1):length(lineLabels) ]
+          lineLabels = rev(lineLabels)[1:max.regions]
         }
       }
     }
     else {
        labels1 = lineLabels[1:seeds[i]]
-       labels2 = lineLabels[seeds[i]:length(lineLabels)]
+       labels2 = lineLabels[(seeds[i]+1):length(lineLabels)]
        labels1 = labels1[labels1!=0]
        labels2 = labels2[labels2!=0]
 
