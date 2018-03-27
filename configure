@@ -28,9 +28,10 @@ fi
 
 cd ./src
 # platform-specific Makevars
-echo "myantssource=\${PWD}/ants/" > Makevars
+# echo "myantssource=\${PWD}/ants/" > Makevars
 # echo "ITK = \`\$(R_HOME)/bin/Rscript -e 'ITKR:::itkIncludes()'\`" >> Makevars
-echo "ITK=${ITKRCMAKE}" >> Makevars
+# echo "ITK=${ITKRCMAKE}" >> Makevars
+echo "ITK=${ITKRCMAKE}" > Makevars
 
 needVCL_CAN_STATIC_CONST_INIT_FLOAT=0
 if [[ ${#CC} -gt 0 ]] ; then # test the requested compiler
@@ -51,7 +52,7 @@ aincludes=`${R_HOME}/bin/Rscript -e 'a<-ANTsRCore:::antsIncludes(); cat(a)'`
 # echo "PKG_CPPFLAGS = -I\${ITK} -I\${PWD}  \
 #   -I`\${R_HOME}/bin/Rscript -e 'ANTsRCore:::antsIncludes()'` \
 #   -I../inst/include/ " >> Makevars
-echo "PKG_CPPFLAGS = -I\${ITK} -I\${PWD}  \
+echo "PKG_CPPFLAGS = ${PKG_CPPFLAGS} -I\${ITK} -I\${PWD}  \
   -I${aincludes} \
   -I../inst/include/ " >> Makevars
   
