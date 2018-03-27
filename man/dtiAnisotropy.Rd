@@ -14,8 +14,6 @@ dtiAnisotropy(img, method = "FractionalAnisotropy")
   \item{FractionalAnisotropy}{}
   \item{RelativeAnisotropy}{}
 }}
-
-\item{method}{which type of anisotropy index to calculate}
 }
 \description{
 calculate an anistropy image from DTI

@@ -2,7 +2,6 @@
 % Please edit documentation in R/antsrRegistration_class.R
 \name{antsrRegistrationRun}
 \alias{antsrRegistrationRun}
-\alias{initialize,antsrRegistration-method}
 \title{antsrRegistrationRun}
 \usage{
 antsrRegistrationRun(stages, fixed, moving)

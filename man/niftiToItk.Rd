@@ -4,10 +4,11 @@
 \alias{niftiToItk}
 \title{niftiToItk}
 \usage{
-niftiToItk(points, niftiImage = NA, antsImage = NA, filename = NA)
+niftiToItk(points, niftiImage = NA, antsImage = NA, filename = NA,
+  in.place = FALSE)
 }
 \arguments{
-\item{points}{the locations of interest}
+\item{points}{the locations of interest (matrix or antsrMesh)}
 
 \item{niftiImage}{an niftiImage}
 
@@ -15,9 +16,7 @@ niftiToItk(points, niftiImage = NA, antsImage = NA, filename = NA)
 
 \item{filename}{name of image file}
 
-\item{type}{'point' or 'index'}
-
-\item{interpolation}{options are: 'linear'}
+\item{in.place}{transform points "in-place", for antsrMesh only}
 }
 \description{
 convert world coordinates from NIFTI to ITK

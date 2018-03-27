@@ -1,0 +1,5 @@
+#!/bin/sh
+############### still a WIP ###############
+rm -f -r src/*.o src/*.so */*~ *~
+rm -f -r src/*.o-*
+rm -f src/Makevars

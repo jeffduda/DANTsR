@@ -9,7 +9,7 @@ antsrMeshGetPoints(mesh, identifiers = NULL)
 \arguments{
 \item{mesh}{an 'antsrMesh'}
 
-\item{identifier}{identifier of point to get}
+\item{identifiers}{identifiers of points to get}
 }
 \description{
 get all points in mesh
@@ -17,5 +17,5 @@ get all points in mesh
 \examples{
 x =  antsrMeshCreate( 3, "float", reserve=128 )
 antsrMeshAddPoint( x, c(0,0,0) )
-pt = antsrMeshGetPoints(x, 0)
+pt = antsrMeshGetPoints(x, 1)
 }

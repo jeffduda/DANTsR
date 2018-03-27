@@ -8,7 +8,6 @@
 #'   \item{AxialDiffusion}{Largest eigenvalue}
 #'   \item{RadialDiffusion}{Mean of two smallest eigenvalues}
 #' }
-#' @param method which type of anisotropy index to calculate
 #' @export
 dtiDiffusion = function(img, method="MeanDiffusion")
 {

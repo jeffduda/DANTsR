@@ -4,20 +4,16 @@
 \alias{dtiReconstruction}
 \title{dtiReconstruction}
 \usage{
-dtiReconstruction(dwi, gradients, method)
+dtiReconstruction(dwi, gradients, method, mask = NULL)
 }
 \arguments{
-\item{method}{the summary meaure to return
-\itemize{
-  \item{Trace}{Sum of eigenvalues}
-  \item{MeanDiffusion}{Average eigenvalue}
-  \item{AxialDiffusion}{Largest eigenvalue}
-  \item{RadialDiffusion}{Mean of two smallest eigenvalues}
-}}
+\item{dwi}{an N-channel antsImage}
 
-\item{img}{a 6-channel antsImage or and eigen sytem list}
+\item{gradients}{Nx4 matrix of gradient directions and b-values}
 
-\item{method}{the reconstruction algorithm to use (default = "itk-svd")
+\item{method}{the reconstruction algorithm to use (default = "itk-svd")}
+
+\item{mask}{'antsImage' mask indicating where to perform reconstruction
 \itemize{
   \item{itk-svd}{uses the itk::DiffusionTensor3DReconstructionImageFilter filter}
 }}

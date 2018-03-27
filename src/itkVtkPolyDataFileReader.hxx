@@ -452,7 +452,7 @@ VtkPolyDataFileReader<TOutputMesh>
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
 
   CellAutoPointer streamline;
-  unsigned long cellId = 0;
+  //unsigned long cellId = 0;
   unsigned long index;
   unsigned long lineSize;
 
@@ -606,7 +606,7 @@ VtkPolyDataFileReader<TOutputMesh>
       {
       this->m_InputFile >> vertexSize;
 
-      typename OutputMeshType::PointIdentifier polyPoints[ vertexSize ];
+      //typename OutputMeshType::PointIdentifier polyPoints[ vertexSize ];
       VertexCellType * vertex = new VertexCellType;
 
       if ( vertexSize != 1 ) {

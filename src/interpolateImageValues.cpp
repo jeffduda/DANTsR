@@ -6,14 +6,15 @@
 
 #include "itkImage.h"
 #include "itkInterpolateImageFunction.h"
+#include "itkNearestNeighborInterpolateImageFunction.h"
 
 template< class ImageType >
 SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_interp )
 {
 
-  Rcpp::Rcout << "interpolateImageValues<ImageType>" << std::endl;
-
-  typedef typename ImageType::PixelType PixelType;
+  //Rcpp::Rcout << "interpolateImageValues<ImageType>" << std::endl;
+  std::string interp = Rcpp::as<std::string>(r_interp);
+  //typedef typename ImageType::PixelType PixelType;
   typedef typename ImageType::Pointer ImagePointerType;
 
   bool isPoint = true;
@@ -26,9 +27,20 @@ SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_inte
   typedef itk::InterpolateImageFunction<ImageType> FunctionType;
   typedef typename FunctionType::Pointer           FunctionPointerType;
 
-  typedef itk::LinearInterpolateImageFunction<ImageType> LinearInterpolatorType;
+  typedef itk::LinearInterpolateImageFunction<ImageType>          LinearInterpolatorType;
+  typedef itk::NearestNeighborInterpolateImageFunction<ImageType> NearestNeighborInterpolatorType;
 
-  FunctionPointerType function = dynamic_cast<FunctionType *>(LinearInterpolatorType::New().GetPointer());
+  FunctionPointerType function = NULL;
+  if ( interp=="linear" ) {
+    function = dynamic_cast<FunctionType *>(LinearInterpolatorType::New().GetPointer());
+  }
+  else if ( interp=="nearestneighbor") {
+    function = dynamic_cast<FunctionType *>(NearestNeighborInterpolatorType::New().GetPointer());
+  }
+  else {
+    Rcpp::Rcout << "Invalid interpolator type: " << interp << std::endl;
+    return Rcpp::wrap( NA_REAL );
+  }
 
   function->SetInputImage( image );
   typename ImageType::PointType pt;
@@ -44,11 +56,11 @@ SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_inte
 
     if ( isPoint ) {
       values[i] = function->Evaluate( pt );
-      Rcpp::Rcout << pt << " - " << values[i] << std::endl;
+      //Rcpp::Rcout << pt << " - " << values[i] << std::endl;
     }
     else {
       values[i] = function->EvaluateAtContinuousIndex( idx );
-      Rcpp::Rcout << idx << " - " << values[i] << std::endl;
+      //Rcpp::Rcout << idx << " - " << values[i] << std::endl;
     }
   }
 
@@ -61,7 +73,7 @@ SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_inte
 RcppExport SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_interp ) {
 try
   {
-  Rcpp::Rcout << "interpolateImageValues()" << std::endl;
+  //Rcpp::Rcout << "interpolateImageValues()" << std::endl;
   if( r_img == NULL || r_points == NULL )
     {
       Rcpp::Rcout << "Unspecified Arguments" << std::endl;
@@ -75,7 +87,7 @@ try
   //bool isVector = Rcpp::as<bool>( antsimage.slot("isVector") );
 
   Rcpp::NumericMatrix mat( r_points );
-  Rcpp::Rcout << "Matrix is of size " << mat.nrow() << " x " << mat.ncol() << std::endl;
+  //Rcpp::Rcout << "Matrix is of size " << mat.nrow() << " x " << mat.ncol() << std::endl;
 
   if ( components != 1 ) {
     Rcpp::Rcout << "Input must have 1 components" << std::endl;

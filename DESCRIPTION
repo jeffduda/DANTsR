@@ -1,14 +1,26 @@
 Package: DANTsR
 Type: Package
-Title: Diffusion Image Support for ANTsR
-Version: 0.1
+Title: Diffusion Imaging Support for ANTsR
+Version: 0.2.0
 Date: 2018-02-27
-Authors@R: c(person(given = "Jeffrey T.", family = "Duda", 
-  email = "jeff.duda@gmail.com", role = c("aut", "cre")))
-Description: Supports imagie processing of diffusion tensor imaging ('DTI') 
-    and other diffusion-weighted magnetic resonance imaging (MRI) using the 
-    'ANTsR' package.
+Authors@R: person("Jeffrey", "Duda", email = "jeff.duda@gmail.com",
+                  role = c("aut", "cre"))
+Description: Diffusion imaging support for the ANTsR* packages is provided here.
+  In addition, it provides a mesh class intended to be used as a point set
+  as well as a class for streamlines obtained via fiber tracking.
 License: Apache License 2.0
-Imports: ITKR, ANTsRCore (>= 0.5.0), RNifti
-LinkingTo: Rcpp, ANTsR, ITKR, ANTsRCore
+Depends:
+  ANTsRCore (>= 0.5.0),
+  ANTsR
+Imports:
+  methods,
+  Rcpp,
+  ITKR,
+  RNifti
+Suggests:
+  testthat
+LinkingTo:
+  Rcpp,
+  ITKR,
+  ANTsRCore
 RoxygenNote: 6.0.1

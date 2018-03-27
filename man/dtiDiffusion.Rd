@@ -16,8 +16,6 @@ dtiDiffusion(img, method = "MeanDiffusion")
   \item{AxialDiffusion}{Largest eigenvalue}
   \item{RadialDiffusion}{Mean of two smallest eigenvalues}
 }}
-
-\item{method}{which type of anisotropy index to calculate}
 }
 \description{
 calculate an anistropy image from DTI

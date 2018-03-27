@@ -6,7 +6,6 @@
 #'   \item{FractionalAnisotropy}{}
 #'   \item{RelativeAnisotropy}{}
 #' }
-#' @param method which type of anisotropy index to calculate
 #' @export
 dtiAnisotropy= function(img, method="FractionalAnisotropy")
 {

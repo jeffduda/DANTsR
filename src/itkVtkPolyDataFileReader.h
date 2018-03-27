@@ -191,10 +191,10 @@ public:
 protected:
   VtkPolyDataFileReader();
   ~VtkPolyDataFileReader() {}
-  void PrintSelf( std::ostream& os, Indent indent ) const;
+  void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
 
   /** Reads the file */
-  void GenerateData();
+  void GenerateData() ITK_OVERRIDE;
 
   bool                                            m_ExtractBoundaryPoints;
 

@@ -97,7 +97,7 @@ CaminoStreamlineFileReader<TOutputMesh>
   outputMesh->SetCellsAllocationMethod( OutputMeshType::CellsAllocatedDynamicallyCellByCell );
 
   long pointId = 0;
-  long cellId = 0;
+  //long cellId = 0;
   long lineId = 0;
   this->m_Lines->Initialize();
   this->m_Seeds->Initialize();

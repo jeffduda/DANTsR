@@ -10,10 +10,6 @@ pointCountImage(points, img)
 \item{points}{the locations of interest}
 
 \item{img}{an antsImage}
-
-\item{type}{'point' or 'index'}
-
-\item{interpolation}{options are: 'linear'}
 }
 \description{
 return image values at points or indices

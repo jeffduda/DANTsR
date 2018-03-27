@@ -1,4 +1,4 @@
-# this file defines the S4 classes related to 'antsrTransform' and the associated
+# this file defines the S4 classes related to 'antsrMesh and the associated
 # methods
 
 
@@ -7,7 +7,6 @@
 #' @title antsrMesh
 #'
 #' @description class for point sets and meshes
-#'
 #' @param object input object to convert
 #' @param .Object input object to convert
 #' @param precision string e.g. "float" or "double"
@@ -32,9 +31,10 @@ setMethod(f = "show", "antsrMesh", function(object){
 
 #' @rdname antsrMesh
 #' @aliases initialize,antsrTransform-method
+#' @param reserve number of points to allocate on creation
 setMethod(f = "initialize", signature(.Object = "antsrMesh"), definition = function(.Object,
   dimension = 3, precision = "float", reserve=0) {
-  mesh = .Call("antsrMesh", precision, dimension, reserve, PACKAGE = "DANTsR")
+  mesh = .Call("antsrMesh", precision, dimension, reserve, matrix(0), PACKAGE = "DANTsR")
   return( mesh )
 })
 
@@ -42,13 +42,14 @@ setMethod(f = "initialize", signature(.Object = "antsrMesh"), definition = funct
 #' @title antsrMeshCreate
 #' @description create a mesh
 #' @param dimension number of dimensions
-#' @param percision use 'float' or 'double' for values
+#' @param precision use 'float' or 'double' for values
 #' @param reserve number of points to allocate on creation
+#' @param points matrix of points in mesh
 #' @return antsrMesh
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
 #' @export
-antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
+antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NULL)
 {
 
   # Check for valid dimension
@@ -66,7 +67,23 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
     stop(paste("Unsupported reserve number:", reserve))
   }
 
-  mesh = .Call("antsrMesh", precision, dimension, reserve, PACKAGE = "DANTsR")
+  if ( !is.null(points) )  {
+    if ( reserve == 0 ) {
+      reserve = dim(points)[1]
+    }
+    else if ( reserve < dim(points)[1] ) {
+      stop( "reserve must be >= number of points passed")
+    }
+
+    if ( dim(points)[2] != dimension ) {
+      stop( "dimension and point size matrix don't match")
+    }
+  }
+  else {
+    points = matrix(0)
+  }
+
+  mesh = .Call("antsrMesh", precision, dimension, reserve, points, PACKAGE = "DANTsR")
 
   return(mesh)
   }
@@ -98,15 +115,15 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @description add point to mesh
 #' @param mesh an 'antsrMesh'
 #' @param point spatial point to add to mesh
+#' @param identifier index of point to add
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
 #' antsrMeshAddPoint( x, c(0,0,0) )
 #' @export
   antsrMeshAddPoint = function( mesh, point, identifier=NA ) {
     if ( is.na(identifier) )  {
-      identifer = antsrMeshGetNumberOfPoints(mesh)
+      identifier = antsrMeshGetNumberOfPoints(mesh)+1
     }
-
     invisible(.Call("antsrMesh_AddPoint", mesh, identifier, point, package="DANTsR"))
   }
 
@@ -117,7 +134,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @param point spatial point to set in mesh
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-#' antsrMeshSetPoint( x, c(0,0,0), 0 )
+#' antsrMeshSetPoint( x, c(0,0,0), 1 )
 #' @export
   antsrMeshSetPoint = function( mesh, point, identifier ) {
     invisible(.Call("antsrMesh_SetPoint", mesh, identifier, point, package="DANTsR"))
@@ -165,32 +182,86 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0)
 #' @title antsrMeshGetPoints
 #' @description get all points in mesh
 #' @param mesh an 'antsrMesh'
-#' @param identifier identifier of point to get
+#' @param identifiers identifiers of points to get
 #' @examples
 #' x =  antsrMeshCreate( 3, "float", reserve=128 )
 #' antsrMeshAddPoint( x, c(0,0,0) )
-#' pt = antsrMeshGetPoints(x, 0)
+#' pt = antsrMeshGetPoints(x, 1)
 #' @export
-  antsrMeshGetPoints = function( mesh, identifiers=NULL) {
-    if ( is.null(identifiers) ) {
-      identifiers = numeric(0)
-    }
-    .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
+antsrMeshGetPoints = function( mesh, identifiers=NULL) {
+  if ( is.null(identifiers) ) {
+    identifiers = numeric(0)
   }
+  .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
+}
+
+#' @title antsrMeshAddPolyline
+#' @description add a polyline cell to the mesh
+#' @param mesh an 'antsrMesh'
+#' @param points array of point indices
+#' @param identifier index of cell to add
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=128 )
+#' antsrMeshAddPoint( x, c(0,0,0), 1 )
+#' antsrMeshAddPoint( x, c(1,0,0), 2 )
+#' antsrMeshAddPoint( x, c(1,1,0), 3 )
+#' antsrMeshAddPolyline( x, c(0,1,2), 1)
+#' @export
+antsrMeshAddPolyline = function( mesh, points, identifier=NA ) {
+  if ( is.na(identifier) )  {
+    identifier = antsrMeshGetNumberOfCells(mesh)
+  }
+
+  invisible(.Call("antsrMesh_AddPolyline", mesh, identifier, points, package="DANTsR"))
+}
+
+#' @title antsrMeshAddCell
+#' @description add a cell to the mesh
+#' @param mesh an 'antsrMesh'
+#' @param points array of point indices
+#' @param type of cell to add
+#' @param identifier index of cell to add
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=128 )
+#' antsrMeshAddPoint( x, c(0,0,0), 1 )
+#' antsrMeshAddPoint( x, c(1,0,0), 2 )
+#' antsrMeshAddPoint( x, c(1,1,0), 3 )
+#' antsrMeshAddCell( x, c(0,1,2), "polyline", 1)
+#' @export
+antsrMeshAddCell = function( mesh, points, type, identifier=NA ) {
+  if ( is.na(identifier) )  {
+    identifier = antsrMeshGetNumberOfCells(mesh)
+  }
+
+  if ( type=="polyline" ) {
+    invisible(.Call("antsrMesh_AddPolyline", mesh, identifier, points, package="DANTsR"))
+  }
+  else {
+    stop( "Unsupported cell type")
+  }
+
+}
 
 #' @title applyAntsrTransformToMesh
 #' @description Apply transform/s to an antsrMesh
 #' @param transform antsrTransform
-#' @param image antsrMesh to transform
-#' @param interpolation type of interpolator to use
-#' @return antsImage
+#' @param mesh antsrMesh to transform
+#' @param in.place if true modify the input mesh, if false return a new mesh
+#' @return antsrMesh
+#' @examples
+#' x =  antsrMeshCreate( 3, "float", reserve=1 )
+#' antsrMeshAddPoint( x, c(1,2,3) )
+#' tx = new("antsrTransform")
+#' params = getAntsrTransformParameters(tx)
+#' setAntsrTransformParameters(tx, params*2)
+#' x2 = applyAntsrTransformToMesh(tx, x)
 #' @export
-applyAntsrTransformToMesh <- function(transform, image, reference, interpolation="linear") {
+applyAntsrTransformToMesh <- function(transform, mesh, in.place=FALSE) {
   if ( typeof(transform) == "list")
   {
     transform <- composeAntsrTransforms(transform)
   }
-  #return(.Call("antsrTransform_TransformImage", transform, image, reference, tolower(interpolation), PACKAGE = "ANTsRCore"))
+  return(.Call("antsrMesh_TransformMesh", transform, mesh, in.place, PACKAGE = "DANTsR"))
   return(NA)
 }
 
