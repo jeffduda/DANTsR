@@ -4,22 +4,33 @@
 #include <string>
 #include <RcppANTsR.h>
 
+#include "itkDeterministicDTITractography.h"
 #include "itkImage.h"
 #include "itkLabeledImageToPointSetFilter.h"
 #include "itkMesh.h"
 #include "itkPointSet.h"
 
-template< class ImageType, class MeshType >
+
+/*
+template< class VectorImageType, class MeshType, class ImageType >
+typename MeshType::Pointer deterministicTracking(
+  typename ImageType::Pointer vectorField,
+  typename MeshType::Pointer seeds  )
+{
+
+
+
+}
+*/
+
+template< class VectorImageType, class MeshType, class ImageType >
 SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds )
 {
 
   typedef typename ImageType::PixelType PixelType;
-  typedef typename ImageType::Pointer ImagePointerType;
+  typedef typename ImageType::Pointer   ImagePointerType;
 
   ImagePointerType dfield = Rcpp::as<ImagePointerType>(r_dfield);
-
-  //PixelType label = Rcpp::as< PixelType >( r_label );
-  // convert point matrix to itk::Mesh
 
   Rcpp::NumericMatrix pts = Rcpp::as<Rcpp::NumericMatrix>( r_seeds );
   typename MeshType::Pointer mesh = MeshType::New();
@@ -44,7 +55,7 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds )
 
 
 
-RcppExport SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds ) {
+RcppExport SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask ) {
 try
   {
   if( r_dfield == NULL || r_seeds == NULL )
@@ -58,6 +69,20 @@ try
   unsigned int dimension = Rcpp::as< int >( antsimage.slot( "dimension" ) );
   unsigned int components = Rcpp::as< int >( antsimage.slot( "components" ) );
   bool isVector = Rcpp::as<bool>( antsimage.slot("isVector") );
+
+  if ( r_mask != NULL ) {
+    Rcpp::S4 scalarimage( r_mask );
+    std::string pixeltype2 = Rcpp::as< std::string >( scalarimage.slot( "pixeltype" ) );
+    unsigned int dimension2 = Rcpp::as< int >( scalarimage.slot( "dimension" ) );
+    unsigned int components2 = Rcpp::as< int >( scalarimage.slot( "components" ) );
+    bool isVector2 = Rcpp::as<bool>( scalarimage.slot("isVector") );
+
+    if ( isVector2 || (pixeltype2 != pixeltype) || (dimension2 != dimension) ) {
+      Rcpp::Rcout << "Mask must have same dimension and pixeltype as vector field" << std::endl;
+      return Rcpp::wrap(NA_REAL);
+    }
+  }
+
 
   if ( components != dimension ) {
     Rcpp::Rcout << "Input must have number of components equal to image dimension" << std::endl;
@@ -75,23 +100,26 @@ try
     if ( dimension == 2 )
       {
       const unsigned int Dimension = 2;
-      typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  deterministicTracking< ImageType, MeshType >( r_dfield, r_seeds );
+      typedef itk::Image< PixelType, Dimension >  ImageType;
+      return  deterministicTracking< VectorImageType, MeshType, ImageType >( r_dfield, r_seeds );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
-      typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  deterministicTracking< ImageType, MeshType >( r_dfield, r_seeds );
+      typedef itk::Image< PixelType, Dimension >  ImageType;
+      return  deterministicTracking< VectorImageType, MeshType, ImageType >( r_dfield, r_seeds );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
-      typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  deterministicTracking< ImageType, MeshType >( r_dfield, r_seeds );
+      typedef itk::Image< PixelType, Dimension >  ImageType;
+      return  deterministicTracking< VectorImageType, MeshType, ImageType >( r_dfield, r_seeds );
       }
     }
   else if( pixeltype == "float" )
@@ -100,23 +128,26 @@ try
     if ( dimension == 2 )
       {
       const unsigned int Dimension = 2;
-      typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  deterministicTracking< ImageType, MeshType >( r_dfield, r_seeds );
+      typedef itk::Image< PixelType, Dimension >  ImageType;
+      return  deterministicTracking< VectorImageType, MeshType, ImageType >( r_dfield, r_seeds );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
-      typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  deterministicTracking< ImageType, MeshType >( r_dfield, r_seeds );
+      typedef itk::Image< PixelType, Dimension >  ImageType;
+      return  deterministicTracking< VectorImageType, MeshType, ImageType >( r_dfield, r_seeds );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
-      typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  deterministicTracking< ImageType, MeshType >( r_dfield, r_seeds );
+      typedef itk::Image< PixelType, Dimension >  ImageType;
+      return  deterministicTracking< VectorImageType, MeshType, ImageType >( r_dfield, r_seeds );
       }
     }
   else

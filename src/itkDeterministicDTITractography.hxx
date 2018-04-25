@@ -25,40 +25,36 @@
 
 namespace itk
 {
-template< typename TInputImage, typename TOutputMesh, typename TMaskImage >
-DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
-::DeterministicDTITractography() :
-  m_SeedMesh(ITK_NULLPTR),
-  m_OutputMesh(ITK_NULLPTR),
-  m_InputImage(ITK_NULLPTR),
-  m_ValidRegion(ITK_NULLPTR)
+template< typename TInputImage, typename TOutputMesh >
+DeterministicDTITractography< TInputImage, TOutputMesh >
+::DeterministicDTITractography()
 {
   // Modify superclass default values, can be overridden by subclasses
-  this->SetNumberOfRequiredInputs(1);
+  this->SetNumberOfRequiredInputs(2);
 
   this->GetOutput()->GetPoints()->Reserve(3000);
   //this->GetOutput()->GetCells()->Reserve(m_CellLimit);
 }
 
-template< typename TInputImage, typename TOutputMesh, typename TMaskImage >
-DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
+template< typename TInputImage, typename TOutputMesh >
+DeterministicDTITractography< TInputImage, TOutputMesh >
 ::~DeterministicDTITractography()
 {
 
 }
 
-template< typename TInputImage, typename TOutputMesh, typename TMaskImage >
+template< typename TInputImage, typename TOutputMesh >
 void
-DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
+DeterministicDTITractography< TInputImage, TOutputMesh >
 ::SetInput(const InputImageType *image)
 {
   this->ProcessObject::SetNthInput( 0,
                                     const_cast< InputImageType * >( image ) );
 }
 
-template< typename TInputImage, typename TOutputMesh, typename TMaskImage >
+template< typename TInputImage, typename TOutputMesh >
 void
-DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
+DeterministicDTITractography< TInputImage, TOutputMesh >
 ::SetSeeds(const OutputMeshType *seeds)
 {
   this->ProcessObject::SetNthInput( 1,
@@ -66,9 +62,9 @@ DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
 }
 
 /** Generate the data */
-template< typename TInputImage, typename TOutputMesh, typename TMaskImage >
+template< typename TInputImage, typename TOutputMesh >
 void
-DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
+DeterministicDTITractography< TInputImage, TOutputMesh >
 ::GenerateData()
 {
 
@@ -76,16 +72,16 @@ DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
 
   std::cout << "GenerateData()" << std::endl;
   // Initialize variables
+
+
   m_OutputMesh = this->GetOutput();
   m_InputImage =
     static_cast< const InputImageType * >( this->ProcessObject::GetInput(0) );
   m_SeedMesh =
     static_cast< const OutputMeshType * >( this->ProcessObject::GetInput(1) );
 
-
-
   std::cout << "Tracking from " << m_SeedMesh->GetNumberOfPoints() << " seed points" << std::endl;
-  this->m_OutputMesh->GetPoints()->Reserve()
+  this->m_OutputMesh->GetPoints()->Reserve(1);
 
   IdentifierType nPoints = 0;
 
@@ -110,9 +106,9 @@ DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
 }
 
 /** PrintSelf */
-template< typename TInputImage, typename TOutputMesh, typename TMaskImage >
+template< typename TInputImage, typename TOutputMesh >
 void
-DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
+DeterministicDTITractography< TInputImage, TOutputMesh >
 ::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
@@ -127,10 +123,6 @@ DeterministicDTITractography< TInputImage, TOutputMesh, TMaskImage >
      << m_NumberOfCells
      << std::endl;
 
-  os << indent
-     << "SeedMeshProvidedByUser: "
-     << m_SeedMeshProvidedByUser
-     << std::endl;
 }
 } /** end namespace itk. */
 
