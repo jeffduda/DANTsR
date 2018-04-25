@@ -43,8 +43,7 @@ before_install:
   - install_missing_remote_deps ${ants_user}/ITKR ${ants_user}/ANTsRCore
   - export PACKAGE_NAME=`package_name`
   - export RCHECK_DIR=${PACKAGE_NAME}.Rcheck
-  - gh_binary_install stnava/ITKR
-  - install_gh_no_dep stnava/ANTsRCore
+  - gh_binary_install stnava/ITKR stnava/ANTsRCore stnava/ANTsR
   - install_remotes_no_dep
   # - gh_binary_install ITKR ANTsRCore
 
