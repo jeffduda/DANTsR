@@ -4,12 +4,14 @@
 \alias{deterministicTracking}
 \title{labelsToPoints}
 \usage{
-deterministicTracking(img, seeds)
+deterministicTracking(img, seeds, mask = NULL)
 }
 \arguments{
 \item{img}{a multichannel antsImage of a displacment field}
 
 \item{seeds}{a matrix of seed points for tracking}
+
+\item{mask}{a mask of brain vs background'}
 }
 \description{
 return point coordinates of all voxels with specified label

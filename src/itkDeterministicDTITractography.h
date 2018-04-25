@@ -69,7 +69,7 @@ public:
 
   /** Hold on to the type information specified by the template parameters. */
   using OutputMeshType = TOutputMesh;
-  using OMeshTraits = typename OutputMeshTraits::MeshTraits;
+  using OMeshTraits = typename OutputMeshType::MeshTraits;
   using OPointType = typename OutputMeshType::PointType;
   using OPixelType = typename OMeshTraits::PixelType;
 

@@ -2,7 +2,7 @@ Package: DANTsR
 Type: Package
 Title: Diffusion Imaging Support for ANTsR
 Version: 0.2.0
-Date: 2018-02-27
+Date: 2018-04-25
 Authors@R: person("Jeffrey", "Duda", email = "jeff.duda@gmail.com",
                   role = c("aut", "cre"))
 Description: Diffusion imaging support for the ANTsR* packages is provided here.
