@@ -40,7 +40,7 @@ before_install:
   - cmake_setup
   - cmake --version
   - export ants_user=stnava
-  - install_missing_remote_deps ${ants_user}/ITKR ${ants_user}/ANTsRCore
+  - install_missing_remote_deps ${ants_user}/ITKR ${ants_user}/ANTsRCore ${ants_user}/ANTsR
   - export PACKAGE_NAME=`package_name`
   - export RCHECK_DIR=${PACKAGE_NAME}.Rcheck
   - gh_binary_install stnava/ITKR stnava/ANTsRCore stnava/ANTsR
