@@ -30,7 +30,7 @@ SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, SEXP r_inte
   typedef itk::LinearInterpolateImageFunction<ImageType>          LinearInterpolatorType;
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType> NearestNeighborInterpolatorType;
 
-  FunctionPointerType function = NULL;
+  FunctionPointerType function = nullptr;
   if ( interp=="linear" ) {
     function = dynamic_cast<FunctionType *>(LinearInterpolatorType::New().GetPointer());
   }
@@ -74,7 +74,7 @@ RcppExport SEXP interpolateImageValues( SEXP r_img, SEXP r_points, SEXP r_type, 
 try
   {
   //Rcpp::Rcout << "interpolateImageValues()" << std::endl;
-  if( r_img == NULL || r_points == NULL )
+  if( r_img == nullptr || r_points == nullptr )
     {
       Rcpp::Rcout << "Unspecified Arguments" << std::endl;
       return Rcpp::wrap( NA_REAL );

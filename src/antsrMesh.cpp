@@ -1274,7 +1274,7 @@ SEXP antsrMesh_TransformMesh( SEXP r_transform, SEXP r_mesh, SEXP r_inplace )
 
   typedef typename MeshType::PointType      MeshPointType;
 
-  typename MeshType::Pointer outMesh = NULL;
+  typename MeshType::Pointer outMesh = nullptr;
   if ( !inplace ) {
     outMesh = MeshType::New();
     outMesh->GetPoints()->Reserve(mesh->GetNumberOfPoints());

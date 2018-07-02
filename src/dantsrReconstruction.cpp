@@ -102,7 +102,7 @@ SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method )
 RcppExport SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method ) {
 try
   {
-  if( r_dwi == NULL || r_method == NULL )
+  if( r_dwi == nullptr || r_method == nullptr )
     {
       Rcpp::Rcout << "Unspecified Arguments" << std::endl;
       return Rcpp::wrap( NA_REAL );

@@ -38,7 +38,7 @@ RcppExport SEXP isInImage( SEXP r_image, SEXP r_coordinate, SEXP r_type )
 {
 try
 {
-  if( r_image == NULL )
+  if( r_image == nullptr )
     {
     Rcpp::Rcout << "Unspecified Argument" << std::endl ;
     return Rcpp::wrap( 1 ) ;

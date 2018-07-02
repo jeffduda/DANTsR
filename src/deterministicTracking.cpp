@@ -58,7 +58,7 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds )
 RcppExport SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask ) {
 try
   {
-  if( r_dfield == NULL || r_seeds == NULL )
+  if( r_dfield == nullptr || r_seeds == nullptr )
     {
       Rcpp::Rcout << "Unspecified Arguments" << std::endl;
       return Rcpp::wrap( NA_REAL );
@@ -70,7 +70,7 @@ try
   unsigned int components = Rcpp::as< int >( antsimage.slot( "components" ) );
   bool isVector = Rcpp::as<bool>( antsimage.slot("isVector") );
 
-  if ( r_mask != NULL ) {
+  if ( r_mask != nullptr ) {
     Rcpp::S4 scalarimage( r_mask );
     std::string pixeltype2 = Rcpp::as< std::string >( scalarimage.slot( "pixeltype" ) );
     unsigned int dimension2 = Rcpp::as< int >( scalarimage.slot( "dimension" ) );
