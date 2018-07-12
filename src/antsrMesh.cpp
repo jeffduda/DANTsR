@@ -408,7 +408,7 @@ antsrMesh_GetCell( SEXP r_mesh, SEXP r_identifier )
 
   Rcpp::NumericVector ids( cell->GetNumberOfPoints() );
   for (unsigned int i=0; i<cell->GetNumberOfPoints(); i++ ) {
-    ids[i] = cell->GetPointIds()[i];
+    ids[i] = cell->GetPointIds()[i] + 1; // 1-based indexing in R
   }
 
   return( Rcpp::wrap(ids) );
@@ -893,7 +893,7 @@ antsrMesh_AddPolyline( SEXP r_mesh, SEXP r_identifier, SEXP r_points )
   typename MeshType::PointIdentifier polyPoints[ nPoints ];
 
   for (unsigned long i=0; i<nPoints; i++) {
-    polyPoints[i] = pts[i];
+    polyPoints[i] = pts[i]-1;
   }
 
   PolyLineCellType * polyline = new PolyLineCellType;

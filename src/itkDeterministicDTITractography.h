@@ -25,6 +25,7 @@
 #include "itkCovariantVector.h"
 #include "itkDefaultStaticMeshTraits.h"
 #include "itkImageRegionConstIterator.h"
+#include "itkPolyLineCell.h"
 
 namespace itk
 {
@@ -73,10 +74,16 @@ public:
   using OPointType = typename OutputMeshType::PointType;
   using OPixelType = typename OMeshTraits::PixelType;
 
+  typedef typename OutputMeshType::CellType       CellType;
+  typedef typename CellType::CellAutoPointer      CellAutoPointer;
+  typedef typename itk::PolyLineCell< CellType >  PolyLineCellType;
+
+
   //typedef TOutputMesh                         OutputMeshType;
   //typedef typename OutputMeshType::MeshTraits OMeshTraits;
   //typedef typename OutputMeshType::PointType  OPointType;
   //typedef typename OMeshTraits::PixelType     OPixelType;
+  typedef typename OutputMeshType::ConstPointer ConstMeshPointer;
 
   /** Some convenient typedefs. */
   typedef typename OutputMeshType::Pointer                OutputMeshPointer;
@@ -92,19 +99,28 @@ public:
    * and will be used in FEM application. */
   typedef CellInterface< OPixelType, CellTraits >  TCellInterface;
   typedef PolyLineCell< TCellInterface >           StreamlineCell;
-  typedef typename StreamlineCell::SelfAutoPointer SteamlineCellAutoPointer;
+  typedef typename StreamlineCell::SelfAutoPointer StreamlineCellAutoPointer;
+
   /** Input Image Type Definition. */
   typedef TInputImage                           InputImageType;
   typedef typename InputImageType::Pointer      InputImagePointer;
   typedef typename InputImageType::ConstPointer InputImageConstPointer;
   typedef typename InputImageType::PixelType    InputPixelType;
   typedef typename InputImageType::SpacingType  SpacingType;
-  typedef typename InputImageType::PointType    OriginType;
+  typedef typename InputImageType::PointType    PointType;
   typedef typename InputImageType::RegionType   RegionType;
   typedef typename InputImageType::SizeType     SizeType;
 
+  typedef typename itk::Vector< typename InputImageType::PointValueType, InputImageType::ImageDimension> VectorType;
+
   typedef typename InputImageType::InternalPixelType ValueType;
-  typedef typename itk::Image<ValueType, InputImageType::ImageDimension> ScalarImageType;
+  typedef typename itk::Image<ValueType, InputImageType::ImageDimension> MaskType;
+
+  using MaskPointerType = typename MaskType::Pointer;
+  using ConstMaskPointer = typename MaskType::ConstPointer;
+
+  //using MaskPointerType = typename MaskType::Pointer;
+  //using ConstMaskPointer = typename MaskType::ConstPointer;
 
   /** Type definition for the classified image index type. */
   typedef typename InputImageType::IndexType           InputImageIndexType;
@@ -114,6 +130,15 @@ public:
   typedef itk::IdentifierType                   IdentifierType;
   typedef itk::SizeValueType                    SizeValueType;
 
+  itkSetMacro(MinimumNumberOfPoints, unsigned long);
+  itkGetMacro(MinimumNumberOfPoints, unsigned long);
+
+  itkSetMacro(MaximumNumberOfPoints, unsigned long);
+  itkGetMacro(MaximumNumberOfPoints, unsigned long);
+
+  itkSetMacro(StepSize, double);
+  itkGetMacro(StepSize, double);
+
   itkSetMacro(ObjectValue, InputPixelType);
 
   itkGetConstMacro(NumberOfNodes, SizeValueType);
@@ -121,10 +146,21 @@ public:
 
   /** accept the input image */
   using Superclass::SetInput;
-  virtual void SetInput(const InputImageType *inputImage);
 
-  void SetSeeds( const OutputMeshType *seeds);
+  void SetField(const InputImageType * inputImage);
+  InputImageConstPointer GetField( void );
 
+  void SetSeeds( const OutputMeshType * seeds);
+  ConstMeshPointer GetSeeds( void );
+
+  void SetMask( MaskPointerType mask )
+    { m_Mask = mask; }
+
+  ConstMaskPointer GetMask()
+    { return m_Mask; }
+
+
+  PointsContainerPointer TrackFiber( PointType point, bool forward );
 
   void SetRegionOfInterest( const RegionType & iRegion )
     {
@@ -160,7 +196,8 @@ private:
   SizeValueType m_NumberOfNodes;
   SizeValueType m_NumberOfCells;
 
-  OutputMeshPointer m_SeedMesh;
+  ConstMeshPointer m_SeedMesh;
+  ConstMaskPointer m_Mask;
 
   int m_NodeLimit;
   int m_CellLimit;
@@ -168,11 +205,16 @@ private:
   int m_ImageHeight;
   int m_ImageDepth;
 
+  unsigned long m_MinimumNumberOfPoints;
+  unsigned long m_MaximumNumberOfPoints;
+
+  double m_StepSize;
+
   unsigned char  m_PointFound;
   InputPixelType m_ObjectValue;
 
   OutputMeshPointer m_OutputMesh;
-  InputImagePointer m_InputImage;
+  InputImageConstPointer m_InputImage;
 
 };
 
