@@ -203,8 +203,8 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
   IdentifierType nPoints = 0;
 
 
-  //for ( IdentifierType i=0; i<m_SeedMesh->GetNumberOfPoints(); i++ )
-  for ( IdentifierType i=0; i<1000; i++ )
+  for ( IdentifierType i=0; i<m_SeedMesh->GetNumberOfPoints(); i++ )
+  //for ( IdentifierType i=0; i<1000; i++ )
   {
 
     //if ( !m_OutputMesh->GetPoints()->IndexExists( nPoints ) )
