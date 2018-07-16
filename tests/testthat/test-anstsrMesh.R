@@ -147,7 +147,7 @@ test_that( "cell points can be retrieved from mesh", {
   antsrMeshAddPoint( x, c(0,0,0), 1 )
   antsrMeshAddPoint( x, c(1,0,0), 2 )
   antsrMeshAddPoint( x, c(1,1,0), 3 )
-  antsrMeshAddPolyline( x, c(0,1,2), 1)
+  antsrMeshAddPolyline( x, c(1,2,3), 1)
   pts = antsrMeshGetCellPoints(x, 1)
   expect_true( sum(pts)==3 )
 })
