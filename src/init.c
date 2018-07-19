@@ -22,6 +22,7 @@ extern SEXP antsrMesh_ReadVTK(SEXP, SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_SetPoint(SEXP, SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_TransformMesh(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteCamino(SEXP, SEXP, SEXP, SEXP);
+extern SEXP antsrMesh_WriteVTK(SEXP, SEXP, SEXP, SEXP);
 extern SEXP antsrRegistrationRun(SEXP, SEXP, SEXP, SEXP);
 extern SEXP deterministicTracking(SEXP, SEXP, SEXP, SEXP);
 extern SEXP dtiFilters(SEXP, SEXP, SEXP);
@@ -45,6 +46,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"antsrMesh_SetPoint",          (DL_FUNC) &antsrMesh_SetPoint,          4},
     {"antsrMesh_TransformMesh",     (DL_FUNC) &antsrMesh_TransformMesh,     3},
     {"antsrMesh_WriteCamino",       (DL_FUNC) &antsrMesh_WriteCamino,       4},
+    {"antsrMesh_WriteVTK",          (DL_FUNC) &antsrMesh_WriteVTK,          4},
     {"antsrRegistrationRun",        (DL_FUNC) &antsrRegistrationRun,        4},
     {"deterministicTracking",       (DL_FUNC) &deterministicTracking,       4},
     {"dtiFilters",                  (DL_FUNC) &dtiFilters,                  3},

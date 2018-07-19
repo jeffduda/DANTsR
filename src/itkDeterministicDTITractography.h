@@ -78,6 +78,9 @@ public:
   typedef typename CellType::CellAutoPointer      CellAutoPointer;
   typedef typename itk::PolyLineCell< CellType >  PolyLineCellType;
 
+  typedef itk::VectorContainer< unsigned long, unsigned long > SeedContainer;
+  typedef typename SeedContainer::Pointer SeedContainerPointer;
+
 
   //typedef TOutputMesh                         OutputMeshType;
   //typedef typename OutputMeshType::MeshTraits OMeshTraits;
@@ -130,6 +133,8 @@ public:
   typedef itk::IdentifierType                   IdentifierType;
   typedef itk::SizeValueType                    SizeValueType;
 
+  itkGetObjectMacro(SeedOffsets, SeedContainer);
+
   itkSetMacro(MinimumNumberOfPoints, unsigned long);
   itkGetMacro(MinimumNumberOfPoints, unsigned long);
 
@@ -138,6 +143,12 @@ public:
 
   itkSetMacro(StepSize, double);
   itkGetMacro(StepSize, double);
+
+  itkSetMacro(RadianThreshold, double);
+  itkGetMacro(RadianThreshold, double);
+
+  itkSetMacro(DegreeThreshold, double);
+  itkGetMacro(DegreeThreshold, double);
 
   itkSetMacro(ObjectValue, InputPixelType);
 
@@ -209,6 +220,10 @@ private:
   unsigned long m_MaximumNumberOfPoints;
 
   double m_StepSize;
+  double m_RadianThreshold;
+  double m_DegreeThreshold;
+
+  SeedContainerPointer m_SeedOffsets;
 
   unsigned char  m_PointFound;
   InputPixelType m_ObjectValue;

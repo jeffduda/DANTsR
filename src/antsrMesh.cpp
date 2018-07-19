@@ -9,6 +9,7 @@
 #include "itkByteSwapper.h"
 #include "itkCaminoStreamlineFileReader.h"
 #include "itkVtkPolyDataFileReader.h"
+#include "itkVtkPolyDataFileWriter.h"
 
 #include "itkLineCell.h"
 #include "itkPolygonCell.h"
@@ -1227,6 +1228,87 @@ try
     using PrecisionType = float;
     using MeshType = itk::Mesh<PrecisionType,3>;
     return antsrMesh_WriteCamino<MeshType>(r_mesh, r_filename, r_seeds);
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
+antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs )
+{
+
+  Rcpp::Rcout << "antsrMesh_WriteVTK<MeshType>()" << std::endl;
+
+
+  using MeshPointerType = typename MeshType::Pointer;
+  using CellType = typename MeshType::CellType;
+  using CellAutoPointer = typename CellType::CellAutoPointer;
+  using WriterType = itk::VtkPolyDataFileWriter< MeshType >;
+  using WriterPointerType = typename WriterType::Pointer;
+
+  std::string filename = Rcpp::as<std::string>( r_filename );
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
+  std::string cellsAs = Rcpp::as<std::string>( r_cellsAs );
+
+  WriterPointerType writer = WriterType::New();
+  writer->SetFileName( filename );
+  writer->SetInput( mesh );
+  writer->SetWriteBinary( false );
+
+  if ( cellsAs == "lines" ) {
+    writer->SetCellsAsLines(true);
+  }
+  else if ( cellsAs == "polygons" ) {
+    writer->SetCellsAsPolygons(true);
+  }
+
+  writer->Update();
+
+  return Rcpp::wrap(1);
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs)
+{
+  Rcpp::Rcout << "antsrMesh_WriteVTK()" << std::endl;
+
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  //unsigned int dimension = rMesh.slot("dimension");
+
+  if ( precision=="double") {
+    using PrecisionType = double;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs);
+  }
+  else if (precision=="float") {
+    using PrecisionType = float;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs);
   }
   else {
     Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");

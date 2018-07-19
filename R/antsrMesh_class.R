@@ -289,9 +289,10 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
 #' @param filename name of the file to read
 #' @param seeds seed indices (for Camino files)
 #' @export
-write.antsrMesh = function( mesh, filename, seeds=NULL ) {
+write.antsrMesh = function( mesh, filename, seeds=NULL, cells.as="NA" ) {
   if ( grepl(".vtk", filename ) ) {
-    #mesh = .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, package="DANTsR")
+    print("Writing VTK mesh")
+    .Call("antsrMesh_WriteVTK", mesh, filename, cells.as, package="DANTsR")
   }
   else if ( grepl(".Bfloat", filename ) ) {
     if (is.null(seeds) ) {

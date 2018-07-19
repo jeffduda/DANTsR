@@ -40,6 +40,10 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
   m_MinimumNumberOfPoints = 2;
   m_MaximumNumberOfPoints = itk::NumericTraits<unsigned long>::max();
   m_StepSize = 0.2;
+  m_RadianThreshold = 0.0;
+  m_DegreeThreshold = 90.0;
+
+  m_SeedOffsets = SeedContainer::New();
 
   //this->GetOutput()->GetCells()->Reserve(m_CellLimit);
 }
@@ -111,11 +115,17 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
   IndexType idx;
   this->GetField()->TransformPhysicalPointToContinuousIndex( point, idx );
   InputPixelType iDirection = interp->EvaluateAtContinuousIndex(idx);
+  VectorType iVector;
+  for ( unsigned int i=0; i<InputImageType::ImageDimension; i++) {
+    iVector[i] = iDirection[i];
+  }
+  iVector /= iVector.GetNorm();
+
   if ( !forward ) {
-    iDirection *= -1;
+    iVector *= -1;
   }
 
-  InputPixelType previousDirection = iDirection;
+  VectorType previousDirection = iVector;
   PointType currentPoint = point;
   PointType previousPoint = point;
 
@@ -132,24 +142,27 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
     this->GetField()->TransformPhysicalPointToContinuousIndex( currentPoint, idx );
     iDirection = interp->EvaluateAtContinuousIndex(idx);
 
-    ValueType dirCheck = iDirection[0]*previousDirection[0] + iDirection[1]*previousDirection[1] + iDirection[2]*previousDirection[2];
-
-    if ( dirCheck < 0 ) {
-      iDirection *= -1;
-    }
+    ValueType dp = 0;
     VectorType vec;
     for (unsigned i=0; i<InputImageType::ImageDimension; i++) {
       vec[i] = iDirection[i];
     }
     vec /= vec.GetNorm();
+
+    for (unsigned i=0; i<InputImageType::ImageDimension; i++) {
+      dp += vec[i]*previousDirection[i];
+    }
+
+    if ( dp < 0 ) {
+      vec *= -1;
+      dp *= -1;
+    }
+
+    previousDirection = vec; //save before scaling
     vec *= m_StepSize;
-
-
-    //std::cout << id << " : " << currentPoint[0] << "," << currentPoint[1] << "," << currentPoint[2] << std::endl;
 
     previousPoint = currentPoint;
     currentPoint = previousPoint + vec;
-    previousDirection = iDirection;
 
     bool addPoint = true;
 
@@ -157,6 +170,15 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
       if ( maskinterp->EvaluateAtContinuousIndex(idx) < 1 ) {
         addPoint = false;
       }
+    }
+
+    ValueType angleInDeg = acos(dp) * 180.0 / itk::Math::pi;
+
+    if ( acos(dp) < m_RadianThreshold ) {
+      addPoint = false;
+    }
+    else if ( angleInDeg > m_DegreeThreshold ) {
+      addPoint = false;
     }
 
     if ( addPoint ) {
@@ -167,7 +189,7 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
       continueTracking = false;
     }
 
-    if ( id > 1000 ) {
+    if ( id > m_MaximumNumberOfPoints ) {
       continueTracking = false;
     }
 
@@ -201,6 +223,7 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
   //this->m_OutputMesh->GetPoints()->Reserve(1);
 
   IdentifierType nPoints = 0;
+  IdentifierType nCells = 0;
 
 
   for ( IdentifierType i=0; i<m_SeedMesh->GetNumberOfPoints(); i++ )
@@ -211,12 +234,14 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
     //{
     //  m_OutputMesh->GetPoints()->CreateIndex( nPoints ); // FIXME - add memory in chunks?
     //}
-
+    std::cout << "Tracking from seed " << i << std::endl;
     PointsContainerPointer forwardPts = this->TrackFiber( m_SeedMesh->GetPoints()->GetElement(i), true );
+    Rcpp::Rcout << "forward tracking done" << std::endl;
     PointsContainerPointer backwardPts = this->TrackFiber( m_SeedMesh->GetPoints()->GetElement(i), false );
+    Rcpp::Rcout << "backward tracking done" << std::endl;
 
     unsigned long tractPoints = forwardPts->Size() + backwardPts->Size() - 1;
-    std::cout << "Tract " << i << " has " << tractPoints << " points" << std::endl;
+    std::cout << "Tract from seed " << i << " has " << tractPoints << " points" << std::endl;
 
     bool keepTract = true;
     if ( tractPoints < m_MinimumNumberOfPoints ) {
@@ -229,28 +254,31 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
     }
 
     if ( keepTract ) {
-      std::cout << "Add tract" << std::endl;
+      std::cout << "Add tract:" << nCells << std::endl;
       typename OutputMeshType::PointIdentifier polyPoints[ tractPoints ];
 
       unsigned long tractId=0;
-      for ( unsigned long i=(backwardPts->Size()-1); i>0; i-- ) {
-        m_OutputMesh->GetPoints()->InsertElement( nPoints, backwardPts->GetElement(i) );
+      for ( unsigned long j=(backwardPts->Size()-1); j>0; j-- ) {
+        m_OutputMesh->GetPoints()->InsertElement( nPoints, backwardPts->GetElement(j) );
         polyPoints[tractId] = nPoints;
         ++tractId;
         ++nPoints;
       }
-      for ( unsigned long i=0; i<forwardPts->Size(); i++ )  {
-        m_OutputMesh->GetPoints()->InsertElement( nPoints, forwardPts->GetElement(i) );
+      Rcpp::Rcout << "Added backward pts" << std::endl;
+      for ( unsigned long j=0; j<forwardPts->Size(); j++ )  {
+        m_OutputMesh->GetPoints()->InsertElement( nPoints, forwardPts->GetElement(j) );
         polyPoints[tractId] = nPoints;
         ++tractId;
         ++nPoints;
       }
-
+      Rcpp::Rcout << "Added forward pts" << std::endl;
       PolyLineCellType * polyline = new PolyLineCellType;
       polyline->SetPointIds( 0, tractPoints, polyPoints );
       CellAutoPointer streamline;
       streamline.TakeOwnership( polyline );
-      m_OutputMesh->SetCell(i, streamline);
+      m_OutputMesh->SetCell(nCells, streamline);
+      m_SeedOffsets->InsertElement(nCells, backwardPts->Size() );
+      ++nCells;
     }
 
   }

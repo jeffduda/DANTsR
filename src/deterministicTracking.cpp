@@ -11,6 +11,7 @@
 #include "itkPointSet.h"
 
 
+
 template< class VectorImageType, class MeshType >
 SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
 {
@@ -21,6 +22,7 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
   using TrackerPointerType = typename TrackerType::Pointer;
 
   using MaskPointerType = typename TrackerType::MaskPointerType;
+  using SeedPointerType = typename TrackerType::SeedContainerPointer;
 
   //using MaskPointerType = typename ImageType::Pointer;
 
@@ -33,10 +35,27 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
   tracker->SetSeeds( seedMesh );
   tracker->SetMask( mask );
   tracker->SetMinimumNumberOfPoints(2);
+  tracker->SetMaximumNumberOfPoints(2000);
   tracker->Update();
   MeshPointerType outMesh = tracker->GetOutput();
+  Rcpp::Rcout << "Returned from tracker" << std::endl;
 
-  return( Rcpp::wrap(outMesh) );
+  SeedPointerType seedOffsets = tracker->GetSeedOffsets();
+
+  Rcpp::NumericVector seedVector( seedOffsets->Size() );
+  for (unsigned int i=0; i<seedOffsets->Size(); i++) {
+    seedVector[i] = seedOffsets->GetElement(i);
+  }
+
+
+  //return( Rcpp::wrap(outMesh) );
+
+
+
+  Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(outMesh),
+                                       Rcpp::Named("Seeds")=seedVector);
+  return(Rcpp::wrap(list));
+
 
 }
 

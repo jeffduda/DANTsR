@@ -531,18 +531,14 @@ VtkPolyDataFileReader<TOutputMesh>
   {
     for (unsigned long i=0; i<nPolygons; i++)
     {
-      this->m_InputFile >> polySize;
-      typename OutputMeshType::PointIdentifier polyPoints[ polySize ];
+      polyCell.TakeOwnership( new PolygonCellType );
 
+      this->m_InputFile >> polySize;
       for (unsigned long j=0; j<polySize; j++)
       {
         this->m_InputFile >> index;
-        polyPoints[i] = index;
+        polyCell->SetPointId(j, index);
       }
-
-      PolygonCellType * polygon = new PolygonCellType;
-      polygon->SetPointIds( 0, polySize, polyPoints );
-      polyCell.TakeOwnership( polygon );
       outputMesh->SetCell(i, polyCell);
     }
   }
@@ -557,28 +553,21 @@ VtkPolyDataFileReader<TOutputMesh>
     unsigned long polyId = 0;
 
     CellAutoPointer polyCell;
+
     while (valueId < nValues)
     {
       unsigned int polySize = polyData[valueId];
       ++valueId;
 
-      typename OutputMeshType::PointIdentifier polyPoints[ polySize ];
-
+      polyCell.TakeOwnership( new PolygonCellType );
       for (unsigned long i = 0; i < polySize; i++)
         {
-        polyPoints[i] = polyData[valueId];
+        polyCell->SetPointId(i, polyData[valueId]);
         ++valueId;
         }
-
-      PolygonCellType * polygon = new PolygonCellType;
-      polygon->SetPointIds( 0, polySize, polyPoints );
-      polyCell.TakeOwnership( polygon );
-
       outputMesh->SetCell(polyId, polyCell);
       ++polyId;
     }
-
-    delete [] polyData;
 
   }
 
