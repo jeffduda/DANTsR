@@ -288,6 +288,7 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
 #' @param mesh antsrMesh to write
 #' @param filename name of the file to read
 #' @param seeds seed indices (for Camino files)
+#' @param what VTK-type of cell should cell data be written as ("NA", "polygon", "line")
 #' @export
 write.antsrMesh = function( mesh, filename, seeds=NULL, cells.as="NA" ) {
   if ( grepl(".vtk", filename ) ) {

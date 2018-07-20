@@ -4,7 +4,7 @@
 \alias{write.antsrMesh}
 \title{write.antsrMesh}
 \usage{
-write.antsrMesh(mesh, filename, seeds = NULL)
+write.antsrMesh(mesh, filename, seeds = NULL, cells.as = "NA")
 }
 \arguments{
 \item{mesh}{antsrMesh to write}
@@ -12,6 +12,8 @@ write.antsrMesh(mesh, filename, seeds = NULL)
 \item{filename}{name of the file to read}
 
 \item{seeds}{seed indices (for Camino files)}
+
+\item{what}{VTK-type of cell should cell data be written as ("NA", "polygon", "line")}
 }
 \description{
 write an antsrMesh to a file
