@@ -158,17 +158,15 @@ private:
   bool m_CellsAsPolygons;
   bool m_CellsAsLines;
 
-  void WritePointsToAvantsFile();
-  void WritePointsToImageFile();
-
-
   void WriteVTKFile();
-  void WritePointsToVTKFile();
-  void WritePointDataToVTKFile();
-  void WriteCellDataToVTKFile();
-  void WriteLinesToVTKFile();
+  void WritePoints();
+  void WritePointData();
+  void WriteCellData();
+  void WriteLines();
+  void WritePolygons();
+  void WriteCellsAs(std::string);
 
-  void WriteVTKPolygons();
+
 
 };
 

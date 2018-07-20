@@ -13,7 +13,7 @@ write.antsrMesh(mesh, filename, seeds = NULL, cells.as = "NA")
 
 \item{seeds}{seed indices (for Camino files)}
 
-\item{what}{VTK-type of cell should cell data be written as ("NA", "polygon", "line")}
+\item{cell.as}{what VTK-type of cell should cell data be written as ("NA", "polygon", "line")}
 }
 \description{
 write an antsrMesh to a file

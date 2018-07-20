@@ -1254,6 +1254,8 @@ catch(...)
 return Rcpp::wrap(NA_REAL); //not reached
 }
 
+
+
 template< class MeshType >
 SEXP
 antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs )

@@ -36,8 +36,12 @@ VtkPolyDataFileWriter<TInputMesh>
   this->m_Input = NULL;
   this->m_FileName = "";
   this->m_MultiComponentScalarSets = NULL;
+
   this->m_Lines = NULL;
+  this->m_Polygons = NULL;
+
   this->m_ImageSize.Fill( 0 );
+
   this->m_CellsAsPolygons = false;
   this->m_CellsAsLines = false;
 }
@@ -119,21 +123,6 @@ VtkPolyDataFileWriter<TInputMesh>
     return;
     }
 
-  if( this->m_ImageSize[0] == 0 )
-    {
-    this->m_ImageSize.Fill( 100 );
-    this->m_ImageOrigin.CastFrom(
-      this->m_Input->GetBoundingBox()->GetMinimum() );
-    for( unsigned int d = 0; d < Dimension; d++ )
-      {
-      this->m_ImageSpacing[d] = (
-        this->m_Input->GetBoundingBox()->GetMaximum()[d] -
-        this->m_Input->GetBoundingBox()->GetMinimum()[d] )
-        / static_cast<double>( this->m_ImageSize[d] + 1 );
-      }
-    this->m_ImageDirection.SetIdentity();
-    }
-
   //
   // Read output file
   //
@@ -157,24 +146,13 @@ VtkPolyDataFileWriter<TInputMesh>
   std::string::size_type pos = this->m_FileName.rfind( "." );
   std::string extension( this->m_FileName, pos+1, this->m_FileName.length()-1 );
 
-  if( extension == "txt" )
-    {
-    this->WritePointsToAvantsFile();
-    }
-  else if( extension == "vtk" )
+  if( extension == "vtk" )
     {
     this->WriteVTKFile();
     }
   else
     {
-    try
-      {
-      this->WritePointsToImageFile();
-      }
-    catch(...)
-      {
-      itkExceptionMacro( "Unknown extension: " << extension );
-      }
+    itkExceptionMacro( "Unknown extension: " << extension );
     }
 
 }
@@ -183,16 +161,29 @@ void
 VtkPolyDataFileWriter<TInputMesh>
 ::WriteVTKFile()
 {
-  this->WritePointsToVTKFile();
-  this->WriteLinesToVTKFile();
-  this->WriteVTKPolygons();
-  this->WritePointDataToVTKFile();
+  this->WritePoints();
+
+  if ( this->m_CellsAsLines ) {
+    this->WriteCellsAs( "LINES" );
+  }
+  else if ( this->m_Lines ) {
+    this->WriteLines();
+  }
+
+  if ( this->m_CellsAsPolygons ) {
+    this->WriteCellsAs( "POLYGONS" );
+  }
+  else if ( this->m_Polygons ) {
+    this->WritePolygons();
+  }
+
+  this->WritePointData();
 }
 
 template<class TInputMesh>
 void
 VtkPolyDataFileWriter<TInputMesh>
-::WritePointsToVTKFile()
+::WritePoints()
 {
   //
   // Write to output file
@@ -270,7 +261,7 @@ VtkPolyDataFileWriter<TInputMesh>
 template<class TInputMesh>
 void
 VtkPolyDataFileWriter<TInputMesh>
-::WritePointDataToVTKFile()
+::WritePointData()
 {
   //
   // Write to output file
@@ -371,7 +362,7 @@ VtkPolyDataFileWriter<TInputMesh>
 template<class TInputMesh>
 void
 VtkPolyDataFileWriter<TInputMesh>
-::WriteCellDataToVTKFile()
+::WriteCellData()
 {
   //
   // Write to output file
@@ -472,37 +463,28 @@ VtkPolyDataFileWriter<TInputMesh>
 template<class TInputMesh>
 void
 VtkPolyDataFileWriter<TInputMesh>
-::WriteLinesToVTKFile()
+::WriteCellsAs(std::string cellType)
 {
 
+  if ( this->m_CellsAsLines || this->m_CellsAsPolygons ) {
 
-  if ( this->m_CellsAsLines ) {
+    std::transform(cellType.begin(), cellType.end(), cellType.begin(), ::toupper);
+    Rcpp::Rcout << "Write cells as: " << cellType << std::endl;
+
     std::ofstream outputFile( this->m_FileName.c_str(), std::ios::app );
 
-    unsigned long numberOfLines = this->m_Input->GetNumberOfCells();
+    unsigned long numberOfCells = this->m_Input->GetNumberOfCells();
     unsigned long totalSize = 0;
 
     CellAutoPointer cell;
-    for ( unsigned long i=0; i<numberOfLines; i++ ) {
+    for ( unsigned long i=0; i<numberOfCells; i++ ) {
       if ( !this->m_Input->GetCell(i, cell) ) {
         Rcpp::stop("Cell could not be read");
       }
       totalSize += cell->GetNumberOfPoints() + 1;
     }
 
-    // Debugging
-    for ( unsigned long i=0; i<numberOfLines; i++)  {
-      this->m_Input->GetCell(i, cell);
-
-      Rcpp::Rcout << "Cell " << i << ": " << cell->GetNumberOfPoints() << " ";
-      for ( unsigned long j=0; j<cell->GetNumberOfPoints(); j++) {
-        Rcpp::Rcout << cell->GetPointIds()[j] << " ";
-      }
-      Rcpp::Rcout << std::endl;
-    }
-
-    outputFile << "LINES " <<
-      numberOfLines << " " << totalSize << std::endl;
+    outputFile << cellType << " " << numberOfCells << " " << totalSize << std::endl;
 
     if ( this->m_WriteBinary )
       {
@@ -510,7 +492,7 @@ VtkPolyDataFileWriter<TInputMesh>
       int * ptData = new int [ totalSize ];
 
       unsigned long idx = 0;
-      for ( unsigned long i=0; i<numberOfLines; i++)  {
+      for ( unsigned long i=0; i<numberOfCells; i++)  {
         this->m_Input->GetCell(i, cell);
         ptData[idx] = cell->GetNumberOfPoints();
         ++idx;
@@ -527,7 +509,7 @@ VtkPolyDataFileWriter<TInputMesh>
       }
     else
       {
-      for ( unsigned long i=0; i<numberOfLines; i++)  {
+      for ( unsigned long i=0; i<numberOfCells; i++)  {
         this->m_Input->GetCell(i, cell);
 
         outputFile << cell->GetNumberOfPoints() << " ";
@@ -541,9 +523,15 @@ VtkPolyDataFileWriter<TInputMesh>
     outputFile << std::endl;
     outputFile.close();
     }
-
   }
-  else if( this->m_Lines )
+}
+
+template<class TInputMesh>
+void
+VtkPolyDataFileWriter<TInputMesh>
+::WriteLines()
+{
+  if( this->m_Lines )
     {
 
     std::ofstream outputFile( this->m_FileName.c_str(), std::ios::app );
@@ -611,7 +599,7 @@ VtkPolyDataFileWriter<TInputMesh>
 template<class TInputMesh>
 void
 VtkPolyDataFileWriter<TInputMesh>
-::WriteVTKPolygons()
+::WritePolygons()
 {
   if( this->m_Polygons )
     {
@@ -652,98 +640,6 @@ VtkPolyDataFileWriter<TInputMesh>
     }
 }
 
-template<class TInputMesh>
-void
-VtkPolyDataFileWriter<TInputMesh>
-::WritePointsToAvantsFile()
-{
-  //
-  // Write to output file
-  //
-  std::ofstream outputFile( this->m_FileName.c_str() );
-
-  outputFile << "0 0 0 0" << std::endl;
-
-  if( this->m_Input->GetNumberOfPoints() > 0 )
-    {
-    typename InputMeshType::PointsContainerIterator pointIterator
-      = this->m_Input->GetPoints()->Begin();
-    typename InputMeshType::PointsContainerIterator pointEnd
-      = this->m_Input->GetPoints()->End();
-
-    typename InputMeshType::PointDataContainerIterator pointDataIterator
-      = this->m_Input->GetPointData()->Begin();
-
-    while( pointIterator != pointEnd )
-      {
-      PointType point = pointIterator.Value();
-      outputFile << point[0] << " " << point[1];
-      if( Dimension == 2 )
-        {
-        outputFile << " 0 ";
-        }
-      else if( Dimension == 3 )
-        {
-        outputFile << " " << point[2] << " ";
-        }
-      outputFile << pointDataIterator.Value() << std::endl;
-      pointIterator++;
-      pointDataIterator++;
-      }
-    }
-
-  outputFile << "0 0 0 0" << std::endl;
-
-  outputFile.close();
-}
-
-template<class TInputMesh>
-void
-VtkPolyDataFileWriter<TInputMesh>
-::WritePointsToImageFile()
-{
-  typename VtkPolyDataImageType::Pointer outputImage
-    = VtkPolyDataImageType::New();
-  outputImage->SetDirection( this->m_ImageDirection );
-  outputImage->SetRegions( this->m_ImageSize );
-  outputImage->SetOrigin( this->m_ImageOrigin );
-  outputImage->SetSpacing( this->m_ImageSpacing );
-  outputImage->Allocate();
-  outputImage->FillBuffer( NumericTraits<PixelType>::Zero );
-
-  if( this->m_Input->GetNumberOfPoints() > 0 )
-    {
-    typename InputMeshType::PointsContainerIterator pointIterator
-      = this->m_Input->GetPoints()->Begin();
-    typename InputMeshType::PointsContainerIterator pointEnd
-      = this->m_Input->GetPoints()->End();
-
-    typename InputMeshType::PointDataContainerIterator pointDataIterator
-      = this->m_Input->GetPointData()->Begin();
-
-    while( pointIterator != pointEnd )
-      {
-      PointType point = pointIterator.Value();
-      PixelType label = pointDataIterator.Value();
-
-      typename VtkPolyDataImageType::IndexType index;
-      typename VtkPolyDataImageType::PointType ipoint;
-      ipoint.CastFrom( point );
-      if( outputImage->TransformPhysicalPointToIndex( ipoint, index ) )
-        {
-        outputImage->SetPixel( index, label );
-        }
-      pointIterator++;
-      pointDataIterator++;
-      }
-    }
-
-  typedef ImageFileWriter<VtkPolyDataImageType> WriterType;
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( this->m_FileName.c_str() );
-  writer->SetInput( outputImage );
-  writer->Update();
-}
 
 template<class TInputMesh>
 void
