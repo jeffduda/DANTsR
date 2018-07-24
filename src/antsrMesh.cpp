@@ -1261,7 +1261,7 @@ SEXP
 antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs )
 {
 
-  Rcpp::Rcout << "antsrMesh_WriteVTK<MeshType>()" << std::endl;
+  //Rcpp::Rcout << "antsrMesh_WriteVTK<MeshType>()" << std::endl;
 
 
   using MeshPointerType = typename MeshType::Pointer;
@@ -1277,7 +1277,6 @@ antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs )
   WriterPointerType writer = WriterType::New();
   writer->SetFileName( filename );
   writer->SetInput( mesh );
-  writer->SetWriteBinary( false );
 
   if ( cellsAs == "lines" ) {
     writer->SetCellsAsLines(true);
@@ -1294,7 +1293,7 @@ antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs )
 //pixeltype, precision, dimension, type, isVector
 RcppExport SEXP antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs)
 {
-  Rcpp::Rcout << "antsrMesh_WriteVTK()" << std::endl;
+  //Rcpp::Rcout << "antsrMesh_WriteVTK()" << std::endl;
 
 try
 {

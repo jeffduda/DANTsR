@@ -132,7 +132,7 @@ VtkPolyDataFileReader<TOutputMesh>
 
 
   // FIXME Debugging output
-  if ( true ) {
+  if ( false ) {
     Rcpp::Rcout << "# Points: " << this->GetOutput()->GetNumberOfPoints() << std::endl;
     Rcpp::Rcout << "# Cells: " << this->GetOutput()->GetNumberOfCells() << std::endl;
 
@@ -385,7 +385,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKPoints( unsigned long nPoints, std::string itkNotUsed(dataType) )
 {
-  Rcpp::Rcout << "Reading " << nPoints << " points" << std::endl;
+  //Rcpp::Rcout << "Reading " << nPoints << " points" << std::endl;
 
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   outputMesh->GetPoints()->Initialize();

@@ -11,7 +11,6 @@
 #include "itkPointSet.h"
 
 
-
 template< class VectorImageType, class MeshType >
 SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
 {
@@ -29,7 +28,6 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
   ImagePointerType dfield = Rcpp::as<ImagePointerType>(r_dfield);
   MeshPointerType seedMesh = Rcpp::as<MeshPointerType>(r_seeds);
   MaskPointerType mask = Rcpp::as<MaskPointerType>(r_mask);
-
   TrackerPointerType tracker = TrackerType::New();
   tracker->SetInput( dfield );
   tracker->SetSeeds( seedMesh );
@@ -38,7 +36,7 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
   tracker->SetMaximumNumberOfPoints(2000);
   tracker->Update();
   MeshPointerType outMesh = tracker->GetOutput();
-  Rcpp::Rcout << "Returned from tracker" << std::endl;
+  //Rcpp::Rcout << "Returned from tracker" << std::endl;
 
   SeedPointerType seedOffsets = tracker->GetSeedOffsets();
 

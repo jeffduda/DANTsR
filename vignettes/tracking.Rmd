@@ -1,0 +1,58 @@
+---
+title: "Fiber tractography"
+author: "Jeffrey T. Duda"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteIndexEntry{Diffusion weighted images}
+    \usepackage[utf8]{inputenc}
+---
+
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+library( knitr )
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+library(DANTsR)
+library(kirby21.dti)
+
+```
+
+```{r dwi2dti,message=FALSE,warnings=FALSE, fig.width=7, fig.height=5, echo=TRUE}
+
+grad = read.table(get_dti_info_filenames()[1]$fname[1])
+dwi = antsImageRead(get_dti_filenames()[1])
+
+mag = apply(as.matrix(grad), 1, function(x) sqrt( x[1]*x[1] + x[2]*x[2] + x[3]*x[3] ) )
+b0Ids = which( mag == 0 )
+
+grad=as.matrix(grad[1:33,])
+bvalues = c(rep(1000,32),0)
+grad = cbind(grad, bvalues)
+
+d = dim(dwi)
+d[4] = 33
+b0 = cropIndices(dwi, c(1,1,1,33), d)
+b0 = as.array(b0)
+dim(b0) = dim(b0)[1:3]
+b0 = as.antsImage(b0, spacing=antsGetSpacing(dwi)[1:3])
+
+dwi = cropIndices(dwi, c(1,1,1,1), d)
+
+dwi = dimensionToChannel(dwi)
+dt = dtiReconstruction(dwi, grad, method="itk-svd")
+mask = getMask(b0)
+
+fa = dtiAnisotropy(dt, method="fractionalanisotropy")
+seedMask = fa*0
+seedMask[ fa > 0.3 ] = 1
+seedMask = seedMask * mask
+
+eig = dtiEigenSystem(dt)
+
+
+seedsFull = labelsToPoints(seedMask)
+nSeeds = antsrMeshGetNumberOfPoints(seedsFull)
+seeds = antsrMeshCreate( points=antsrMeshGetPoints(seedsFull)[ sample(1:nSeeds)[1:1000], ])
+
+f = deterministicTracking( eig$v1, seeds, mask )
+```
