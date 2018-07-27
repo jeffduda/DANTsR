@@ -30,6 +30,7 @@ extern SEXP dtiReconstruction(SEXP, SEXP, SEXP, SEXP);
 extern SEXP interpolateImageValues(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP isInImage(SEXP, SEXP, SEXP);
 extern SEXP labelsToPoints(SEXP, SEXP, SEXP);
+extern SEXP polylineCountImage(SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"antsrMesh",                   (DL_FUNC) &antsrMesh,                   4},
@@ -54,6 +55,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"interpolateImageValues",      (DL_FUNC) &interpolateImageValues,      5},
     {"isInImage",                   (DL_FUNC) &isInImage,                   4},
     {"labelsToPoints",              (DL_FUNC) &labelsToPoints,              3},
+    {"polylineCountImage",          (DL_FUNC) &polylineCountImage,          3},
     {NULL, NULL, 0}
 };
 
