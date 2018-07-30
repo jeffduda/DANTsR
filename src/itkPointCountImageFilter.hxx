@@ -103,10 +103,12 @@ void
 PointCountImageFilter< TInputMesh, TOutputImage >
 ::SetSpacing(const float spacing[3])
 {
-  //Vector< float, 3 > sf(spacing);
-  //SpacingType        s;
-  //s.CastFrom(sf);
-  //this->SetSpacing(s);
+  SpacingType s;
+  for(unsigned int i = 0; i < TOutputImage::ImageDimension; ++i)
+    {
+    s[i] = static_cast<SpacePrecisionType>(spacing[i]);
+    }
+  this->SetSpacing(s);
 }
 
 //----------------------------------------------------------------------------
@@ -124,10 +126,12 @@ void
 PointCountImageFilter< TInputMesh, TOutputImage >
 ::SetOrigin(const float origin[3])
 {
-  //Point< float, 3 > of(origin);
-  //PointType         p;
-  //p.CastFrom(of);
-  //this->SetOrigin(p);
+  PointType p;
+  for(unsigned int i = 0; i < TOutputImage::ImageDimension; ++i)
+    {
+    p[i] = static_cast<SpacePrecisionType>(origin[i]);
+    }
+  this->SetOrigin(p);
 }
 
 
@@ -201,10 +205,6 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 {
   Superclass::PrintSelf(os, indent);
   os << indent << "Size : " << m_Size << std::endl;
-  os << indent << "Inside Value : "
-     << static_cast< typename NumericTraits< ValueType >::PrintType >( m_InsideValue ) << std::endl;
-  os << indent << "Outside Value : "
-     << static_cast< typename NumericTraits< ValueType >::PrintType >( m_OutsideValue ) << std::endl;
   os << indent << "Tolerance: " << m_Tolerance << std::endl;
   os << indent << "Origin: " << m_Origin << std::endl;
   os << indent << "Spacing: " << m_Spacing << std::endl;
