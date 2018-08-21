@@ -2,7 +2,7 @@
 #include "pointCountImage.h"
 
 template< class MeshType, class ImageType >
-SEXP pointCountImage( SEXP r_mesh, SEXP r_image )
+SEXP pointCountImageFunction( SEXP r_mesh, SEXP r_image )
 {
   //Rcpp::Rcout << "pointCountImage<MeshType,ImageType>()" << std::endl;
 
@@ -37,7 +37,7 @@ SEXP pointCountImage( SEXP r_mesh, SEXP r_image )
   return Rcpp::wrap( countImage );
 }
 
-RcppExport SEXP pointCountImage( SEXP r_mesh, SEXP r_image )
+RcppExport SEXP pointCountImageCall( SEXP r_mesh, SEXP r_image )
 {
 try
 {
@@ -74,21 +74,21 @@ try
       const unsigned int Dimension = 2;
       typedef itk::ImageBase< Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImage< MeshType, ImageType >( r_mesh, r_image );
+      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
       typedef itk::ImageBase< Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImage< MeshType, ImageType >( r_mesh, r_image );
+      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
       typedef itk::ImageBase< Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImage< MeshType, ImageType >( r_mesh, r_image );
+      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     }
   else if( pixeltype == "float" )
@@ -99,21 +99,21 @@ try
       const unsigned int Dimension = 2;
       typedef itk::Image< PixelType, Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImage< MeshType, ImageType >( r_mesh, r_image );
+      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
       typedef itk::Image< PixelType, Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImage< MeshType, ImageType >( r_mesh, r_image );
+      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
       typedef itk::Image< PixelType, Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImage< MeshType, ImageType >( r_mesh, r_image );
+      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     }
   else
