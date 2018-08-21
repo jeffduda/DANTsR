@@ -35,15 +35,15 @@ before_install:
   - rm travis_helpers.sh
   # does all the clang exports
   - clang_cxx
-  - export cmake_version="3.4"
+  - export cmake_version="3.11"
   - cmake --version
   - cmake_setup
   - cmake --version
-  - export ants_user=stnava
+  - export ants_user=ANTsX
   - install_missing_remote_deps ${ants_user}/ITKR ${ants_user}/ANTsRCore ${ants_user}/ANTsR
   - export PACKAGE_NAME=`package_name`
   - export RCHECK_DIR=${PACKAGE_NAME}.Rcheck
-  - gh_binary_install stnava/ITKR stnava/ANTsRCore stnava/ANTsR
+  - gh_binary_install stnava/ITKR ${ants_user}/ANTsRCore ${ants_user}/ANTsR
   - install_remotes_no_dep
   # - gh_binary_install ITKR ANTsRCore
 
