@@ -1,5 +1,9 @@
+#include <RcppDANTsR.h>
 #include <string>
-#include "pointCountImage.h"
+#include "itkImage.h"
+#include "itkPointCountImageFilter.h"
+
+//#include "pointCountImage.h"
 
 template< class MeshType, class ImageType >
 SEXP pointCountImageFunction( SEXP r_mesh, SEXP r_image )
