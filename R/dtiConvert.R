@@ -1,5 +1,5 @@
 #' @title dtiConvert
-#' @description convert between package formats
+#' @description convert between PACKAGE formats
 #' @param img a DT image to convert
 #' @param input the format of the input image
 #' \itemize{
