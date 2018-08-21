@@ -16,11 +16,15 @@ Imports:
   methods,
   Rcpp,
   ITKR,
-  RNifti
+  RNifti,
+  psych,
+  rsvd,
+  magic,
 Suggests:
   testthat
 LinkingTo:
   Rcpp,
+  RcppEigen,
   ITKR,
   ANTsRCore
 RoxygenNote: 6.0.1
