@@ -63,13 +63,17 @@ try
   unsigned int dimension = Rcpp::as< int >( r_dimension );
   itk::IdentifierType reserve = Rcpp::as< itk::IdentifierType >( r_reserve );
 
-  if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  if ( (dimension < 1) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
+    }
+    else  if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
     }
@@ -84,7 +88,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return Rcpp::wrap( antsrMesh<MeshType>(reserve, r_points) );
     }
@@ -129,7 +137,7 @@ void antsrMesh_Valid( SEXP r_mesh )
   unsigned int dimension = rMesh.slot("dimension");
 
   if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
   if ( (precision != "float") && (precision != "double")) {
     Rcpp::stop("Unsupported precision type - must be 'float' or 'double'");
@@ -168,7 +176,11 @@ try
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetNumberOfPoints<MeshType>(r_mesh);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetNumberOfPoints<MeshType>(r_mesh);
     }
@@ -183,7 +195,11 @@ try
   }
   else if ( precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetNumberOfPoints<MeshType>(r_mesh);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetNumberOfPoints<MeshType>(r_mesh);
     }
@@ -239,13 +255,17 @@ try
   std::string precision = rMesh.slot("precision");
   unsigned int dimension = rMesh.slot("dimension");
 
-  if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  if ( (dimension < 1) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
     }
@@ -260,7 +280,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetNumberOfCells<MeshType>(r_mesh);
     }
@@ -329,13 +353,17 @@ try
   std::string precision = rMesh.slot("precision");
   unsigned int dimension = rMesh.slot("dimension");
 
-  if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  if ( (dimension < 1) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetPoint<MeshType>(r_mesh, r_identifier);
+    }
+  else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetPoint<MeshType>(r_mesh, r_identifier);
     }
@@ -350,7 +378,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetPoint<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetPoint<MeshType>(r_mesh, r_identifier);
     }
@@ -361,6 +393,101 @@ try
     else if ( dimension == 4 ) {
       using MeshType = itk::Mesh<PrecisionType,4>;
       return antsrMesh_GetPoint<MeshType>(r_mesh, r_identifier);
+    }
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
+antsrMesh_GetPointData( SEXP r_mesh, SEXP r_identifier )
+{
+  Rcpp::S4 rMesh( r_mesh );
+  //unsigned int dimension = rMesh.slot("dimension");
+
+  using MeshPointerType = typename MeshType::Pointer;
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( rMesh );
+  itk::IdentifierType id = Rcpp::as<itk::IdentifierType>( r_identifier )-1;
+
+  if ( mesh->GetPointData()->IndexExists(id) ) {
+    typename MeshType::PixelType itkData = mesh->GetPointData()->GetElement(id);
+    return( Rcpp::wrap(itkData) );
+  }
+
+  return( Rcpp::wrap(NA_REAL) );
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_GetPointData( SEXP r_mesh, SEXP r_identifier )
+{
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  unsigned int dimension = rMesh.slot("dimension");
+
+  if ( (dimension < 1) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
+  }
+
+  if ( precision=="double") {
+    using PrecisionType = double;
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetPointData<MeshType>(r_mesh, r_identifier);
+    }
+  else if ( dimension == 2 ) {
+      using MeshType = itk::Mesh<PrecisionType,2>;
+      return antsrMesh_GetPointData<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 3 ) {
+      using MeshType = itk::Mesh<PrecisionType,3>;
+      return antsrMesh_GetPointData<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 4 ) {
+      using MeshType = itk::Mesh<PrecisionType,4>;
+      return antsrMesh_GetPointData<MeshType>(r_mesh, r_identifier);
+    }
+  }
+  else if (precision=="float") {
+    using PrecisionType = float;
+    if ( dimension == 1) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetPointData<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 2 ) {
+      using MeshType = itk::Mesh<PrecisionType,2>;
+      return antsrMesh_GetPointData<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 3 ) {
+      using MeshType = itk::Mesh<PrecisionType,3>;
+      return antsrMesh_GetPointData<MeshType>(r_mesh, r_identifier);
+        }
+    else if ( dimension == 4 ) {
+      using MeshType = itk::Mesh<PrecisionType,4>;
+      return antsrMesh_GetPointData<MeshType>(r_mesh, r_identifier);
     }
   }
   else {
@@ -424,13 +551,17 @@ try
   std::string precision = rMesh.slot("precision");
   unsigned int dimension = rMesh.slot("dimension");
 
-  if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  if ( (dimension < 1) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
     }
@@ -445,7 +576,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetCell<MeshType>(r_mesh, r_identifier);
     }
@@ -522,13 +657,17 @@ try
   std::string precision = rMesh.slot("precision");
   unsigned int dimension = rMesh.slot("dimension");
 
-  if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  if ( (dimension < 1) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
     }
@@ -543,7 +682,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetCellPoints<MeshType>(r_mesh, r_identifier);
     }
@@ -625,12 +768,16 @@ try
   unsigned int dimension = rMesh.slot("dimension");
 
   if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
     }
@@ -645,7 +792,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_GetPoints<MeshType>(r_mesh, r_identifiers);
     }
@@ -720,12 +871,16 @@ try
   unsigned int dimension = rMesh.slot("dimension");
 
   if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
     }
@@ -740,7 +895,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_AddPoint<MeshType>(r_mesh, r_identifier, r_point);
     }
@@ -814,13 +973,17 @@ try
   std::string precision = rMesh.slot("precision");
   unsigned int dimension = rMesh.slot("dimension");
 
-  if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  if ( (dimension < 1) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_SetPoint<MeshType>(r_mesh, r_identifier, r_point);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_SetPoint<MeshType>(r_mesh, r_identifier, r_point);
     }
@@ -835,7 +998,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_SetPoint<MeshType>(r_mesh, r_identifier, r_point);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_SetPoint<MeshType>(r_mesh, r_identifier, r_point);
     }
@@ -916,13 +1083,17 @@ try
   std::string precision = rMesh.slot("precision");
   unsigned int dimension = rMesh.slot("dimension");
 
-  if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  if ( (dimension < 1) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
     }
@@ -937,7 +1108,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_AddPolyline<MeshType>(r_mesh, r_identifier, r_points);
     }
@@ -1026,13 +1201,17 @@ try
   std::string precision = Rcpp::as<std::string>(r_pixeltype);
   unsigned int dimension = Rcpp::as<unsigned int>(r_dimension);
 
-  if ( (dimension < 2) || (dimension > 4) ) {
-    Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
+  if ( (dimension < 1) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension type - must be 1,2,3, or 4");
   }
 
   if ( precision=="double") {
     using PrecisionType = double;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_ReadVTK<MeshType>(r_filename);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_ReadVTK<MeshType>(r_filename);
     }
@@ -1047,7 +1226,11 @@ try
   }
   else if (precision=="float") {
     using PrecisionType = float;
-    if ( dimension == 2 ) {
+    if ( dimension == 1 ) {
+      using MeshType = itk::Mesh<PrecisionType,1>;
+      return antsrMesh_ReadVTK<MeshType>(r_filename);
+    }
+    else if ( dimension == 2 ) {
       using MeshType = itk::Mesh<PrecisionType,2>;
       return antsrMesh_ReadVTK<MeshType>(r_filename);
     }
@@ -1300,6 +1483,10 @@ try
   Rcpp::S4 rMesh( r_mesh );
   std::string precision = rMesh.slot("precision");
   unsigned int dimension = rMesh.slot("dimension");
+
+  if ( dimension != 3 ) {
+    Rcpp::stop("Only 3D meshes can be saved as a .vtk file");
+  }
 
   if ( precision=="double") {
     using PrecisionType = double;
