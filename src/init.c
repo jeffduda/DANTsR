@@ -32,7 +32,7 @@ extern SEXP extractMesh(SEXP, SEXP, SEXP);
 extern SEXP interpolateImageValues(SEXP, SEXP, SEXP, SEXP);
 extern SEXP isInImage(SEXP, SEXP, SEXP);
 extern SEXP labelsToPoints(SEXP, SEXP);
-//extern SEXP pointCountImageCall(SEXP, SEXP);
+extern SEXP pointCountImageCall(SEXP, SEXP);
 extern SEXP polylineArcLengthParameterize(SEXP);
 extern SEXP polylineBSplineSmoothing(SEXP);
 extern SEXP polylineCountImage(SEXP, SEXP);
@@ -62,7 +62,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"interpolateImageValues",        (DL_FUNC) &interpolateImageValues,          4},
     {"isInImage",                     (DL_FUNC) &isInImage,                       3},
     {"labelsToPoints",                (DL_FUNC) &labelsToPoints,                  2},
-    //{"pointCountImageCall",           (DL_FUNC) &pointCountImageCall,             2},
+    {"pointCountImageCall",           (DL_FUNC) &pointCountImageCall,             2},
     {"polylineArcLengthParameterize", (DL_FUNC) &polylineArcLengthParameterize,   1},
     {"polylineBSplineSmoothing",      (DL_FUNC) &polylineBSplineSmoothing,        1},
     {"polylineCountImage",            (DL_FUNC) &polylineCountImage,              2},
