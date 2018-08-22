@@ -46,7 +46,7 @@ before_install:
   - export RCHECK_DIR=${PACKAGE_NAME}.Rcheck
   - gh_binary_install stnava/ITKR
   - export ants_user=ANTsX
-  - gh_binary_install ${ants_user}/ANTsRCore ${ants_user}/ANTsR
+  - gh_binary_install ${ants_user}/ANTsRCore ${ants_user}ANTsR
   - echo "Done Binary Installs"
   - cat DESCRIPTION
   - install_remotes_no_dep
