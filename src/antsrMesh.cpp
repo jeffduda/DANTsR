@@ -1293,13 +1293,13 @@ antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs )
 //pixeltype, precision, dimension, type, isVector
 RcppExport SEXP antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs)
 {
-//Rcpp::Rcout << "antsrMesh_WriteVTK()" << std::endl;
+  //Rcpp::Rcout << "antsrMesh_WriteVTK()" << std::endl;
 
 try
 {
   Rcpp::S4 rMesh( r_mesh );
   std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  //unsigned int dimension = rMesh.slot("dimension");
 
   if ( precision=="double") {
     using PrecisionType = double;

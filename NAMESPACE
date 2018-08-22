@@ -31,7 +31,7 @@ export(niftiToItk)
 export(pointCountImage)
 export(pointIsInImage)
 export(polylineConnections)
-export(polylineCountImage)
+export(polylineVoxelCount)
 export(read.antsrMesh)
 export(write.antsrMesh)
 
