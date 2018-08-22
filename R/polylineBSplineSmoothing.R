@@ -9,5 +9,5 @@ polylineBSplineSmoothing = function(mesh)
     stop("Input must be an 'anstsrMesh'")
     }
 
-  return(.Call("polylineBSplineSmoothing", mesh, PACKAGE="DANTsR"))
+  return(.Call("polylineBSplineSmoothing", mesh, package="DANTsR"))
 }

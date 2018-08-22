@@ -9,5 +9,5 @@ polylineArcLengthParameterize = function(mesh)
     stop("Input must be an 'anstsrMesh'")
     }
 
-  return(.Call("polylineArcLengthParameterize", mesh, PACKAGE="DANTsR"))
+  return(.Call("polylineArcLengthParameterize", mesh, package="DANTsR"))
 }

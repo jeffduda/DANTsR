@@ -10,6 +10,6 @@ deterministicTracking = function(img, seeds, mask=NULL)
     stop("Must input an 'antsImage'")
   }
 
-  .Call( "deterministicTracking", img, seeds, mask, PACKAGE="DANTsR")
+  .Call( "deterministicTracking", img, seeds, mask, package="DANTsR")
 
 }

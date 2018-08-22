@@ -14,6 +14,6 @@ polylineCountImage = function(mesh, reference)
     stop("reference must be an 'antsImage'")
   }
 
-  return(.Call("polylineCountImage", mesh, reference, PACKAGE="DANTsR"))
+  return(.Call("polylineCountImage", mesh, reference, package="DANTsR"))
 
 }

@@ -19,6 +19,6 @@ dtiAnisotropy= function(img, method="FractionalAnisotropy")
 
   method = tolower(method)
 
-  .Call( "dtiFilters", img, method, PACKAGE="DANTsR")
+  .Call( "dtiFilters", img, method, package="DANTsR")
 
 }

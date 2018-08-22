@@ -11,5 +11,5 @@ extractMesh = function(mesh, points=NULL, cells=NULL)
     stop("Input must be an 'anstsrMesh'")
     }
 
-  return(.Call("extractMesh", mesh, points, cells, PACKAGE="DANTsR"))
+  return(.Call("extractMesh", mesh, points, cells, package="DANTsR"))
 }

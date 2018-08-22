@@ -68,7 +68,7 @@ dtiReconstruction = function(dwi, gradients, method, mask=NULL)
 
   }
   else {
-    .Call( "dtiReconstruction", dwi, gradients, method, PACKAGE="DANTsR")
+    .Call( "dtiReconstruction", dwi, gradients, method, package="DANTsR")
   }
 
 }
