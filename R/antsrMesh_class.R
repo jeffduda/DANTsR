@@ -83,7 +83,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NU
     points = matrix(0)
   }
 
-  mesh = .Call("antsrMesh", precision, dimension, reserve, points, PACKAGE="DANTsR")
+  mesh = .Call("antsrMesh", precision, dimension, reserve, points, PACKAGE = "DANTsR")
 
   return(mesh)
   }
@@ -96,7 +96,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NU
 #' antsrMeshGetNumberOfPoints(x)
 #' @export
   antsrMeshGetNumberOfPoints = function( mesh) {
-    .Call("antsrMesh_GetNumberOfPoints", mesh, PACKAGE="DANTsR")
+    .Call("antsrMesh_GetNumberOfPoints", mesh, package="DANTsR")
   }
 
 #' @title antsrMeshGetNumberOfCells
@@ -107,7 +107,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NU
 #' antsrMeshGetNumberOfCells(x)
 #' @export
   antsrMeshGetNumberOfCells = function( mesh) {
-    .Call("antsrMesh_GetNumberOfCells", mesh, PACKAGE="DANTsR")
+    .Call("antsrMesh_GetNumberOfCells", mesh, package="DANTsR")
   }
 
 
@@ -124,7 +124,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NU
     if ( is.na(identifier) )  {
       identifier = antsrMeshGetNumberOfPoints(mesh)+1
     }
-    invisible(.Call("antsrMesh_AddPoint", mesh, identifier, point, PACKAGE="DANTsR"))
+    invisible(.Call("antsrMesh_AddPoint", mesh, identifier, point, package="DANTsR"))
   }
 
 #' @title antsrMeshSetPoint
@@ -137,7 +137,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NU
 #' antsrMeshSetPoint( x, c(0,0,0), 1 )
 #' @export
   antsrMeshSetPoint = function( mesh, point, identifier ) {
-    invisible(.Call("antsrMesh_SetPoint", mesh, identifier, point, PACKAGE="DANTsR"))
+    invisible(.Call("antsrMesh_SetPoint", mesh, identifier, point, package="DANTsR"))
   }
 
 #' @title antsrMeshGetPoint
@@ -150,21 +150,8 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NU
 #' pt = antsrMeshGetPoint(x, 0)
 #' @export
   antsrMeshGetPoint = function( mesh, identifier ) {
-    .Call("antsrMesh_GetPoint", mesh, identifier, PACKAGE="DANTsR")
+    .Call("antsrMesh_GetPoint", mesh, identifier, package="DANTsR")
   }
-
-  #' @title antsrMeshGetPointData
-  #' @description get pixel data for a given point in mesh
-  #' @param mesh an 'antsrMesh'
-  #' @param identifier identifier of point data
-  #' @examples
-  #' x =  antsrMeshCreate( 3, "float", reserve=128 )
-  #' antsrMeshSetPoint( x, c(0,0,0), 0 )
-  #' pt = antsrMeshGetPoint(x, 0)
-  #' @export
-    antsrMeshGetPointData = function( mesh, identifier ) {
-      .Call("antsrMesh_GetPointData", mesh, identifier, PACKAGE="DANTsR")
-    }
 
 #' @title antsrMeshGetCell
 #' @description get a given cell in mesh
@@ -176,7 +163,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NU
 #'
 #' @export
   antsrMeshGetCell = function( mesh, identifier ) {
-    .Call("antsrMesh_GetCell", mesh, identifier, PACKAGE="DANTsR")
+    .Call("antsrMesh_GetCell", mesh, identifier, package="DANTsR")
   }
 
 #' @title antsrMeshGetCellPoints
@@ -189,7 +176,7 @@ antsrMeshCreate <- function(dimension=3, precision="float", reserve=0, points=NU
 #'
 #' @export
   antsrMeshGetCellPoints = function( mesh, identifier ) {
-    .Call("antsrMesh_GetCellPoints", mesh, identifier, PACKAGE="DANTsR")
+    .Call("antsrMesh_GetCellPoints", mesh, identifier, package="DANTsR")
   }
 
 #' @title antsrMeshGetPoints
@@ -205,7 +192,7 @@ antsrMeshGetPoints = function( mesh, identifiers=NULL) {
   if ( is.null(identifiers) ) {
     identifiers = numeric(0)
   }
-  .Call("antsrMesh_GetPoints", mesh, identifiers, PACKAGE="DANTsR")
+  .Call("antsrMesh_GetPoints", mesh, identifiers, package="DANTsR")
 }
 
 #' @title antsrMeshAddPolyline
@@ -225,7 +212,7 @@ antsrMeshAddPolyline = function( mesh, points, identifier=NA ) {
     identifier = antsrMeshGetNumberOfCells(mesh)
   }
 
-  invisible(.Call("antsrMesh_AddPolyline", mesh, identifier, points, PACKAGE="DANTsR"))
+  invisible(.Call("antsrMesh_AddPolyline", mesh, identifier, points, package="DANTsR"))
 }
 
 #' @title antsrMeshAddCell
@@ -247,7 +234,7 @@ antsrMeshAddCell = function( mesh, points, type, identifier=NA ) {
   }
 
   if ( type=="polyline" ) {
-    invisible(.Call("antsrMesh_AddPolyline", mesh, identifier, points, PACKAGE="DANTsR"))
+    invisible(.Call("antsrMesh_AddPolyline", mesh, identifier, points, package="DANTsR"))
   }
   else {
     stop( "Unsupported cell type")
@@ -288,10 +275,10 @@ applyAntsrTransformToMesh <- function(transform, mesh, in.place=FALSE) {
 read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
   mesh = NA
   if ( grepl(".vtk", filename ) ) {
-    mesh = .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, PACKAGE="DANTsR")
+    mesh = .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, package="DANTsR")
   }
   else if ( grepl(".Bfloat", filename ) ) {
-    mesh = .Call("antsrMesh_ReadCamino", filename, pixeltype="float", PACKAGE="DANTsR")
+    mesh = .Call("antsrMesh_ReadCamino", filename, pixeltype="float", package="DANTsR")
   }
   return(mesh)
 }
@@ -306,7 +293,7 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
 write.antsrMesh = function( mesh, filename, seeds=NULL, cells.as="NA" ) {
   if ( grepl(".vtk", filename ) ) {
     #print("Writing VTK mesh")
-    invisible(.Call("antsrMesh_WriteVTK", mesh, filename, cells.as, PACKAGE="DANTsR"))
+    invisible(.Call("antsrMesh_WriteVTK", mesh, filename, cells.as, package="DANTsR"))
   }
   else if ( grepl(".Bfloat", filename ) ) {
     if (is.null(seeds) ) {
@@ -316,7 +303,7 @@ write.antsrMesh = function( mesh, filename, seeds=NULL, cells.as="NA" ) {
       #print(typeof(mesh))
       #print(typeof(filename))
       #print(typeof(seeds))
-      invisible(.Call("antsrMesh_WriteCamino", mesh, filename, seeds, PACKAGE="DANTsR"))
+      invisible(.Call("antsrMesh_WriteCamino", mesh, filename, seeds, package="DANTsR"))
     }
   }
   return(0)
