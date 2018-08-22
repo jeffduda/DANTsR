@@ -15,6 +15,6 @@ interpolateImageValues = function(img, points, type="point", interpolation="line
     stop("points must be a 'matrix'")
   }
 
-  .Call( "interpolateImageValues", img, points, type, interpolation, package="DANTsR")
+  .Call( "interpolateImageValues", img, points, type, interpolation, PACKAGE="DANTsR")
 
 }

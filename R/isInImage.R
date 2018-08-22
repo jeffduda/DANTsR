@@ -22,5 +22,5 @@ indexIsInImage = function( image, index ) {
 #' @param type either "point" or "index"
 
 isInImage = function( image, coordinate, type="point") {
-  return (.Call( "isInImage", image, coordinate, type, package="DANTsR"))
+  return (.Call( "isInImage", image, coordinate, type, PACKAGE="DANTsR"))
 }

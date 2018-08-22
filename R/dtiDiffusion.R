@@ -38,6 +38,6 @@ dtiDiffusion = function(img, method="MeanDiffusion")
     stop("Input must be 'antsImage' or Eigen system list")
   }
 
-  #.Call( "dtiFilters", img, method, package="DANTsR")
+  #.Call( "dtiFilters", img, method, PACKAGE="DANTsR")
 
 }
