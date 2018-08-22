@@ -8,7 +8,7 @@ pointCountImage = function(points, img)
 
   countImg = NA
   if ( class(points)=="antsrMesh") {
-    countImg = .Call("pointCountImageCall", points, img, PACKAGE="DANTsR")
+    countImg = .Call("pointCountImage", points, img, PACKAGE="DANTsR")
   }
   else {
     countImg = img*0

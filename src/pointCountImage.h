@@ -5,6 +5,6 @@
 #include "itkPointCountImageFilter.h"
 
 template< class MeshType, class ImageType >
-SEXP pointCountImageFunction( SEXP r_mesh, SEXP r_image );
+SEXP pointCountImage( SEXP r_mesh, SEXP r_image );
 
-RcppExport SEXP pointCountImageCall( SEXP r_mesh, SEXP r_image );
+RcppExport SEXP pointCountImage( SEXP r_mesh, SEXP r_image );
