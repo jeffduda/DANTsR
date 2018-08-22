@@ -1,6 +1,7 @@
 #include <string>
 #include "pointCountImage.h"
 
+
 template< class MeshType, class ImageType >
 SEXP pointCountImage( SEXP r_mesh, SEXP r_image )
 {
