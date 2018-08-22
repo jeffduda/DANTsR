@@ -22,5 +22,5 @@ dtiConvert(img, input, output = "ANTsR")
 }}
 }
 \description{
-convert between package formats
+convert between PACKAGE formats
 }
