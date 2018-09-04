@@ -187,7 +187,7 @@ SEXP sparseDecomOneFunction( MatrixType matrix,  unsigned int n_vecs, double spa
         {
         initvec = OrthogonalizeVector( initvec, variatesP.get_column( j ) );
         }
-      initvec = SpatiallySmoothVector( initvec, mask );
+      initvec = SpatiallySmoothVector( initvec, mask, 1.0 );
 
       // FIXME - why no re-center here?
       initvec = initvec / initvec.two_norm();
