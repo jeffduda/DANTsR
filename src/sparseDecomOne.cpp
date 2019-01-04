@@ -37,6 +37,7 @@
 #include "ReadWriteData.h"
 #include "sparseDecomOne.h"
 
+
 /* sparseDecomOne
  * matrix: a matrix where rows are samples and columns are features
  * n_vecs: the number of components to return
