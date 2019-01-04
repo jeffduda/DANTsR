@@ -16,5 +16,3 @@ eig = dtiEigenSystem(img)
 dec = dtiColorMap(img)
 
 seeds = labelsToPoints( fa > 0.1 )
-
-fibers = deterministicTractograpy( v1, seeds )
