@@ -292,7 +292,6 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
 #' @export
 write.antsrMesh = function( mesh, filename, seeds=NULL, cells.as="NA" ) {
   if ( grepl(".vtk", filename ) ) {
-    #print("Writing VTK mesh")
     invisible(.Call("antsrMesh_WriteVTK", mesh, filename, cells.as, PACKAGE="DANTsR"))
   }
   else if ( grepl(".Bfloat", filename ) ) {
@@ -300,9 +299,6 @@ write.antsrMesh = function( mesh, filename, seeds=NULL, cells.as="NA" ) {
       stop("Camino file needs seeds")
     }
     else {
-      #print(typeof(mesh))
-      #print(typeof(filename))
-      #print(typeof(seeds))
       invisible(.Call("antsrMesh_WriteCamino", mesh, filename, seeds, PACKAGE="DANTsR"))
     }
   }
