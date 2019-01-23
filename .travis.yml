@@ -8,8 +8,20 @@ cache:
 warnings_are_errors: true
 bioc_required: false
 cran: http://cran.rstudio.com
-allow_failures:
-  - os: osx
+
+os:
+  - linux
+  - osx
+
+r:
+  - oldrel
+  - release
+  - devel
+
+matrix:
+  allow_failures:
+    - r: devel
+    - os: osx
 
 latex: false
 compiler: clang
