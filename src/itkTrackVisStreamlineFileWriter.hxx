@@ -28,7 +28,7 @@ namespace itk {
 //
 // Constructor
 //
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::TrackVisStreamlineFileWriter()
 {
@@ -45,7 +45,7 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 //
 // Destructor
 //
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::~TrackVisStreamlineFileWriter()
 {
@@ -54,7 +54,7 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 //
 //
 //
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 void
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::SetInput(InputMeshType * input)
@@ -65,7 +65,7 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 //
 // Write the input mesh to the output file
 //
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 void TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::Update()
 {
@@ -75,14 +75,14 @@ void TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 //
 // Write the input mesh to the output file
 //
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 void TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::Write()
 {
   this->GenerateData();
 }
 
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 void
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::GenerateData()
@@ -141,7 +141,7 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
     }
 
 }
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 void
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::WriteTrkFile()
@@ -150,12 +150,13 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
   this->WriteTrkTracts();
 }
 
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 void
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::WriteTrkHeader( ) {
-  std::ofstream outputFile( this->m_FileName.c_str() );
-  outputFile << "TRACK";
+  std::cout << "TrackVisStreamlineFileWriter<TInputMesh,TInputImage>::WriteTrkHeader()"  << std::endl;
+  std::ofstream outputFile( this->m_FileName.c_str(), std::ofstream::out );
+  outputFile << "TRACK ";
 
   // Write reference image info (needed why?)
   short int dim[3];
@@ -163,74 +164,106 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
   float origin[3];
   for ( unsigned int i=0; i<3; i++ ) {
     dim[i] = this->m_ReferenceImage->GetLargestPossibleRegion().GetSize()[i];
-    voxelSize = this->m_ReferenceImage->GetSpacing()[i];
+    voxelSize[i] = this->m_ReferenceImage->GetSpacing()[i];
     origin[i] = this->m_ReferenceImage->GetOrigin()[i];
   }
 
-  outputFile.write( reinterpret_cast<char *>( dim ), 3 * sizeof(int) );
+  outputFile.write( reinterpret_cast<char *>( dim ), 3 * sizeof(short int) );
   outputFile.write( reinterpret_cast<char *>( voxelSize ), 3 * sizeof(float) );
   outputFile.write( reinterpret_cast<char *>( origin ), 3 * sizeof(float) );
 
-  short int n_scalars = this->m_MScalars;
-  outputFile.write( reinterpret_cast<char *>( n_scalars ), sizeof(short int) );
+  short int n_scalars = this->m_NScalars;
+  outputFile.write( reinterpret_cast<char *>( &n_scalars ), sizeof(short int) );
 
   // scalar names char[10][20]
   char scalar_names[200];
-  outputFile.write( scalar_names, 200 );
+  for ( unsigned x=0; x<200; x++ ) {
+    scalar_names[x] = 0;
+  }
+  outputFile.write( reinterpret_cast<char *>( scalar_names ), 200 );
 
   short int n_properties = this->m_NProperties;
-  outputFile.write( reinterpret_cast<char *>( n_properties ), sizeof(short int) );
+  outputFile.write( reinterpret_cast<char *>( &n_properties ), sizeof(short int) );
 
   // property_name char[10][20]
   char property_names[200];
-  outputFile.write( proprety_names, 200 );
+  for ( unsigned x=0; x<200; x++ ) {
+    property_names[x] = 0;
+  }
+  outputFile.write( reinterpret_cast<char *>( property_names ), 200 );
 
   // float vox_to_ras[4][4]
   float vox_to_ras[16];
-  outputFile.write( reinterpret_cast<char *>( vox_2_ras ), 16 * sizeof(float) );
+  for (unsigned int x=0; x<16; x++ ) {
+    vox_to_ras[x] = 0.0;
+  }
+  outputFile.write( reinterpret_cast<char *>( vox_to_ras ), 16 * sizeof(float) );
 
   char reserved[444];
+  for ( unsigned x=0; x<444; x++ ) {
+    reserved[x] = 0;
+  }
   outputFile.write( reserved, 444 );
 
   char voxel_order[4]; // Empty is "LPS"
+  for ( unsigned x=0; x<4; x++ ) {
+    voxel_order[x] = 0;
+  }
   outputFile.write( voxel_order, 4 );
 
   char pad2[4]; // paddings?
+  for ( unsigned x=0; x<4; x++ ) {
+    pad2[x] = 0;
+  }
   outputFile.write( pad2, 4 );
 
+  float image_orientation_patient[6];
+  image_orientation_patient[0] = 1;
+  image_orientation_patient[1] = 0;
+  image_orientation_patient[2] = 0;
+  image_orientation_patient[3] = 0;
+  image_orientation_patient[4] = 1;
+  image_orientation_patient[5] = 0;
+  outputFile.write( reinterpret_cast<char *>( image_orientation_patient ), 6 * sizeof(float) );
+
+  char pad1[2];
+  pad1[0] = 0;
+  pad1[1] = 0;
+  outputFile.write( pad1, 2 );
+
   unsigned char invert_x = 0;
-  outputFile.write( &invert_x, 1 );
+  outputFile.write( reinterpret_cast<char *>(&invert_x), 1 );
 
   unsigned char invert_y = 0;
-  outputFile.write( &invert_y, 1 );
+  outputFile.write( reinterpret_cast<char *>(&invert_y), 1 );
 
   unsigned char invert_z = 0;
-  outputFile.write( &invert_z, 1 );
+  outputFile.write( reinterpret_cast<char *>(&invert_z), 1 );
 
   unsigned char swap_xy = 0;
-  outputFile.write( &swap_xy, 1 );
+  outputFile.write( reinterpret_cast<char *>(&swap_xy), 1 );
 
   unsigned char swap_yz = 0;
-  outputFile.write( &swap_yz, 1 );
+  outputFile.write( reinterpret_cast<char *>(&swap_yz), 1 );
 
   unsigned char swap_zx = 0;
-  outputFile.write( &swap_zx, 1 );
+  outputFile.write( reinterpret_cast<char *>(&swap_zx), 1 );
 
-  int n_count this->m_Input()->GetNumberOfCells();
-  outputFile.write( &n_count, sizeof(int) );
+  int n_count = this->m_Input->GetNumberOfCells();
+  n_count = 1;
+  outputFile.write( reinterpret_cast<char *>(&n_count), sizeof(int) );
 
-  int version=2
+  int version=2;
   outputFile.write( reinterpret_cast<char *>( &version ), sizeof(int) );
 
-  int hdr_size=1000
+  int hdr_size=1000;
   outputFile.write( reinterpret_cast<char *>( &hdr_size ), sizeof(int) );
-
   //ByteSwapper<float>::SwapRangeFromSystemToBigEndian(ptData,numberOfPoints*3);
 
   outputFile.close();
 }
 
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 void
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::WriteTrkTracts()
@@ -238,9 +271,11 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
   //
   // Write to output file
   //
-  std::ofstream outputFile( this->m_FileName.c_str() );
+  std::cout << "TrackVisStreamlineFileWriter<TInputMesh,TInputImage>::WriteTrkTracts()"  << std::endl;
+  std::ofstream outputFile( this->m_FileName.c_str(), std::ofstream::out | std::ofstream::app );
 
   unsigned long numberOfCells = this->m_Input->GetNumberOfCells();
+  numberOfCells = 1;
   for (unsigned int i=0; i<numberOfCells; i++) {
     CellAutoPointer cell;
     if ( !this->m_Input->GetCell(i, cell) ) {
@@ -249,15 +284,17 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 
     long nPoints = cell->GetNumberOfPoints();
     unsigned long dataSize = nPoints*(3+this->m_NScalars) + this->m_NProperties;
-    float * cellData = new float(dataSize);
+    float cellData[dataSize];
+
+    std::cout << "Writing tract " << i << " with " << nPoints << " points " << std::endl;
 
     // Write point coordinates and associated scalars
     unsigned long idx = 0;
     for ( unsigned long j=0; j<nPoints; j++ ) {
       int pointId = cell->GetPointIds()[j];
       PointType point;
-      bool pointExists =  this->m_Input->GetPoint( j, & point );
-      if ( !pointExits ) {
+      bool pointExists =  this->m_Input->GetPoint( pointId, &point );
+      if ( !pointExists ) {
         itkExceptionMacro( "Unknown point id found: " << j );
       }
 
@@ -265,7 +302,7 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
       cellData[idx++] = point[1];
       cellData[idx++] = point[2];
 
-      for ( unsigned int k=0; k<this->n_NScalars; k++ ) {
+      for ( unsigned int k=0; k<this->m_NScalars; k++ ) {
         //cellData[idx++] = SCALAR VALUE GOES HERE
         }
       }
@@ -275,7 +312,6 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
       }
 
     outputFile.write( reinterpret_cast<char *>( cellData ), dataSize * sizeof(float) );
-    delete [] cellData;
 
     }
 
@@ -285,7 +321,7 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 
 
 
-template<class TInputMesh,TInputImage>
+template<class TInputMesh,class TInputImage>
 void
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::PrintSelf( std::ostream& os, Indent indent ) const

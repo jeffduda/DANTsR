@@ -280,6 +280,9 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
   else if ( grepl(".Bfloat", filename ) ) {
     mesh = .Call("antsrMesh_ReadCamino", filename, pixeltype="float", PACKAGE="DANTsR")
   }
+  else if ( grepl(".trk", filename) ) {
+    mesh = .Call("antsrMesh_ReadTrk", filename, pixeltype, PACKAGE="DANTsR")
+  }
   return(mesh)
 }
 
@@ -290,7 +293,7 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
 #' @param seeds seed indices (for Camino files)
 #' @param cells.as what VTK-type of cell should cell data be written as ("NA", "polygon", "line")
 #' @export
-write.antsrMesh = function( mesh, filename, seeds=NULL, cells.as="NA" ) {
+write.antsrMesh = function( mesh, filename, image=NULL, seeds=NULL, cells.as="NA" ) {
   if ( grepl(".vtk", filename ) ) {
     invisible(.Call("antsrMesh_WriteVTK", mesh, filename, cells.as, PACKAGE="DANTsR"))
   }
@@ -300,6 +303,14 @@ write.antsrMesh = function( mesh, filename, seeds=NULL, cells.as="NA" ) {
     }
     else {
       invisible(.Call("antsrMesh_WriteCamino", mesh, filename, seeds, PACKAGE="DANTsR"))
+    }
+  }
+  else if ( grepl(".trk", filename) ) {
+    if ( is.null(image) ) {
+      stop("TrackVis file requires a reference image")
+    }
+    else {
+      invisible(.Call("antsrMesh_WriteTrk", mesh, filename, image, PACKAGE="DANTsR"))
     }
   }
   return(0)
