@@ -225,7 +225,7 @@ SEXP dtiFilters( SEXP r_dti, SEXP r_filter )
 RcppExport SEXP dtiFilters( SEXP r_dti, SEXP r_filter ) {
 try
   {
-  if( r_dti == NULL || r_filter == NULL )
+  if( r_dti == nullptr || r_filter == nullptr )
     {
       Rcpp::Rcout << "Unspecified Arguments" << std::endl;
       return Rcpp::wrap( NA_REAL );

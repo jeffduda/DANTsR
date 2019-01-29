@@ -8,7 +8,10 @@
 #include "itkMesh.h"
 #include "itkByteSwapper.h"
 #include "itkCaminoStreamlineFileReader.h"
+#include "itkTrackVisStreamlineFileReader.h"
+#include "itkTrackVisStreamlineFileWriter.h"
 #include "itkVtkPolyDataFileReader.h"
+#include "itkVtkPolyDataFileWriter.h"
 
 #include "itkLineCell.h"
 #include "itkPolygonCell.h"
@@ -408,7 +411,7 @@ antsrMesh_GetCell( SEXP r_mesh, SEXP r_identifier )
 
   Rcpp::NumericVector ids( cell->GetNumberOfPoints() );
   for (unsigned int i=0; i<cell->GetNumberOfPoints(); i++ ) {
-    ids[i] = cell->GetPointIds()[i];
+    ids[i] = cell->GetPointIds()[i] + 1; // 1-based indexing in R
   }
 
   return( Rcpp::wrap(ids) );
@@ -893,7 +896,7 @@ antsrMesh_AddPolyline( SEXP r_mesh, SEXP r_identifier, SEXP r_points )
   typename MeshType::PointIdentifier polyPoints[ nPoints ];
 
   for (unsigned long i=0; i<nPoints; i++) {
-    polyPoints[i] = pts[i];
+    polyPoints[i] = pts[i]-1;
   }
 
   PolyLineCellType * polyline = new PolyLineCellType;
@@ -1170,6 +1173,69 @@ return Rcpp::wrap(NA_REAL); //not reached
 
 template< class MeshType >
 SEXP
+antsrMesh_ReadTrk( SEXP r_filename )
+{
+  typedef typename MeshType::Pointer                   MeshPointerType;
+  typedef itk::TrackVisStreamlineFileReader<MeshType>  ReaderType;
+
+  std::string filename = Rcpp::as<std::string>( r_filename );
+
+  typename ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( filename.c_str() );
+  reader->Update();
+  MeshPointerType mesh = reader->GetOutput();
+
+  typename ReaderType::ImagePointerType img = reader->GetReferenceImage();
+  Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh),
+                                       Rcpp::Named("Image")=Rcpp::wrap(img));
+
+  return Rcpp::wrap(list);
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_ReadTrk( SEXP r_filename, SEXP r_pixeltype )
+{
+try
+{
+  std::string precision = Rcpp::as<std::string>(r_pixeltype);
+
+  if ( precision=="double") {
+    using PrecisionType = double;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_ReadTrk<MeshType>(r_filename);
+  }
+  else if (precision=="float") {
+    using PrecisionType = float;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_ReadTrk<MeshType>(r_filename);
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
 antsrMesh_WriteCamino( SEXP r_mesh, SEXP r_filename, SEXP r_seeds )
 {
   typedef typename MeshType::Pointer                 MeshPointerType;
@@ -1255,6 +1321,163 @@ return Rcpp::wrap(NA_REAL); //not reached
 
 
 
+template< class MeshType >
+SEXP
+antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs )
+{
+
+  //Rcpp::Rcout << "antsrMesh_WriteVTK<MeshType>()" << std::endl;
+
+
+  using MeshPointerType = typename MeshType::Pointer;
+  using CellType = typename MeshType::CellType;
+  using CellAutoPointer = typename CellType::CellAutoPointer;
+  using WriterType = itk::VtkPolyDataFileWriter< MeshType >;
+  using WriterPointerType = typename WriterType::Pointer;
+
+  std::string filename = Rcpp::as<std::string>( r_filename );
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
+  std::string cellsAs = Rcpp::as<std::string>( r_cellsAs );
+
+  WriterPointerType writer = WriterType::New();
+  writer->SetFileName( filename );
+  writer->SetInput( mesh );
+
+  if ( cellsAs == "lines" ) {
+    writer->SetCellsAsLines(true);
+  }
+  else if ( cellsAs == "polygons" ) {
+    writer->SetCellsAsPolygons(true);
+  }
+
+  writer->Update();
+
+  return Rcpp::wrap(1);
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs)
+{
+  //Rcpp::Rcout << "antsrMesh_WriteVTK()" << std::endl;
+
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  //unsigned int dimension = rMesh.slot("dimension");
+
+  if ( precision=="double") {
+    using PrecisionType = double;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs);
+  }
+  else if (precision=="float") {
+    using PrecisionType = float;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs);
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType, class ImageType >
+SEXP
+antsrMesh_WriteTrk( SEXP r_mesh, SEXP r_filename, SEXP r_Image)
+{
+  Rcpp::Rcout << "antsrMesh_WriteTrk<MeshType>()" << std::endl;
+
+  using MeshPointerType = typename MeshType::Pointer;
+  using CellType = typename MeshType::CellType;
+  using CellAutoPointer = typename CellType::CellAutoPointer;
+  using WriterType = itk::TrackVisStreamlineFileWriter< MeshType, ImageType >;
+  using WriterPointerType = typename WriterType::Pointer;
+  using ImagePointerType = typename ImageType::Pointer;
+
+  Rcpp::Rcout << "Get parameters" << std::endl;
+  std::string filename = Rcpp::as<std::string>( r_filename );
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
+  ImagePointerType image = Rcpp::as<ImagePointerType>( r_Image );
+
+  Rcpp::Rcout << "Setup filter" << std::endl;
+  WriterPointerType writer = WriterType::New();
+  writer->SetFileName( filename );
+  writer->SetInput( mesh );
+  writer->SetReferenceImage( image );
+
+  writer->Update();
+
+  return Rcpp::wrap(1);
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_WriteTrk( SEXP r_mesh, SEXP r_filename, SEXP r_image)
+{
+Rcpp::Rcout << "antsrMesh_WriteTrk()" << std::endl;
+
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  //unsigned int dimension = rMesh.slot("dimension");
+
+  if ( precision=="double") {
+    using PrecisionType = double;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    using ImageType = itk::Image<PrecisionType,3>;
+    return antsrMesh_WriteTrk<MeshType, ImageType>(r_mesh, r_filename, r_image);
+  }
+  else if (precision=="float") {
+    using PrecisionType = float;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    using ImageType = itk::Image<PrecisionType,3>;
+    return antsrMesh_WriteTrk<MeshType, ImageType>(r_mesh, r_filename, r_image);
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
 // Apply transform to image
 template< class MeshType, class TransformType >
 SEXP antsrMesh_TransformMesh( SEXP r_transform, SEXP r_mesh, SEXP r_inplace )
@@ -1274,7 +1497,7 @@ SEXP antsrMesh_TransformMesh( SEXP r_transform, SEXP r_mesh, SEXP r_inplace )
 
   typedef typename MeshType::PointType      MeshPointType;
 
-  typename MeshType::Pointer outMesh = NULL;
+  typename MeshType::Pointer outMesh = nullptr;
   if ( !inplace ) {
     outMesh = MeshType::New();
     outMesh->GetPoints()->Reserve(mesh->GetNumberOfPoints());

@@ -9,6 +9,6 @@ labelsToPoints = function(img, label=1)
     stop("Must input an 'antsImage'")
   }
 
-  .Call( "labelsToPoints", img, label, package="DANTsR")
+  .Call( "labelsToPoints", img, label, PACKAGE="DANTsR")
 
 }

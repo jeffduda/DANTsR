@@ -72,7 +72,7 @@ dtiEigenSystem = function(img, method="itk-svd")
 
   }
   else {
-   dt = .Call( "dtiFilters", img, "eigensystem", package="DANTsR")
+   dt = .Call( "dtiFilters", img, "eigensystem", PACKAGE="DANTsR")
  }
 
  return(dt)

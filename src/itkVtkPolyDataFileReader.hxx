@@ -132,7 +132,7 @@ VtkPolyDataFileReader<TOutputMesh>
 
 
   // FIXME Debugging output
-  if ( true ) {
+  if ( false ) {
     Rcpp::Rcout << "# Points: " << this->GetOutput()->GetNumberOfPoints() << std::endl;
     Rcpp::Rcout << "# Cells: " << this->GetOutput()->GetNumberOfCells() << std::endl;
 
@@ -385,7 +385,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKPoints( unsigned long nPoints, std::string itkNotUsed(dataType) )
 {
-  Rcpp::Rcout << "Reading " << nPoints << " points" << std::endl;
+  //Rcpp::Rcout << "Reading " << nPoints << " points" << std::endl;
 
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   outputMesh->GetPoints()->Initialize();
@@ -456,23 +456,18 @@ VtkPolyDataFileReader<TOutputMesh>
   unsigned long index;
   unsigned long lineSize;
 
+
   if (!this->m_BinaryData)
   {
     for (unsigned long i=0; i<nLines; i++)
     {
+      streamline.TakeOwnership( new PolyLineCellType );
       this->m_InputFile >> lineSize;
-
-      typename OutputMeshType::PointIdentifier polyPoints[ lineSize ];
-
       for (unsigned long j=0; j<lineSize; j++)
       {
         this->m_InputFile >> index;
-        polyPoints[i] = index;
+        streamline->SetPointId(j, index);
       }
-
-      PolyLineCellType * polygon = new PolyLineCellType;
-      polygon->SetPointIds( 0, lineSize, polyPoints );
-      streamline.TakeOwnership( polygon );
       outputMesh->SetCell(i, streamline);
     }
   }
@@ -492,18 +487,14 @@ VtkPolyDataFileReader<TOutputMesh>
     {
       unsigned int lineLength = lineData[valueId];
       ++valueId;
-
-      typename OutputMeshType::PointIdentifier polyPoints[ lineLength ];
+      streamline.TakeOwnership( new PolyLineCellType );
 
       for (unsigned long i = 0; i < lineLength; i++)
         {
-        polyPoints[i] = lineData[valueId];
+        streamline->SetPointId(i, lineData[valueId]);
         ++valueId;
         }
 
-      PolyLineCellType * polygon = new PolyLineCellType;
-      polygon->SetPointIds( 0, lineLength, polyPoints );
-      streamline.TakeOwnership( polygon );
       outputMesh->SetCell(lineId, streamline);
       ++lineId;
     }
@@ -518,7 +509,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKPolygons( unsigned long nPolygons, unsigned long nValues )
 {
-  Rcpp::Rcout << "Reading " << nPolygons << " polygons" << std::endl;
+  //Rcpp::Rcout << "Reading " << nPolygons << " polygons" << std::endl;
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   this->m_Polygons->Initialize();
 
@@ -531,18 +522,14 @@ VtkPolyDataFileReader<TOutputMesh>
   {
     for (unsigned long i=0; i<nPolygons; i++)
     {
-      this->m_InputFile >> polySize;
-      typename OutputMeshType::PointIdentifier polyPoints[ polySize ];
+      polyCell.TakeOwnership( new PolygonCellType );
 
+      this->m_InputFile >> polySize;
       for (unsigned long j=0; j<polySize; j++)
       {
         this->m_InputFile >> index;
-        polyPoints[i] = index;
+        polyCell->SetPointId(j, index);
       }
-
-      PolygonCellType * polygon = new PolygonCellType;
-      polygon->SetPointIds( 0, polySize, polyPoints );
-      polyCell.TakeOwnership( polygon );
       outputMesh->SetCell(i, polyCell);
     }
   }
@@ -557,28 +544,21 @@ VtkPolyDataFileReader<TOutputMesh>
     unsigned long polyId = 0;
 
     CellAutoPointer polyCell;
+
     while (valueId < nValues)
     {
       unsigned int polySize = polyData[valueId];
       ++valueId;
 
-      typename OutputMeshType::PointIdentifier polyPoints[ polySize ];
-
+      polyCell.TakeOwnership( new PolygonCellType );
       for (unsigned long i = 0; i < polySize; i++)
         {
-        polyPoints[i] = polyData[valueId];
+        polyCell->SetPointId(i, polyData[valueId]);
         ++valueId;
         }
-
-      PolygonCellType * polygon = new PolygonCellType;
-      polygon->SetPointIds( 0, polySize, polyPoints );
-      polyCell.TakeOwnership( polygon );
-
       outputMesh->SetCell(polyId, polyCell);
       ++polyId;
     }
-
-    delete [] polyData;
 
   }
 
@@ -590,7 +570,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKVertices( unsigned long nVertices, unsigned long nValues )
 {
-  Rcpp::Rcout << "Reading " << nVertices << " vertices" << std::endl;
+  //Rcpp::Rcout << "Reading " << nVertices << " vertices" << std::endl;
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   this->m_Vertices->Initialize();
 
@@ -664,7 +644,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKStrips( unsigned long nStrips, unsigned long nValues )
 {
-  Rcpp::Rcout << "Reading " << nStrips << " strips" << std::endl;
+  //Rcpp::Rcout << "Reading " << nStrips << " strips" << std::endl;
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   this->m_Vertices->Initialize();
 
@@ -881,12 +861,12 @@ VtkPolyDataFileReader<TOutputMesh>
     }
     else if (line.find("FIELD") != std::string::npos)
     {
-      Rcpp::Rcout << "FIELD not yet fully supported" << std::endl;
+      //Rcpp::Rcout << "FIELD not yet fully supported" << std::endl;
       std::string::size_type sp1 = line.find( " " );
       std::string::size_type sp2 = line.find( " ", sp1+1);
       std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
       unsigned int nFields = std::atoi( std::string( line, sp2+1, line.length()-sp1-1 ).c_str() );
-      Rcpp::Rcout << "FIELD named " << dataName << " has " << nFields << " data arrays" << std::endl;
+      //Rcpp::Rcout << "FIELD named " << dataName << " has " << nFields << " data arrays" << std::endl;
       for (unsigned int i=0; i<nFields; i++) {
         std::getline(this->m_InputFile, line);
         sp1 = line.find( " " );
@@ -899,7 +879,7 @@ VtkPolyDataFileReader<TOutputMesh>
         std::string dataType = std::string( line, sp3+1, line.length()-sp3-1 );
 
         MatrixType dat = this->ReadVTKDataMatrix(dataType, nComponents, nTuples);
-        Rcpp::Rcout << "Read array " << dataName << " : " << nComponents << "x" << nTuples << " values of type " << dataType << std::endl;
+        //Rcpp::Rcout << "Read array " << dataName << " : " << nComponents << "x" << nTuples << " values of type " << dataType << std::endl;
       }
     }
 

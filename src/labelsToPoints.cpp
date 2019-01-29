@@ -49,7 +49,7 @@ SEXP labelsToPoints( SEXP r_img, SEXP r_label )
 RcppExport SEXP labelsToPoints( SEXP r_img, SEXP r_label ) {
 try
   {
-  if( r_img == NULL || r_label == NULL )
+  if( r_img == nullptr || r_label == nullptr )
     {
       Rcpp::Rcout << "Unspecified Arguments" << std::endl;
       return Rcpp::wrap( NA_REAL );
