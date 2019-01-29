@@ -9,7 +9,7 @@ killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are
 <!-- badges: start -->
 
 [![Travis build
-status](https://travis-ci.com/jeffduda/DANTsR.svg?branch=master)](https://travis-ci.com/jeffduda/DANTsR)
+status](https://travis-ci.org/jeffduda/DANTsR.svg?branch=master)](https://travis-ci.org/jeffduda/DANTsR)
 [![muschellij2 Travis build
 status](https://travis-ci.com/muschellij2/DANTsR.svg?branch=master)](https://travis-ci.com/muschellij2/DANTsR)
 
