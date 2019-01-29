@@ -1,26 +1,37 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-![dantsr
-killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg)
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+![dantsr killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg)
+
+
 
 # DANTsR
 
+
 <!-- badges: start -->
 
-[![Travis build
-status](https://travis-ci.com/jeffduda/DANTsR.svg?branch=master)](https://travis-ci.com/jeffduda/DANTsR)
-[![muschellij2 Travis build
-status](https://travis-ci.com/muschellij2/DANTsR.svg?branch=master)](https://travis-ci.com/muschellij2/DANTsR)
+[![Travis build status](https://travis-ci.com/jeffduda/DANTsR.svg?branch=master)](https://travis-ci.com/jeffduda/DANTsR)
+[![muschellij2 Travis build status](https://travis-ci.com/muschellij2/DANTsR.svg?branch=master)](https://travis-ci.com/muschellij2/DANTsR)
 
 <!-- badges: end -->
 
 The goal of DANTsR is to provide diffusion imaging extension to ANTsR.
 
+
 ## Installation
 
-You can install the released version of DANTsR from
-[CRAN](https://CRAN.R-project.org) with:
+You can install the released version of DANTsR from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("DANTsR")
@@ -32,10 +43,9 @@ And the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("jeffduda/DANTsR")
 ```
-
 ## Example
 
-``` r
+```{r eval = FALSE}
 library(DANTsR)
 img = antsImageRead("yourfile.nii.gz")
 fa = dtiAnisotrpyImage(img, "FractionalAnisotropy")
