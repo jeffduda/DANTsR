@@ -1,10 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# DANTsR
+
 ![dantsr
 killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg)
-
-# DANTsR
 
 <!-- badges: start -->
 
