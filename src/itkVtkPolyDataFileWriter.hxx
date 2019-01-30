@@ -469,7 +469,7 @@ VtkPolyDataFileWriter<TInputMesh>
   if ( this->m_CellsAsLines || this->m_CellsAsPolygons ) {
 
     std::transform(cellType.begin(), cellType.end(), cellType.begin(), ::toupper);
-    Rcpp::Rcout << "Write cells as: " << cellType << std::endl;
+    //Rcpp::Rcout << "Write cells as: " << cellType << std::endl;
 
     std::ofstream outputFile( this->m_FileName.c_str(), std::ios::app );
 

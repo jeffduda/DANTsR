@@ -32,9 +32,9 @@ template<class TInputMesh,class TInputImage>
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::TrackVisStreamlineFileWriter()
 {
-  this->m_Input = NULL;
+  this->m_Input = nullptr;
   this->m_FileName = "";
-  this->m_MultiComponentScalarSets = NULL;
+  this->m_MultiComponentScalarSets = nullptr;
   this->m_ImageSize.Fill( 0 );
   this->m_ReferenceImage = nullptr;
 
@@ -108,37 +108,32 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
     return;
   }
 
-  //
-  // Read output file
-  //
-  std::ofstream outputFile( m_FileName.c_str() );
-
-  if( !outputFile.is_open() )
-    {
-    itkExceptionMacro( "Unable to open file\n"
-        "outputFilename= " << m_FileName );
-    return;
-    }
-  else
-    {
-    outputFile.close();
-    }
-
   /**
    * Get filename extension
    */
   std::string::size_type pos = this->m_FileName.rfind( "." );
   std::string extension( this->m_FileName, pos+1, this->m_FileName.length()-1 );
-
-  if( extension == "trk" )
-    {
-    this->WriteTrkFile();
-    }
-  else
+  if( extension != "trk" )
     {
     itkExceptionMacro( "Unknown extension: " << extension );
     return;
     }
+
+  //
+  // Open output file
+  //
+  m_OutputFile.open( m_FileName.c_str(), std::ofstream::out );
+
+  if( !m_OutputFile.is_open() )
+    {
+    itkExceptionMacro( "Unable to open file\n"
+        "outputFilename= " << m_FileName );
+    return;
+    }
+
+  this->WriteTrkFile();
+
+  m_OutputFile.close();
 
 }
 template<class TInputMesh,class TInputImage>
@@ -147,175 +142,136 @@ TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::WriteTrkFile()
 {
   this->WriteTrkHeader();
-  this->WriteTrkTracts();
+
+  for( unsigned int i=0; i<this->m_Input->GetNumberOfCells(); i++) {
+    this->WriteTrkTract(i);
+  }
 }
 
 template<class TInputMesh,class TInputImage>
 void
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
 ::WriteTrkHeader( ) {
-  std::cout << "TrackVisStreamlineFileWriter<TInputMesh,TInputImage>::WriteTrkHeader()"  << std::endl;
-  std::ofstream outputFile( this->m_FileName.c_str(), std::ofstream::out );
-  outputFile << "TRACK ";
+  //std::cout << "TrackVisStreamlineFileWriter<TInputMesh,TInputImage>::WriteTrkHeader()"  << std::endl;
 
-  // Write reference image info (needed why?)
-  short int dim[3];
-  float voxelSize[3];
-  float origin[3];
+  TRACKVIS_HEADER_V2 hdr;
+  hdr.id_string[0] = 'T';
+  hdr.id_string[1] = 'R';
+  hdr.id_string[2] = 'A';
+  hdr.id_string[3] = 'C';
+  hdr.id_string[4] = 'K';
+  hdr.id_string[5] = '\0';
+
   for ( unsigned int i=0; i<3; i++ ) {
-    dim[i] = this->m_ReferenceImage->GetLargestPossibleRegion().GetSize()[i];
-    voxelSize[i] = this->m_ReferenceImage->GetSpacing()[i];
-    origin[i] = this->m_ReferenceImage->GetOrigin()[i];
+    hdr.dim[i] = static_cast<short int>( this->m_ReferenceImage->GetLargestPossibleRegion().GetSize()[i] );
+    hdr.voxel_size[i] = static_cast<float>( this->m_ReferenceImage->GetSpacing()[i] );
+    hdr.origin[i] = static_cast<float>( this->m_ReferenceImage->GetOrigin()[i] );
   }
 
-  outputFile.write( reinterpret_cast<char *>( dim ), 3 * sizeof(short int) );
-  outputFile.write( reinterpret_cast<char *>( voxelSize ), 3 * sizeof(float) );
-  outputFile.write( reinterpret_cast<char *>( origin ), 3 * sizeof(float) );
+  hdr.n_scalars = static_cast<short int>(this->m_NScalars);
+  hdr.n_properties = static_cast<short int>(this->m_NProperties);
 
-  short int n_scalars = this->m_NScalars;
-  outputFile.write( reinterpret_cast<char *>( &n_scalars ), sizeof(short int) );
-
-  // scalar names char[10][20]
-  char scalar_names[200];
-  for ( unsigned x=0; x<200; x++ ) {
-    scalar_names[x] = 0;
+  for ( unsigned int x=0; x<10; x++ ) {
+    for (unsigned int y=0; y<20; y++) {
+      hdr.scalar_names[x][y] = 0;
+      hdr.property_names[x][y] = 0;
+    }
   }
-  outputFile.write( reinterpret_cast<char *>( scalar_names ), 200 );
 
-  short int n_properties = this->m_NProperties;
-  outputFile.write( reinterpret_cast<char *>( &n_properties ), sizeof(short int) );
-
-  // property_name char[10][20]
-  char property_names[200];
-  for ( unsigned x=0; x<200; x++ ) {
-    property_names[x] = 0;
+  for (unsigned int x=0; x<4; x++ ) {
+    for (unsigned int y=0; y<4; y++) {
+      hdr.vox_to_ras[x][y] = 0.0;
+    }
   }
-  outputFile.write( reinterpret_cast<char *>( property_names ), 200 );
 
-  // float vox_to_ras[4][4]
-  float vox_to_ras[16];
-  for (unsigned int x=0; x<16; x++ ) {
-    vox_to_ras[x] = 0.0;
-  }
-  outputFile.write( reinterpret_cast<char *>( vox_to_ras ), 16 * sizeof(float) );
-
-  char reserved[444];
   for ( unsigned x=0; x<444; x++ ) {
-    reserved[x] = 0;
+    hdr.reserved[x] = 0;
   }
-  outputFile.write( reserved, 444 );
 
-  char voxel_order[4]; // Empty is "LPS"
+  hdr.voxel_order[0] = 'L';
+  hdr.voxel_order[1] = 'P';
+  hdr.voxel_order[2] = 'S';
+  hdr.voxel_order[3] = '\0';
+
   for ( unsigned x=0; x<4; x++ ) {
-    voxel_order[x] = 0;
+    hdr.pad2[x] = 0;
   }
-  outputFile.write( voxel_order, 4 );
 
-  char pad2[4]; // paddings?
-  for ( unsigned x=0; x<4; x++ ) {
-    pad2[x] = 0;
-  }
-  outputFile.write( pad2, 4 );
+  hdr.image_orientation_patient[0] = 1;
+  hdr.image_orientation_patient[1] = 0;
+  hdr.image_orientation_patient[2] = 0;
+  hdr.image_orientation_patient[3] = 0;
+  hdr.image_orientation_patient[4] = 1;
+  hdr.image_orientation_patient[5] = 0;
 
-  float image_orientation_patient[6];
-  image_orientation_patient[0] = 1;
-  image_orientation_patient[1] = 0;
-  image_orientation_patient[2] = 0;
-  image_orientation_patient[3] = 0;
-  image_orientation_patient[4] = 1;
-  image_orientation_patient[5] = 0;
-  outputFile.write( reinterpret_cast<char *>( image_orientation_patient ), 6 * sizeof(float) );
+  hdr.pad1[0] = 0;
+  hdr.pad1[1] = 0;
 
-  char pad1[2];
-  pad1[0] = 0;
-  pad1[1] = 0;
-  outputFile.write( pad1, 2 );
+  hdr.invert_x = 0;
+  hdr.invert_y = 0;
+  hdr.invert_z = 0;
+  hdr.swap_xy = 0;
+  hdr.swap_yz = 0;
+  hdr.swap_zx = 0;
 
-  unsigned char invert_x = 0;
-  outputFile.write( reinterpret_cast<char *>(&invert_x), 1 );
+  hdr.n_count = static_cast<int>( this->m_Input->GetNumberOfCells() );
 
-  unsigned char invert_y = 0;
-  outputFile.write( reinterpret_cast<char *>(&invert_y), 1 );
+  hdr.version = 2;
 
-  unsigned char invert_z = 0;
-  outputFile.write( reinterpret_cast<char *>(&invert_z), 1 );
+  hdr.hdr_size=1000;
 
-  unsigned char swap_xy = 0;
-  outputFile.write( reinterpret_cast<char *>(&swap_xy), 1 );
+  m_OutputFile.write( reinterpret_cast<char *>(&hdr), sizeof(hdr) );
 
-  unsigned char swap_yz = 0;
-  outputFile.write( reinterpret_cast<char *>(&swap_yz), 1 );
-
-  unsigned char swap_zx = 0;
-  outputFile.write( reinterpret_cast<char *>(&swap_zx), 1 );
-
-  int n_count = this->m_Input->GetNumberOfCells();
-  n_count = 1;
-  outputFile.write( reinterpret_cast<char *>(&n_count), sizeof(int) );
-
-  int version=2;
-  outputFile.write( reinterpret_cast<char *>( &version ), sizeof(int) );
-
-  int hdr_size=1000;
-  outputFile.write( reinterpret_cast<char *>( &hdr_size ), sizeof(int) );
-  //ByteSwapper<float>::SwapRangeFromSystemToBigEndian(ptData,numberOfPoints*3);
-
-  outputFile.close();
 }
 
 template<class TInputMesh,class TInputImage>
 void
 TrackVisStreamlineFileWriter<TInputMesh,TInputImage>
-::WriteTrkTracts()
+::WriteTrkTract(unsigned int id)
 {
   //
   // Write to output file
   //
-  std::cout << "TrackVisStreamlineFileWriter<TInputMesh,TInputImage>::WriteTrkTracts()"  << std::endl;
-  std::ofstream outputFile( this->m_FileName.c_str(), std::ofstream::out | std::ofstream::app );
+  //std::cout << "TrackVisStreamlineFileWriter<TInputMesh,TInputImage>::WriteTrkTracts()"  << std::endl;
 
-  unsigned long numberOfCells = this->m_Input->GetNumberOfCells();
-  numberOfCells = 1;
-  for (unsigned int i=0; i<numberOfCells; i++) {
-    CellAutoPointer cell;
-    if ( !this->m_Input->GetCell(i, cell) ) {
-      itkExceptionMacro( "Cell could not be read" );
+  CellAutoPointer cell;
+  if ( !this->m_Input->GetCell(id, cell) ) {
+    itkExceptionMacro( "Cell could not be read" );
+  }
+
+  int nPoints = cell->GetNumberOfPoints();
+  m_OutputFile.write( reinterpret_cast<char *>(&nPoints), sizeof(int) );
+
+  unsigned long dataSize = nPoints*(3+this->m_NScalars) + this->m_NProperties;
+  float *cellData = new float[dataSize];
+
+  // Write point coordinates and associated scalars
+  unsigned long idx = 0;
+  for ( unsigned long j=0; j<nPoints; j++ ) {
+    int pointId = cell->GetPointIds()[j];
+    PointType point;
+    bool pointExists =  this->m_Input->GetPoint( pointId, &point );
+    if ( !pointExists ) {
+      itkExceptionMacro( "Unknown point id found: " << j );
     }
 
-    long nPoints = cell->GetNumberOfPoints();
-    unsigned long dataSize = nPoints*(3+this->m_NScalars) + this->m_NProperties;
-    float cellData[dataSize];
+    cellData[idx++] = point[0];
+    cellData[idx++] = point[1];
+    cellData[idx++] = point[2];
 
-    std::cout << "Writing tract " << i << " with " << nPoints << " points " << std::endl;
-
-    // Write point coordinates and associated scalars
-    unsigned long idx = 0;
-    for ( unsigned long j=0; j<nPoints; j++ ) {
-      int pointId = cell->GetPointIds()[j];
-      PointType point;
-      bool pointExists =  this->m_Input->GetPoint( pointId, &point );
-      if ( !pointExists ) {
-        itkExceptionMacro( "Unknown point id found: " << j );
+    for ( unsigned int k=0; k<this->m_NScalars; k++ ) {
+      //cellData[idx++] = SCALAR VALUE GOES HERE
       }
-
-      cellData[idx++] = point[0];
-      cellData[idx++] = point[1];
-      cellData[idx++] = point[2];
-
-      for ( unsigned int k=0; k<this->m_NScalars; k++ ) {
-        //cellData[idx++] = SCALAR VALUE GOES HERE
-        }
-      }
-
-    for ( unsigned int k=0; k<this->m_NProperties; k++) {
-      //cellData[idx++] = PROPERTTY VALUE GOES HERE
-      }
-
-    outputFile.write( reinterpret_cast<char *>( cellData ), dataSize * sizeof(float) );
-
     }
 
-  outputFile.close();
+  for ( unsigned int k=0; k<this->m_NProperties; k++) {
+    //cellData[idx++] = PROPERTTY VALUE GOES HERE
+    }
+
+  m_OutputFile.write( reinterpret_cast<char *>( cellData ), dataSize * sizeof(float) );
+
+  delete[] cellData;
+
 }
 
 

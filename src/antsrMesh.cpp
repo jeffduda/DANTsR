@@ -8,6 +8,7 @@
 #include "itkMesh.h"
 #include "itkByteSwapper.h"
 #include "itkCaminoStreamlineFileReader.h"
+#include "itkCaminoStreamlineFileWriter.h"
 #include "itkTrackVisStreamlineFileReader.h"
 #include "itkTrackVisStreamlineFileWriter.h"
 #include "itkVtkPolyDataFileReader.h"
@@ -1093,8 +1094,6 @@ antsrMesh_ReadCamino( SEXP r_filename )
 {
   typedef typename MeshType::Pointer                 MeshPointerType;
   typedef itk::CaminoStreamlineFileReader<MeshType>  ReaderType;
-  //typedef typename MeshType::CellType                CellType;
-  //typedef typename CellType::CellAutoPointer         CellAutoPointer;
 
   std::string filename = Rcpp::as<std::string>( r_filename );
 
@@ -1103,25 +1102,10 @@ antsrMesh_ReadCamino( SEXP r_filename )
   reader->Update();
   MeshPointerType mesh = reader->GetOutput();
 
-  unsigned long nLinePoints = 0;
-  for ( unsigned long i=0; i<reader->GetLines()->Size(); i++ ) {
-    nLinePoints += reader->GetLines()->GetElement(i).GetSize();
-  }
-  //Rcpp::Rcout << "Number of points in lines " << nLinePoints << std::endl;
+  Rcpp::NumericVector seeds(reader->GetOutput()->GetNumberOfCells());
 
-  unsigned long idx = 0;
-  Rcpp::NumericVector lineArray( nLinePoints + reader->GetLines()->Size() );
-  Rcpp::NumericVector seeds(reader->GetLines()->Size());
-
-  for ( unsigned long i=0; i<reader->GetLines()->Size(); i++ ) {
-    seeds[i] = (unsigned long) reader->GetSeeds()->GetElement(i);
-    lineArray[idx] = reader->GetLines()->GetElement(i).GetSize();
-    ++idx;
-
-    for (unsigned long j=0; j<reader->GetLines()->GetElement(i).Size(); j++ ) {
-      lineArray[idx] = reader->GetLines()->GetElement(i)[j];
-      ++idx;
-    }
+  for ( unsigned long i=0; i<reader->GetOutput()->GetNumberOfCells(); i++ ) {
+    seeds[i] = static_cast<unsigned long>(reader->GetSeeds()->GetElement(i));
   }
 
   Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh),
@@ -1238,39 +1222,23 @@ template< class MeshType >
 SEXP
 antsrMesh_WriteCamino( SEXP r_mesh, SEXP r_filename, SEXP r_seeds )
 {
-  typedef typename MeshType::Pointer                 MeshPointerType;
-  typedef typename MeshType::CellType                CellType;
-  typedef typename CellType::CellAutoPointer         CellAutoPointer;
+  using MeshPointerType = typename MeshType::Pointer;
+  using WriterType = itk::CaminoStreamlineFileWriter< MeshType >;
+  using WriterPointerType = typename WriterType::Pointer;
 
   std::string filename = Rcpp::as<std::string>( r_filename );
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
   Rcpp::NumericVector seeds( r_seeds );
 
-  std::ofstream outFile;
-  outFile.close();
-  outFile.open( filename.c_str(), std::ofstream::binary );
-
-  float n=0.0;
-  unsigned long count=0;
-
-  for ( unsigned long i=0; i<mesh->GetNumberOfCells(); i++ ) {
-    CellAutoPointer cell;
-    mesh->GetCell(i,cell);
-    unsigned long nPoints = cell->GetNumberOfPoints();
-    float data[3*nPoints + 2];
-    data[0] = static_cast<float>( nPoints );
-    data[1] = static_cast<float>( seeds[i] );
-    for ( unsigned long j=0; j<nPoints; j++ ) {
-      typename MeshType::PointType pt = mesh->GetPoint( cell->GetPointIds()[j] );
-      data[2 + 3*j] = pt[0];
-      data[2 + 3*j + 1] = pt[1];
-      data[2 + 3*j + 2] = pt[2];
-      ++count;
-    }
-    itk::ByteSwapper<float>::SwapRangeFromSystemToBigEndian(data, 3*nPoints + 2);
-    outFile.write( reinterpret_cast< char * >( data ), (3*nPoints+2)*sizeof(n) );
+  WriterPointerType writer = WriterType::New();
+  writer->SetFileName( filename );
+  writer->SetInput( mesh );
+  for (long i=0; i<seeds.size(); i++ )
+  {
+    writer->SetSeed(i, seeds[i]);
   }
-  outFile.close();
+  writer->Update();
+
 
   return Rcpp::wrap(1);
 }
@@ -1323,21 +1291,22 @@ return Rcpp::wrap(NA_REAL); //not reached
 
 template< class MeshType >
 SEXP
-antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs )
+antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs, SEXP r_binary )
 {
 
   //Rcpp::Rcout << "antsrMesh_WriteVTK<MeshType>()" << std::endl;
 
 
   using MeshPointerType = typename MeshType::Pointer;
-  using CellType = typename MeshType::CellType;
-  using CellAutoPointer = typename CellType::CellAutoPointer;
+  //using CellType = typename MeshType::CellType;
+  //using CellAutoPointer = typename CellType::CellAutoPointer;
   using WriterType = itk::VtkPolyDataFileWriter< MeshType >;
   using WriterPointerType = typename WriterType::Pointer;
 
   std::string filename = Rcpp::as<std::string>( r_filename );
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
   std::string cellsAs = Rcpp::as<std::string>( r_cellsAs );
+  bool isbinary = Rcpp::as<bool>( r_binary );
 
   WriterPointerType writer = WriterType::New();
   writer->SetFileName( filename );
@@ -1350,13 +1319,14 @@ antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs )
     writer->SetCellsAsPolygons(true);
   }
 
+  writer->SetWriteBinary(isbinary);
   writer->Update();
 
   return Rcpp::wrap(1);
 }
 
 //pixeltype, precision, dimension, type, isVector
-RcppExport SEXP antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs)
+RcppExport SEXP antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs, SEXP r_binary )
 {
   //Rcpp::Rcout << "antsrMesh_WriteVTK()" << std::endl;
 
@@ -1369,12 +1339,12 @@ try
   if ( precision=="double") {
     using PrecisionType = double;
     using MeshType = itk::Mesh<PrecisionType,3>;
-    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs);
+    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs, r_binary);
   }
   else if (precision=="float") {
     using PrecisionType = float;
     using MeshType = itk::Mesh<PrecisionType,3>;
-    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs);
+    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs, r_binary);
   }
   else {
     Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
@@ -1405,26 +1375,21 @@ template< class MeshType, class ImageType >
 SEXP
 antsrMesh_WriteTrk( SEXP r_mesh, SEXP r_filename, SEXP r_Image)
 {
-  Rcpp::Rcout << "antsrMesh_WriteTrk<MeshType>()" << std::endl;
+  //Rcpp::Rcout << "antsrMesh_WriteTrk<MeshType>()" << std::endl;
 
   using MeshPointerType = typename MeshType::Pointer;
-  using CellType = typename MeshType::CellType;
-  using CellAutoPointer = typename CellType::CellAutoPointer;
   using WriterType = itk::TrackVisStreamlineFileWriter< MeshType, ImageType >;
   using WriterPointerType = typename WriterType::Pointer;
   using ImagePointerType = typename ImageType::Pointer;
 
-  Rcpp::Rcout << "Get parameters" << std::endl;
   std::string filename = Rcpp::as<std::string>( r_filename );
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
   ImagePointerType image = Rcpp::as<ImagePointerType>( r_Image );
 
-  Rcpp::Rcout << "Setup filter" << std::endl;
   WriterPointerType writer = WriterType::New();
   writer->SetFileName( filename );
   writer->SetInput( mesh );
   writer->SetReferenceImage( image );
-
   writer->Update();
 
   return Rcpp::wrap(1);
@@ -1433,7 +1398,7 @@ antsrMesh_WriteTrk( SEXP r_mesh, SEXP r_filename, SEXP r_Image)
 //pixeltype, precision, dimension, type, isVector
 RcppExport SEXP antsrMesh_WriteTrk( SEXP r_mesh, SEXP r_filename, SEXP r_image)
 {
-Rcpp::Rcout << "antsrMesh_WriteTrk()" << std::endl;
+//Rcpp::Rcout << "antsrMesh_WriteTrk()" << std::endl;
 
 try
 {

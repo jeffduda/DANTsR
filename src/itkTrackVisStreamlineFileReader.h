@@ -1,29 +1,13 @@
-/*=========================================================================
-
-  Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkTrackVisStreamlineFileReader.h,v $
-  Language:  C++
-  Date:      $Date: 2009/03/04 23:10:58 $
-  Version:   $Revision: 1.17 $
-
-  Copyright (c) Insight Software Consortium. All rights reserved.
-  See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notices for more information.
-
-=========================================================================*/
 #ifndef __itkTrackVisStreamlineFileReader_h
 #define __itkTrackVisStreamlineFileReader_h
 
 #include "itkMesh.h"
 #include "itkMeshSource.h"
-
 #include "itkArray.h"
 #include "itkImage.h"
 #include "itkVectorContainer.h"
 #include "itkPolyLineCell.h"
+#include "trackVisHeader.h"
 
 namespace itk {
 
@@ -91,20 +75,9 @@ public:
 
   itkGetMacro( ReferenceImage, ImagePointerType );
 
-  void SetCellsAsPolygons( bool );
-  void SetCellsAsLines( bool );
-
   /** Set/Get the name of the file where data are written. */
   itkSetStringMacro( FileName );
   itkGetStringMacro( FileName );
-
-  itkSetMacro( WriteBinary, bool );
-  itkGetMacro( WriteBinary, bool );
-
-  /** Specify other attributes */
-  //itkSetMacro( Lines, typename LineSetType::Pointer );
-
-  //itkSetMacro( Polygons, typename LineSetType::Pointer );
 
   itkSetMacro( MultiComponentScalarSets,
     typename MultiComponentScalarMultiSetType::Pointer );
@@ -128,32 +101,7 @@ public:
   //itkSetMacro( ImageDirection, ImageDirectionType );
   //itkGetConstMacro( ImageDirection, ImageDirectionType );
 
-  struct TRACKVIS_HEADER_V2
-  {
-    char          id_string[6]; // first 5 chars must be "TRACK"
-    short int     dim[3];
-    float         voxel_size[3];
-    float         origin[3];
-    short int     n_scalars;
-    char          scalar_names[200];
-    short int     n_properties;
-    char          proprety_names[200];
-    float         vox_to_ras[4][4];
-    char          reserved[444];
-    char          voxel_order[4];
-    char          pad2[4];
-    float         image_orientation_patient[6];
-    char          pad1[2];
-    unsigned char invert_x;
-    unsigned char invert_y;
-    unsigned char invert_z;
-    unsigned char swap_xy;
-    unsigned char swap_yz;
-    unsigned char swap_zx;
-    int     n_count;
-    int     version;
-    int     hdr_size;
-  };
+
 
   ImagePointerType m_ReferenceImage;
 
@@ -164,7 +112,6 @@ protected:
   virtual void GenerateData() ITK_OVERRIDE;
 
   std::string                         m_FileName;
-
 
   typename MultiComponentScalarMultiSetType::Pointer   m_MultiComponentScalarSets;
 
@@ -189,16 +136,13 @@ private:
 
   std::ifstream m_InputFile;
 
-  bool m_WriteBinary;
-
-  bool m_CellsAsPolygons;
-  bool m_CellsAsLines;
-
   void ReadTrkFile();
-  TRACKVIS_HEADER_V2 ReadTrkHeader();
-  void ReadTrkTract();
-  void PrintTrkHeader( TRACKVIS_HEADER_V2 hdr );
 
+  TRACKVIS_HEADER_V2 ReadTrkHeader();
+
+  void ReadTrkTract();
+
+  void PrintTrkHeader( TRACKVIS_HEADER_V2 hdr );
 
 };
 

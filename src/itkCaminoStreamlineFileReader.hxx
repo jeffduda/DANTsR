@@ -47,8 +47,69 @@ CaminoStreamlineFileReader<TOutputMesh>
   this->ProcessObject::SetNumberOfRequiredOutputs( 1 );
   this->ProcessObject::SetNthOutput( 0, output.GetPointer() );
 
-  this->m_Lines = LineSetType::New();
+  this->m_ReadFloat = true;
   this->m_Seeds = SeedSetType::New();
+}
+
+template<class TOutputMesh>
+template<typename PrecisionType>
+void
+CaminoStreamlineFileReader<TOutputMesh>
+::ReadCaminoTract()
+{
+  //std::cout << "itk::CaminoStreamlineFileReader::ReadCaminoTract<PrecisionType>()" << std::endl;
+
+  typename OutputMeshType::Pointer outputMesh = this->GetOutput();
+  long lineId = outputMesh->GetNumberOfCells();
+  CellAutoPointer streamline;
+
+  PrecisionType nTractPoints;
+  this->m_InputFile.read( reinterpret_cast< char * >( &nTractPoints ), sizeof(PrecisionType) );
+  ByteSwapper<PrecisionType>::SwapRangeFromSystemToBigEndian(&nTractPoints,1);
+
+  //std::cout << "  nPoints=" << nTractPoints << std::endl;
+
+  if ( !this->m_InputFile.eof() ) {
+
+    PrecisionType seed;
+    this->m_InputFile.read( reinterpret_cast< char * >( &seed ), sizeof(PrecisionType) );
+    ByteSwapper<PrecisionType>::SwapRangeFromSystemToBigEndian(&seed,1);
+
+    PrecisionType * pts = new PrecisionType[static_cast<unsigned int>(3*nTractPoints)];
+    this->m_InputFile.read( reinterpret_cast< char * >( pts ), (3*nTractPoints)*sizeof(PrecisionType) );
+    ByteSwapper<PrecisionType>::SwapRangeFromSystemToBigEndian(pts, (3*nTractPoints));
+
+    this->m_Seeds->InsertElement(lineId, static_cast<unsigned long>(seed) );
+
+    unsigned int nPoints = static_cast<unsigned int>( nTractPoints );
+
+    LineType polyLine;
+    polyLine.SetSize( nPoints );
+
+    typename OutputMeshType::PointIdentifier polyPoints[ nPoints ];
+
+    for (unsigned long i=0; i<nPoints; i++) {
+      typename OutputMeshType::PointType point;
+      point[0] = static_cast<PixelType>(pts[3*i]);
+      point[1] = static_cast<PixelType>(pts[3*i + 1]);
+      point[2] = static_cast<PixelType>(pts[3*i + 2]);
+      long pointId = outputMesh->GetNumberOfPoints();
+      outputMesh->SetPoint(pointId,point);
+      polyPoints[i] = pointId;
+
+      polyLine[i] = pointId;
+      ++pointId;
+    }
+
+    PolygonCellType * polygon = new PolygonCellType;
+    polygon->SetPointIds( 0, nPoints, polyPoints );
+    streamline.TakeOwnership( polygon );
+    outputMesh->SetCell(lineId, streamline);
+
+    delete[] pts;
+
+  }
+
 }
 
 
@@ -63,6 +124,25 @@ CaminoStreamlineFileReader<TOutputMesh>
     return;
     }
 
+    /**
+     * Get filename extension
+     */
+    std::string::size_type pos = this->m_FileName.rfind( "." );
+    std::string extension( this->m_FileName, pos+1, this->m_FileName.length()-1 );
+    if( extension == "Bfloat" )
+      {
+      m_ReadFloat = true;
+      }
+    else if( extension == "Bdouble" )
+      {
+      m_ReadFloat = false;
+      }
+    else
+      {
+      itkExceptionMacro( "Unknown extension: " << extension );
+      return;
+      }
+
   this->m_InputFile.open( this->m_FileName.c_str(), std::ifstream::binary );
   if (!this->m_InputFile )
     {
@@ -70,79 +150,24 @@ CaminoStreamlineFileReader<TOutputMesh>
     return;
     }
 
-  unsigned long nPoints=0;
-  unsigned long nTracts=0;
-  float n;
-
-  while (!this->m_InputFile.eof()) {
-    float * nTractPoints = new float;
-    this->m_InputFile.read( reinterpret_cast< char * >( nTractPoints ), sizeof(n) );
-    ByteSwapper<float>::SwapRangeFromSystemToBigEndian(nTractPoints,1);
-
-    float skip[(int)(3*nTractPoints[0])+1];
-    this->m_InputFile.read( reinterpret_cast< char * >( skip ), (3*nTractPoints[0]+1)*sizeof(n) );
-    //ByteSwapper<float>::SwapRangeFromSystemToBigEndian(skip, (3*nTractPoints[0])+1);
-
-    nPoints += nTractPoints[0];
-    nTracts++;
-  }
-
-  this->m_InputFile.close();
-  this->m_InputFile.open( this->m_FileName.c_str(), std::ifstream::binary );
-
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   outputMesh->GetPoints()->Initialize();
-  outputMesh->GetPoints()->Reserve(nPoints);
 
   outputMesh->SetCellsAllocationMethod( OutputMeshType::CellsAllocatedDynamicallyCellByCell );
 
-  long pointId = 0;
-  //long cellId = 0;
-  long lineId = 0;
-  this->m_Lines->Initialize();
   this->m_Seeds->Initialize();
 
   CellAutoPointer streamline;
 
   while (!this->m_InputFile.eof()) {
-    float * nTractPoints = new float;
-    this->m_InputFile.read( reinterpret_cast< char * >( nTractPoints ), sizeof(n) );
-    ByteSwapper<float>::SwapRangeFromSystemToBigEndian(nTractPoints,1);
 
-    if ( nTractPoints[0] > 0 ) {
-
-      float pts[(int)(3*nTractPoints[0])+1];
-      this->m_InputFile.read( reinterpret_cast< char * >( pts ), (3*nTractPoints[0]+1)*sizeof(n) );
-      ByteSwapper<float>::SwapRangeFromSystemToBigEndian(pts, (3*nTractPoints[0])+1);
-
-      this->m_Seeds->InsertElement(lineId,(unsigned long)pts[0]);
-
-      unsigned int nPoints = static_cast<unsigned int>( nTractPoints[0] );
-
-      LineType polyLine;
-      polyLine.SetSize( nPoints );
-
-      typename OutputMeshType::PointIdentifier polyPoints[ nPoints ];
-
-      for (unsigned long i=0; i<nPoints; i++) {
-        typename OutputMeshType::PointType point;
-        point[0] = pts[3*i + 1];
-        point[1] = pts[3*i + 2];
-        point[2] = pts[3*i + 3];
-        outputMesh->SetPoint(pointId,point);
-        polyPoints[i] = pointId;
-
-        polyLine[i] = pointId;
-        ++pointId;
-      }
-
-      PolygonCellType * polygon = new PolygonCellType;
-      polygon->SetPointIds( 0, nPoints, polyPoints );
-      streamline.TakeOwnership( polygon );
-      outputMesh->SetCell(lineId, streamline);
-
-      this->m_Lines->InsertElement(lineId, polyLine);
-      ++lineId;
+    if ( m_ReadFloat )
+    {
+      this->ReadCaminoTract<float>();
+    }
+    else
+    {
+      this->ReadCaminoTract<double>();
     }
   }
 }

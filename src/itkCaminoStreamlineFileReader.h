@@ -152,6 +152,8 @@ protected:
 
   std::string                                     m_FileName;
 
+  bool                                            m_ReadFloat;
+
   typename MultiComponentScalarMultiSetType::Pointer   m_MultiComponentScalarSets;
   typename MultiComponentScalarMultiSetType::Pointer   m_CellMultiComponentScalarSets;
   typename SeedSetType::Pointer                        m_Seeds;
@@ -195,6 +197,8 @@ protected:
 private:
   CaminoStreamlineFileReader( const Self& ); // purposely not implemented
   void operator=( const Self& ); // purposely not implemented
+
+  template <typename PrecisionType> void ReadCaminoTract( );
 
 };
 

@@ -4,16 +4,21 @@
 \alias{write.antsrMesh}
 \title{write.antsrMesh}
 \usage{
-write.antsrMesh(mesh, filename, seeds = NULL, cells.as = "NA")
+write.antsrMesh(mesh, filename, image = NULL, seeds = NULL,
+  cells.as = "polygon", binary = TRUE)
 }
 \arguments{
 \item{mesh}{antsrMesh to write}
 
 \item{filename}{name of the file to read}
 
-\item{seeds}{seed indices (for Camino files)}
+\item{image}{reference image (for TrackVis files)}
+
+\item{seeds}{tract seed indices (for Camino files)}
 
 \item{cells.as}{what VTK-type of cell should cell data be written as ("NA", "polygon", "line")}
+
+\item{binary}{write data as binary (default is TRUE)}
 }
 \description{
 write an antsrMesh to a file

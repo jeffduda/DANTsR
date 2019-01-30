@@ -274,14 +274,21 @@ applyAntsrTransformToMesh <- function(transform, mesh, in.place=FALSE) {
 #' @export
 read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
   mesh = NA
+  if ( !file.exists(filename) ) {
+    stop(paste("Can not find file:", filename))
+  }
+
   if ( grepl(".vtk", filename ) ) {
     mesh = .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, PACKAGE="DANTsR")
   }
-  else if ( grepl(".Bfloat", filename ) ) {
+  else if ( grepl(".Bfloat", filename ) | grepl(".Bdouble", filename) ) {
     mesh = .Call("antsrMesh_ReadCamino", filename, pixeltype="float", PACKAGE="DANTsR")
   }
   else if ( grepl(".trk", filename) ) {
     mesh = .Call("antsrMesh_ReadTrk", filename, pixeltype, PACKAGE="DANTsR")
+  }
+  else {
+    stop(paste("Unknown filetype:", filename))
   }
   return(mesh)
 }
@@ -290,14 +297,16 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
 #' @description write an antsrMesh to a file
 #' @param mesh antsrMesh to write
 #' @param filename name of the file to read
-#' @param seeds seed indices (for Camino files)
+#' @param image reference image (for TrackVis files)
+#' @param seeds tract seed indices (for Camino files)
 #' @param cells.as what VTK-type of cell should cell data be written as ("NA", "polygon", "line")
+#' @param binary write data as binary (default is TRUE)
 #' @export
-write.antsrMesh = function( mesh, filename, image=NULL, seeds=NULL, cells.as="NA" ) {
+write.antsrMesh = function( mesh, filename, image=NULL, seeds=NULL, cells.as="polygon", binary=TRUE ) {
   if ( grepl(".vtk", filename ) ) {
-    invisible(.Call("antsrMesh_WriteVTK", mesh, filename, cells.as, PACKAGE="DANTsR"))
+    invisible(.Call("antsrMesh_WriteVTK", mesh, filename, cells.as, binary, PACKAGE="DANTsR"))
   }
-  else if ( grepl(".Bfloat", filename ) ) {
+  else if ( grepl(".Bfloat", filename ) | grepl(".Bdouble", filename) ) {
     if (is.null(seeds) ) {
       stop("Camino file needs seeds")
     }
@@ -312,6 +321,9 @@ write.antsrMesh = function( mesh, filename, image=NULL, seeds=NULL, cells.as="NA
     else {
       invisible(.Call("antsrMesh_WriteTrk", mesh, filename, image, PACKAGE="DANTsR"))
     }
+  }
+  else {
+    stop(paste("Unknown filetype",filename))
   }
   return(0)
 }

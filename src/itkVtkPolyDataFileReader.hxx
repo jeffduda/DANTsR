@@ -202,7 +202,7 @@ VtkPolyDataFileReader<TOutputMesh>
     }
   }
 
-  std::cout << "WARNING: No point data found with name: " << name << std::endl;
+  //std::cout << "WARNING: No point data found with name: " << name << std::endl;
 
   return NULL;
 
@@ -447,7 +447,7 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKLines( unsigned long nLines, unsigned long nValues )
 {
-  std::cout << "Reading " << nLines << " lines with " << nValues << " values" << std::endl;
+  //std::cout << "Reading " << nLines << " lines with " << nValues << " values" << std::endl;
   this->m_Lines->Initialize();
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
 

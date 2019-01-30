@@ -1,19 +1,3 @@
-/*=========================================================================
-
-  Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkTrackVisStreamlineFileReader.hxx,v $
-  Language:  C++
-  Date:      $Date: 2009/03/04 23:10:58 $
-  Version:   $Revision: 1.18 $
-
-  Copyright (c) Insight Software Consortium. All rights reserved.
-  See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notices for more information.
-
-=========================================================================*/
 #ifndef __itkTrackVisStreamlineFileReader_hxx
 #define __itkTrackVisStreamlineFileReader_hxx
 
@@ -164,6 +148,13 @@ TrackVisStreamlineFileReader<TOutputMesh>
     hdr.image_orientation_patient[3] << "," <<
     hdr.image_orientation_patient[4] << "," <<
     hdr.image_orientation_patient[5] << ")" << std::endl;
+  std::cout << "vox_to_ras: ";
+  for (unsigned int i=0; i<4; i++) {
+    for (unsigned int j=0; j<4; j++) {
+      std::cout << hdr.vox_to_ras[i][j] << " ";
+    }
+  }
+  std::cout << std::endl;
   std::cout << "invert_x: " << (int) hdr.invert_x << std::endl;
   std::cout << "invert_y: " << (int)hdr.invert_y << std::endl;
   std::cout << "invert_z: " << (int)hdr.invert_z << std::endl;
@@ -178,18 +169,16 @@ TrackVisStreamlineFileReader<TOutputMesh>
 }
 
 template<class TOutputMesh>
-typename TrackVisStreamlineFileReader<TOutputMesh>::TRACKVIS_HEADER_V2
+TRACKVIS_HEADER_V2
 TrackVisStreamlineFileReader<TOutputMesh>
 ::ReadTrkHeader( ) {
-  std::cout << "TrackVisStreamlineFileReader<TOutputMesh>::ReadTrkHeader()"  << std::endl;
+  //std::cout << "TrackVisStreamlineFileReader<TOutputMesh>::ReadTrkHeader()"  << std::endl;
 
   TRACKVIS_HEADER_V2 hdr;
   m_InputFile.read( reinterpret_cast<char *>(&hdr), sizeof(hdr));
-
-  this->PrintTrkHeader( hdr );
+  //this->PrintTrkHeader( hdr );
 
   return(hdr);
-
 }
 
 template<class TOutputMesh>
