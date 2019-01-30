@@ -60,7 +60,7 @@ SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method )
     }
 
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetNumberOfThreads(1); // due to  netlib/dsvdc.c
+    //filter->SetNumberOfThreads(1); // due to  netlib/dsvdc.c -> this is deprecated
     filter->SetGradientImage( diffusionVectors, image );
     filter->SetBValue( bValue );
 
