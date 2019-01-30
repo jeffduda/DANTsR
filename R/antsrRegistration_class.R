@@ -111,8 +111,8 @@ antsrRegistrationRun <- function( stages, fixed, moving ) {
 
   # Check parameters for validity
 
-
-  .Call( "antsrRegistrationRun", stages, fixed, moving, PACKAGE="DANTsR")
+  stop("Not working yet")
+  #.Call( "antsrRegistrationRun", stages, fixed, moving, PACKAGE="DANTsR")
   #return(NA)
 
 }
