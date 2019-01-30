@@ -5,6 +5,7 @@ Version: 0.2.0
 Date: 2018-04-25
 Authors@R: c( person("Jeffrey", "Duda", email = "jeff.duda@gmail.com",role = c("aut", "cre")),
               person("Phil", "Cook", email = "cookpa@pennmedicine.upenn.edu",role = c("aut")) )
+Maintainer: Jeffrey Duda <jeff.duda@gmail.com>
 Description: Diffusion imaging support for the ANTsR* packages is provided here.
   In addition, it provides a mesh class intended to be used as a point set
   as well as a class for streamlines obtained via fiber tracking.
