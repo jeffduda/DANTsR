@@ -101,7 +101,7 @@ CaminoStreamlineFileReader<TOutputMesh>
       ++pointId;
     }
 
-    PolygonCellType * polygon = new PolygonCellType;
+    PolyLineCellType * polygon = new PolyLineCellType;
     polygon->SetPointIds( 0, nPoints, polyPoints );
     streamline.TakeOwnership( polygon );
     outputMesh->SetCell(lineId, streamline);

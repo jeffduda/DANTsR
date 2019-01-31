@@ -287,6 +287,9 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
   else if ( grepl(".trk", filename) ) {
     mesh = .Call("antsrMesh_ReadTrk", filename, pixeltype, PACKAGE="DANTsR")
   }
+  else if ( grepl(".tck", filename )) {
+    mesh = .Call("antsrMesh_ReadTck", filename, pixeltype, PACKAGE="DANTsR")
+  }
   else {
     stop(paste("Unknown filetype:", filename))
   }

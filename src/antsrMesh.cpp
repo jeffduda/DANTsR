@@ -9,6 +9,7 @@
 #include "itkByteSwapper.h"
 #include "itkCaminoStreamlineFileReader.h"
 #include "itkCaminoStreamlineFileWriter.h"
+#include "itkMRTrixStreamlineFileReader.h"
 #include "itkTrackVisStreamlineFileReader.h"
 #include "itkTrackVisStreamlineFileWriter.h"
 #include "itkVtkPolyDataFileReader.h"
@@ -1192,6 +1193,66 @@ try
     using PrecisionType = float;
     using MeshType = itk::Mesh<PrecisionType,3>;
     return antsrMesh_ReadTrk<MeshType>(r_filename);
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
+antsrMesh_ReadTck( SEXP r_filename )
+{
+  typedef typename MeshType::Pointer                 MeshPointerType;
+  typedef itk::MRTrixStreamlineFileReader<MeshType>  ReaderType;
+
+  std::string filename = Rcpp::as<std::string>( r_filename );
+
+  typename ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( filename.c_str() );
+  reader->Update();
+  MeshPointerType mesh = reader->GetOutput();
+
+  Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh));
+  return Rcpp::wrap(list);
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_ReadTck( SEXP r_filename, SEXP r_pixeltype )
+{
+try
+{
+  std::string precision = Rcpp::as<std::string>(r_pixeltype);
+
+  if ( precision=="double") {
+    using PrecisionType = double;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_ReadTck<MeshType>(r_filename);
+  }
+  else if (precision=="float") {
+    using PrecisionType = float;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_ReadTck<MeshType>(r_filename);
   }
   else {
     Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");

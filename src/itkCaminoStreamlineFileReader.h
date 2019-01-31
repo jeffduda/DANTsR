@@ -70,6 +70,8 @@ public:
   // Need a PolyLine but doesn't currently exist in ITK
   typedef LineCell<CellType>                      LineCellType;
   typedef PolygonCell<CellType>                   PolygonCellType;
+  typedef PolyLineCell<CellType>                  PolyLineCellType;
+
 
   typedef typename OutputMeshType::MeshTraits     MeshTraits;
   typedef typename OutputMeshType::Superclass     PointSetType;
