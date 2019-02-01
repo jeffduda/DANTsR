@@ -14,7 +14,8 @@ knitr::opts_chunk$set(
 ```
 # DANTsR
 
-![dantsr killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg)
+<!-- ![dantsr killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg) -->
+<img src="http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg" alt="drawing" width="200"/>
 
 
 <!-- badges: start -->
@@ -24,18 +25,20 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-The goal of DANTsR is to provide diffusion imaging extension to ANTsR.
+The goal of DANTsR is to provide diffusion imaging extensions to ANTsR.
 
 
 ## Installation
 
+<!--
 You can install the released version of DANTsR from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("DANTsR")
 ```
+-->
 
-And the development version from [GitHub](https://github.com/) with:
+You can install the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
