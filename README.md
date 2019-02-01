@@ -3,9 +3,8 @@
 
 # DANTsR
 
-<!--![dantsr
-killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg) -->
-<img src="http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg" alt="drawing" width="200"/>
+![dantsr
+killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg)
 
 <!-- badges: start -->
 
