@@ -232,7 +232,7 @@ MRTrixStreamlineFileReader<TOutputMesh>
 
     value = data[index];
 
-    if ( !std::isnan(value) ) {
+    if ( !( std::isnan(value) || std::isinf(value) ) ) {
       PointType pt;
       pt[0] = value;
       pt[1] = data[index+1];
@@ -240,13 +240,13 @@ MRTrixStreamlineFileReader<TOutputMesh>
       cellBuffer[pointIndex++] = pointId;
       outputMesh->SetPoint(pointId++,pt);
     }
-    else {
-      PolyLineCellType * polyline = new PolyLineCellType;
-      polyline->SetPointIds( 0, pointIndex, cellBuffer );
-      streamline.TakeOwnership( polyline );
-      outputMesh->SetCell(cellId++, streamline);
-      pointIndex = 0;
-    }
+    else if ( !std::isinf(value) ) {
+        PolyLineCellType * polyline = new PolyLineCellType;
+        polyline->SetPointIds( 0, pointIndex, cellBuffer );
+        streamline.TakeOwnership( polyline );
+        outputMesh->SetCell(cellId++, streamline);
+        pointIndex = 0;
+      }
 
     index += 3;
   }

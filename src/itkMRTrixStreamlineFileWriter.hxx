@@ -12,25 +12,20 @@ namespace itk {
 //
 // Constructor
 //
-template<class TInputMesh,class TInputImage>
-MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
+template<class TInputMesh>
+MRTrixStreamlineFileWriter<TInputMesh>
 ::MRTrixStreamlineFileWriter()
 {
   this->m_Input = nullptr;
   this->m_FileName = "";
-  this->m_MultiComponentScalarSets = nullptr;
-  this->m_ImageSize.Fill( 0 );
-  this->m_ReferenceImage = nullptr;
-
-  this->m_NScalars = 0;
-  this->m_NProperties = 0;
+  this->m_SwapFlag = 2;
 }
 
 //
 // Destructor
 //
-template<class TInputMesh,class TInputImage>
-MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
+template<class TInputMesh>
+MRTrixStreamlineFileWriter<TInputMesh>
 ::~MRTrixStreamlineFileWriter()
 {
 }
@@ -38,9 +33,9 @@ MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
 //
 //
 //
-template<class TInputMesh,class TInputImage>
+template<class TInputMesh>
 void
-MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
+MRTrixStreamlineFileWriter<TInputMesh>
 ::SetInput(InputMeshType * input)
 {
   this->m_Input = input;
@@ -49,8 +44,8 @@ MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
 //
 // Write the input mesh to the output file
 //
-template<class TInputMesh,class TInputImage>
-void MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
+template<class TInputMesh>
+void MRTrixStreamlineFileWriter<TInputMesh>
 ::Update()
 {
   this->GenerateData();
@@ -59,16 +54,16 @@ void MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
 //
 // Write the input mesh to the output file
 //
-template<class TInputMesh,class TInputImage>
-void MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
+template<class TInputMesh>
+void MRTrixStreamlineFileWriter<TInputMesh>
 ::Write()
 {
   this->GenerateData();
 }
 
-template<class TInputMesh,class TInputImage>
+template<class TInputMesh>
 void
-MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
+MRTrixStreamlineFileWriter<TInputMesh>
 ::GenerateData()
 {
   if( this->m_FileName == "" )
@@ -77,27 +72,12 @@ MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
     return;
     }
 
-  if (this->m_ReferenceImage == nullptr) {
-    itkExceptionMacro( "No Reference Image" );
-    return;
-    }
-
-  if (this->m_NScalars > 0 ) {
-    itkExceptionMacro( "Scalars not yet implemented" );
-    return;
-  }
-
-  if (this->m_NProperties > 0 ) {
-    itkExceptionMacro( "Properties not yet implemented" );
-    return;
-  }
-
   /**
    * Get filename extension
    */
   std::string::size_type pos = this->m_FileName.rfind( "." );
   std::string extension( this->m_FileName, pos+1, this->m_FileName.length()-1 );
-  if( extension != "trk" )
+  if( extension != "tck" )
     {
     itkExceptionMacro( "Unknown extension: " << extension );
     return;
@@ -115,108 +95,112 @@ MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
     return;
     }
 
-  this->WriteTrkFile();
+  this->WriteTckFile();
 
   m_OutputFile.close();
 
 }
-template<class TInputMesh,class TInputImage>
+template<class TInputMesh>
 void
-MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
-::WriteTrkFile()
+MRTrixStreamlineFileWriter<TInputMesh>
+::WriteTckFile()
 {
-  this->WriteTrkHeader();
+  this->WriteTckHeader();
 
   for( unsigned int i=0; i<this->m_Input->GetNumberOfCells(); i++) {
-    this->WriteTrkTract(i);
-  }
-}
-
-template<class TInputMesh,class TInputImage>
-void
-MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
-::WriteTrkHeader( ) {
-  //std::cout << "MRTrixStreamlineFileWriter<TInputMesh,TInputImage>::WriteTrkHeader()"  << std::endl;
-
-  MRTrix_HEADER_V2 hdr;
-  hdr.id_string[0] = 'T';
-  hdr.id_string[1] = 'R';
-  hdr.id_string[2] = 'A';
-  hdr.id_string[3] = 'C';
-  hdr.id_string[4] = 'K';
-  hdr.id_string[5] = '\0';
-
-  for ( unsigned int i=0; i<3; i++ ) {
-    hdr.dim[i] = static_cast<short int>( this->m_ReferenceImage->GetLargestPossibleRegion().GetSize()[i] );
-    hdr.voxel_size[i] = static_cast<float>( this->m_ReferenceImage->GetSpacing()[i] );
-    hdr.origin[i] = static_cast<float>( this->m_ReferenceImage->GetOrigin()[i] );
+    this->WriteTckTract(i);
   }
 
-  hdr.n_scalars = static_cast<short int>(this->m_NScalars);
-  hdr.n_properties = static_cast<short int>(this->m_NProperties);
+  // write triplit of inf to finish
+  float * finisher = new float[3];
+  finisher[0] = finisher[1] = finisher[2] = std::numeric_limits<float>::infinity();
 
-  for ( unsigned int x=0; x<10; x++ ) {
-    for (unsigned int y=0; y<20; y++) {
-      hdr.scalar_names[x][y] = 0;
-      hdr.property_names[x][y] = 0;
-    }
+  if ( m_SwapFlag == 1 ) {
+    ByteSwapper<float>::SwapRangeFromSystemToBigEndian(finisher, 3);
+  }
+  else if ( m_SwapFlag == 2 ) {
+    ByteSwapper<float>::SwapRangeFromSystemToLittleEndian(finisher, 3);
   }
 
-  for (unsigned int x=0; x<4; x++ ) {
-    for (unsigned int y=0; y<4; y++) {
-      hdr.vox_to_ras[x][y] = 0.0;
-    }
-  }
-
-  for ( unsigned x=0; x<444; x++ ) {
-    hdr.reserved[x] = 0;
-  }
-
-  hdr.voxel_order[0] = 'L';
-  hdr.voxel_order[1] = 'P';
-  hdr.voxel_order[2] = 'S';
-  hdr.voxel_order[3] = '\0';
-
-  for ( unsigned x=0; x<4; x++ ) {
-    hdr.pad2[x] = 0;
-  }
-
-  hdr.image_orientation_patient[0] = 1;
-  hdr.image_orientation_patient[1] = 0;
-  hdr.image_orientation_patient[2] = 0;
-  hdr.image_orientation_patient[3] = 0;
-  hdr.image_orientation_patient[4] = 1;
-  hdr.image_orientation_patient[5] = 0;
-
-  hdr.pad1[0] = 0;
-  hdr.pad1[1] = 0;
-
-  hdr.invert_x = 0;
-  hdr.invert_y = 0;
-  hdr.invert_z = 0;
-  hdr.swap_xy = 0;
-  hdr.swap_yz = 0;
-  hdr.swap_zx = 0;
-
-  hdr.n_count = static_cast<int>( this->m_Input->GetNumberOfCells() );
-
-  hdr.version = 2;
-
-  hdr.hdr_size=1000;
-
-  m_OutputFile.write( reinterpret_cast<char *>(&hdr), sizeof(hdr) );
+  m_OutputFile.write( reinterpret_cast<char *>( finisher ), 3 * sizeof(float) );
+  delete[] finisher;
 
 }
 
-template<class TInputMesh,class TInputImage>
+template<class TInputMesh>
 void
-MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
-::WriteTrkTract(unsigned int id)
+MRTrixStreamlineFileWriter<TInputMesh>
+::WriteTckHeader( ) {
+  //std::cout << "MRTrixStreamlineFileWriter<TInputMesh>::WriteTckHeader()"  << std::endl;
+
+  m_OutputFile << "mrtrix tracks" << std::endl;
+  m_OutputFile << "count: " << std::to_string(this->m_Input->GetNumberOfCells()) << std::endl;
+
+  if ( m_SwapFlag == 0 ) {
+    m_OutputFile << "datatype: Float32" << std::endl;
+  }
+  else if ( m_SwapFlag == 1 ) {
+    m_OutputFile << "datatype: Float32BE" << std::endl;
+  }
+  else if ( m_SwapFlag == 2 ) {
+    m_OutputFile << "datatype: Float32LE" << std::endl;
+  }
+
+  /* other options - required?
+  downsample_factor: 3
+  fod_power: 0.25
+  init_threshold: 0.1
+  lmax: 8
+  max_angle: 45
+  max_dist: 250
+  max_num_attempts: 50000
+  max_num_tracks: 500
+  max_seed_attempts: 1
+  max_trials: 1000
+  method: iFOD2
+  min_dist: 4
+  mrtrix_version: 0.3.12-325-gc203eda9
+  output_step_size: 1.25
+  rk4: 0
+  samples_per_step: 4
+  sh_precomputed: 1
+  source: dwi2fod/out.mif
+  step_size: 1.25
+  stop_on_all_include: 0
+  threshold: 0.1
+  timestamp: 1443190374.822715044
+  unidirectional: 0
+  roi: seed mask.mif
+  roi: mask mask.mif
+  roi: mask mask.mif
+  total_count: 1748
+  */
+
+  // Estimate size and add buffer of zeros
+  std::streampos hsize = m_OutputFile.tellp();
+  hsize += 30;
+  long extra = 4 - ( static_cast<long>(hsize) % 4 );
+  hsize += extra; // make divis by 4 for easier hex editor reading
+
+  m_OutputFile << "file: . " + std::to_string( hsize ) << std::endl;
+  m_OutputFile << "END" << std::endl;
+
+
+  while ( m_OutputFile.tellp() < hsize ) {
+    m_OutputFile << (char) 0;
+  }
+
+}
+
+template<class TInputMesh>
+void
+MRTrixStreamlineFileWriter<TInputMesh>
+::WriteTckTract(unsigned int id)
 {
   //
   // Write to output file
   //
-  //std::cout << "MRTrixStreamlineFileWriter<TInputMesh,TInputImage>::WriteTrkTracts()"  << std::endl;
+  //std::cout << "MRTrixStreamlineFileWriter<TInputMesh>::WriteTckTracts()"  << std::endl;
 
   CellAutoPointer cell;
   if ( !this->m_Input->GetCell(id, cell) ) {
@@ -224,9 +208,9 @@ MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
   }
 
   int nPoints = cell->GetNumberOfPoints();
-  m_OutputFile.write( reinterpret_cast<char *>(&nPoints), sizeof(int) );
+  //m_OutputFile.write( reinterpret_cast<char *>(&nPoints), sizeof(int) );
 
-  unsigned long dataSize = nPoints*(3+this->m_NScalars) + this->m_NProperties;
+  unsigned long dataSize = (nPoints+1)*3;
   float *cellData = new float[dataSize];
 
   // Write point coordinates and associated scalars
@@ -243,27 +227,30 @@ MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
     cellData[idx++] = point[1];
     cellData[idx++] = point[2];
 
-    for ( unsigned int k=0; k<this->m_NScalars; k++ ) {
-      //cellData[idx++] = SCALAR VALUE GOES HERE
-      }
     }
 
-  for ( unsigned int k=0; k<this->m_NProperties; k++) {
-    //cellData[idx++] = PROPERTTY VALUE GOES HERE
-    }
+  cellData[idx++] = std::numeric_limits<float>::quiet_NaN();
+  cellData[idx++] = std::numeric_limits<float>::quiet_NaN();
+  cellData[idx++] = std::numeric_limits<float>::quiet_NaN();
+
+  if ( m_SwapFlag == 1 ) {
+    ByteSwapper<float>::SwapRangeFromSystemToBigEndian(cellData, dataSize);
+  }
+  else if ( m_SwapFlag == 2 ) {
+    ByteSwapper<float>::SwapRangeFromSystemToLittleEndian(cellData, dataSize);
+  }
 
   m_OutputFile.write( reinterpret_cast<char *>( cellData ), dataSize * sizeof(float) );
 
   delete[] cellData;
-
 }
 
 
 
 
-template<class TInputMesh,class TInputImage>
+template<class TInputMesh>
 void
-MRTrixStreamlineFileWriter<TInputMesh,TInputImage>
+MRTrixStreamlineFileWriter<TInputMesh>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
   Superclass::PrintSelf(os,indent);

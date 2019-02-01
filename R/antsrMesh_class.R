@@ -325,6 +325,9 @@ write.antsrMesh = function( mesh, filename, image=NULL, seeds=NULL, cells.as="po
       invisible(.Call("antsrMesh_WriteTrk", mesh, filename, image, PACKAGE="DANTsR"))
     }
   }
+  else if ( grepl(".tck", filename )) {
+    mesh = .Call("antsrMesh_WriteTck", mesh, filename, pixeltype, PACKAGE="DANTsR")
+  }
   else {
     stop(paste("Unknown filetype",filename))
   }

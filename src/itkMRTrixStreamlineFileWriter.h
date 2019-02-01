@@ -5,7 +5,6 @@
 #include "itkArray.h"
 #include "itkImage.h"
 #include "itkVectorContainer.h"
-#include "MRTrixHeader.h"
 
 namespace itk {
 
@@ -14,12 +13,12 @@ namespace itk {
  * Writes an itkMesh to a file in various txt file formats.
  *
  */
-template <class TInputMesh, class TInputImage>
+template <class TInputMesh>
 class  MRTrixStreamlineFileWriter : public Object
 {
 public:
   /** Standard "Self" typedef. */
-  typedef MRTrixStreamlineFileWriter        Self;
+  typedef MRTrixStreamlineFileWriter          Self;
   typedef Object                              Superclass;
   typedef SmartPointer<Self>                  Pointer;
   typedef SmartPointer<const Self>            ConstPointer;
@@ -31,6 +30,11 @@ public:
    * Use either Update() or Write(). */
   void Update( void );
   void Write( void );
+
+  // FIXME - make enum
+  void SetWriteFloat32()   { m_SwapFlag = 0; }
+  void SetWriteFloat32BE() { m_SwapFlag = 1; }
+  void SetWriteFloat32LE() { m_SwapFlag = 2; }
 
   /** Extract dimension from the output mesh. */
   itkStaticConstMacro( Dimension, unsigned int,
@@ -49,62 +53,15 @@ public:
   typedef typename MeshTraits::PixelType         PixelType;
   typedef Array<PixelType>                       MultiComponentScalarType;
   typedef Array<unsigned long>                   LineType;
-  typedef VectorContainer<long,
-    MultiComponentScalarType>                    MultiComponentScalarSetType;
-  typedef VectorContainer<long,
-    SmartPointer<MultiComponentScalarSetType> >   MultiComponentScalarMultiSetType;
-  typedef VectorContainer<long, std::string >     MultiComponentScalarSetNamesType;
+  typedef typename InputMeshType::CellType       CellType;
+  typedef typename CellType::CellAutoPointer     CellAutoPointer;
 
-  using ImageType = TInputImage;
-  using ImagePointerType = typename ImageType::Pointer;
-
-
-  typedef typename InputMeshType::CellType      CellType;
-  typedef typename CellType::CellAutoPointer    CellAutoPointer;
-
-  typedef VectorContainer<long, LineType>        LineSetType;
-
-  typedef typename
-    ImageType::SizeType           ImageSizeType;
-  typedef typename
-    ImageType::PointType          ImageOriginType;
-  typedef typename
-    ImageType::SpacingType        ImageSpacingType;
-  typedef typename
-    ImageType::DirectionType      ImageDirectionType;
-
-
-  /** Set the Input */
-  void SetInput( InputMeshType * input );
-
-  void SetReferenceImage( ImageType * image );
 
   /** Set/Get the name of the file where data are written. */
   itkSetStringMacro( FileName );
   itkGetStringMacro( FileName );
 
-  /** Specify other attributes */
-  itkSetMacro( MultiComponentScalarSets,
-    typename MultiComponentScalarMultiSetType::Pointer );
-
-  itkSetMacro( MultiComponentScalarSetNames,
-    typename MultiComponentScalarSetNamesType::Pointer );
-
-  itkSetMacro( ReferenceImage, ImagePointerType );
-  //itkGetConstObjectMacro( ReferenceImage, ImageType );
-
-  /** Specify image attributes if output is an image. */
-  itkSetMacro( ImageSize, ImageSizeType );
-  itkGetConstMacro( ImageSize, ImageSizeType );
-
-  itkSetMacro( ImageOrigin, ImageOriginType );
-  itkGetConstMacro( ImageOrigin, ImageOriginType );
-
-  itkSetMacro( ImageSpacing, ImageSpacingType );
-  itkGetConstMacro( ImageSpacing, ImageSpacingType );
-
-  itkSetMacro( ImageDirection, ImageDirectionType );
-  itkGetConstMacro( ImageDirection, ImageDirectionType );
+  void SetInput( InputMeshType * input );
 
 protected:
   MRTrixStreamlineFileWriter();
@@ -114,22 +71,13 @@ protected:
 
   std::string                         m_FileName;
   InputMeshPointer                    m_Input;
-  ImagePointerType                    m_ReferenceImage;
+  unsigned int                        m_SwapFlag;
 
-  typename MultiComponentScalarMultiSetType::Pointer   m_MultiComponentScalarSets;
+  std::ofstream m_OutputFile;
 
-  short int m_NScalars;
-  short int m_NProperties;
-
-    /**
-   * If output is an image type, the attributes must be specified.
-   */
-  ImageSizeType                       m_ImageSize;
-  ImageSpacingType                    m_ImageSpacing;
-  ImageOriginType                     m_ImageOrigin;
-  ImageDirectionType                  m_ImageDirection;
-
-  typename MultiComponentScalarSetNamesType::Pointer m_MultiComponentScalarSetNames;
+  void WriteTckFile();
+  void WriteTckHeader();
+  void WriteTckTract(unsigned int i);
 
   void PrintSelf(std::ostream& os, Indent indent) const override;
 
@@ -137,11 +85,7 @@ private:
   MRTrixStreamlineFileWriter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
-  std::ofstream m_OutputFile;
 
-  void WriteTckFile();
-  void WriteTckHeader();
-  void WriteTckTract(unsigned int i);
 
 };
 

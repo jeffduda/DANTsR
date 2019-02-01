@@ -19,11 +19,12 @@ extern SEXP antsrMesh_GetPoint(SEXP, SEXP);
 extern SEXP antsrMesh_GetPoints(SEXP, SEXP);
 extern SEXP antsrMesh_ReadCamino(SEXP, SEXP);
 extern SEXP antsrMesh_ReadTck(SEXP, SEXP);
-extern SEXP antsrMesh_ReadTrk(SEXP,SEXP);
+extern SEXP antsrMesh_ReadTrk(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_ReadVTK(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_SetPoint(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_TransformMesh(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteCamino(SEXP, SEXP, SEXP);
+extern SEXP antsrMesh_WriteTck(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteTrk(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteVTK(SEXP, SEXP, SEXP, SEXP);
 //extern SEXP antsrRegistrationRun(SEXP, SEXP, SEXP);
@@ -52,6 +53,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"antsrMesh_SetPoint",          (DL_FUNC) &antsrMesh_SetPoint,          3},
     {"antsrMesh_TransformMesh",     (DL_FUNC) &antsrMesh_TransformMesh,     3},
     {"antsrMesh_WriteCamino",       (DL_FUNC) &antsrMesh_WriteCamino,       3},
+    {"antsrMesh_WriteTck",          (DL_FUNC) &antsrMesh_WriteTck,          3},
     {"antsrMesh_WriteTrk",          (DL_FUNC) &antsrMesh_WriteTrk,          3},
     {"antsrMesh_WriteVTK",          (DL_FUNC) &antsrMesh_WriteVTK,          4},
 //    {"antsrRegistrationRun",        (DL_FUNC) &antsrRegistrationRun,        3},

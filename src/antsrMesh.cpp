@@ -10,6 +10,7 @@
 #include "itkCaminoStreamlineFileReader.h"
 #include "itkCaminoStreamlineFileWriter.h"
 #include "itkMRTrixStreamlineFileReader.h"
+#include "itkMRTrixStreamlineFileWriter.h"
 #include "itkTrackVisStreamlineFileReader.h"
 #include "itkTrackVisStreamlineFileWriter.h"
 #include "itkVtkPolyDataFileReader.h"
@@ -1478,6 +1479,73 @@ try
     using MeshType = itk::Mesh<PrecisionType,3>;
     using ImageType = itk::Image<PrecisionType,3>;
     return antsrMesh_WriteTrk<MeshType, ImageType>(r_mesh, r_filename, r_image);
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
+antsrMesh_WriteTck( SEXP r_mesh, SEXP r_filename)
+{
+  //Rcpp::Rcout << "antsrMesh_WriteTrk<MeshType>()" << std::endl;
+
+  using MeshPointerType = typename MeshType::Pointer;
+  using WriterType = itk::MRTrixStreamlineFileWriter< MeshType >;
+  using WriterPointerType = typename WriterType::Pointer;
+
+  std::string filename = Rcpp::as<std::string>( r_filename );
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
+
+  WriterPointerType writer = WriterType::New();
+  writer->SetFileName( filename );
+  writer->SetInput( mesh );
+  writer->Update();
+
+  return Rcpp::wrap(1);
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_WriteTck( SEXP r_mesh, SEXP r_filename, SEXP r_image)
+{
+//Rcpp::Rcout << "antsrMesh_WriteTck()" << std::endl;
+
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string precision = rMesh.slot("precision");
+  //unsigned int dimension = rMesh.slot("dimension");
+
+  if ( precision=="double") {
+    using PrecisionType = double;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_WriteTck<MeshType>(r_mesh, r_filename);
+  }
+  else if (precision=="float") {
+    using PrecisionType = float;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_WriteTck<MeshType>(r_mesh, r_filename);
   }
   else {
     Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
