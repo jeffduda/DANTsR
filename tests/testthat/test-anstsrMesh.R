@@ -173,7 +173,7 @@ test_that( "write and read vtk polydata binary", {
   write.antsrMesh( m, tmp, cells.as="lines" )
   m2 = read.antsrMesh(tmp)
 
-  expect_equal( 0, sum( x-antsrMeshGetPoints( m2$Mesh) ), tolerance=0.000001 )
+  expect_equal( 0, sum( x-antsrMeshGetPoints( m2$Mesh) ), tolerance=0.00001 )
 })
 
 test_that( "write and read vtk polydata ascii (greater tolerance)", {
@@ -230,6 +230,24 @@ test_that( "write and read camino file of doubles", {
 test_that( "write and read TrackVis .trk file", {
   tmp = tempfile()
   tmp = paste(sep="", tmp, ".trk")
+  x = rnorm(300)
+  dim(x) = c(100,3)
+  m = antsrMeshCreate(points=x)
+  for ( i in 1:10 ) {
+    antsrMeshAddPolyline( m, (1:10)+10*(i-1), i)
+  }
+  seeds = 1:10
+
+  img = makeImage( c(10,10,10) )
+  write.antsrMesh( m, tmp, seeds=seeds, image=img )
+  m2 = read.antsrMesh(tmp)
+
+  expect_equal( 0, sum( x-antsrMeshGetPoints( m2$Mesh) ), tolerance=0.00001 )
+})
+
+test_that( "write and read MRTrix .tck file", {
+  tmp = tempfile()
+  tmp = paste(sep="", tmp, ".tck")
   x = rnorm(300)
   dim(x) = c(100,3)
   m = antsrMeshCreate(points=x)

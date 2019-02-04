@@ -27,6 +27,7 @@ extern SEXP antsrMesh_WriteCamino(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteTck(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteTrk(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteVTK(SEXP, SEXP, SEXP, SEXP);
+extern SEXP cellEdgeLength(SEXP, SEXP);
 //extern SEXP antsrRegistrationRun(SEXP, SEXP, SEXP);
 extern SEXP deterministicTracking(SEXP, SEXP, SEXP);
 extern SEXP dtiFilters(SEXP, SEXP);
@@ -57,6 +58,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"antsrMesh_WriteTrk",          (DL_FUNC) &antsrMesh_WriteTrk,          3},
     {"antsrMesh_WriteVTK",          (DL_FUNC) &antsrMesh_WriteVTK,          4},
 //    {"antsrRegistrationRun",        (DL_FUNC) &antsrRegistrationRun,        3},
+    {"cellEdgeLength",              (DL_FUNC) &cellEdgeLength,              2},
     {"deterministicTracking",       (DL_FUNC) &deterministicTracking,       3},
     {"dtiFilters",                  (DL_FUNC) &dtiFilters,                  2},
     {"dtiReconstruction",           (DL_FUNC) &dtiReconstruction,           3},
