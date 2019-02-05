@@ -50,9 +50,12 @@ seedMask = seedMask * mask
 eig = dtiEigenSystem(dt)
 
 
-seedsFull = labelsToPoints(seedMask)
-nSeeds = antsrMeshGetNumberOfPoints(seedsFull)
-seeds = antsrMeshCreate( points=antsrMeshGetPoints(seedsFull)[ sample(1:nSeeds)[1:1000], ])
+seeds = labelsToPoints(seedMask)
+nSeeds = antsrMeshGetNumberOfPoints(seeds)
+#seeds = antsrMeshCreate( points=antsrMeshGetPoints(seeds)[ sample(1:nSeeds)[1:1000], ])
 
 f = deterministicTracking( eig$v1, seeds, mask )
+lengths = cellEdgeLength( f$Mesh )
+hist(lengths)
+
 ```

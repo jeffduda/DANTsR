@@ -9,7 +9,7 @@ cellEdgeLength(mesh, index = NULL)
 \arguments{
 \item{mesh}{'antsrMesh defining a point set and cells}
 
-\item{index}{the cell to examine}
+\item{index}{the cell (or array of cell ids) to examine}
 }
 \description{
 sum of Lengths of cell edges

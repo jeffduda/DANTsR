@@ -1,7 +1,7 @@
 #' @title cellEdgeLength
 #' @description sum of Lengths of cell edges
 #' @param mesh 'antsrMesh defining a point set and cells
-#' @param index the cell to examine
+#' @param index the cell (or array of cell ids) to examine
 
 cellEdgeLength = function( mesh, index=NULL ) {
 
