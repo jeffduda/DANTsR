@@ -1,12 +1,12 @@
 #include <string>
-#include "cellImageValueSummary.h"
-#include "itkCellImageValueSummaryCellFunction.h"
+#include "streamlineTargetsFromSeed.h"
+#include "itkStreamlineTargetsFromSeedCellFunction.h"
 
-template< class MeshType, class ImageType, class TOutput >
-SEXP cellImageValueSummary( SEXP r_mesh, SEXP r_image, SEXP r_measure, SEXP r_index )
+template< class MeshType, class ImageType >
+SEXP streamlineTargetsFromSeed( SEXP r_mesh, SEXP r_image, SEXP r_seeds, SEXP r_index )
 {
   using MeshPointerType = typename MeshType::Pointer;
-  using FunctionType = itk::CellImageValueSummaryCellFunction<MeshType, ImageType>;
+  using FunctionType = itk::StreamlineTargetsFromSeedCellFunction<MeshType, ImageType>;
   using FunctionPointerType = typename FunctionType::Pointer;
 
   using ImagePointerType = typename ImageType::Pointer;
@@ -19,42 +19,28 @@ SEXP cellImageValueSummary( SEXP r_mesh, SEXP r_image, SEXP r_measure, SEXP r_in
   ImagePointerType image = Rcpp::as<ImagePointerType>(r_image);
   if ( ! image.IsNotNull() )
     {
-    Rcpp::stop("image not yet allocated");
+    Rcpp::stop("mask not yet allocated");
     }
 
-  std::string measure = Rcpp::as<std::string>(r_measure);
+
   Rcpp::NumericVector indices( r_index );
-  Rcpp::NumericVector values( indices.size(), 0);
+  Rcpp::NumericMatrix hits( indices.size(), 2 );
 
   FunctionPointerType function = FunctionType::New();
   function->SetInputMesh( mesh );
   function->SetImage( image );
-  //function->SetMeasure( measure );
-  if ( measure == "mean" ) {
-    function->SetMeasure( FunctionType::MEAN );
-  }
-  else if ( measure == "median" ) {
-    function->SetMeasure( FunctionType::MEDIAN );
-  }
-  else if ( measure == "min" ) {
-    function->SetMeasure( FunctionType::MIN );
-  }
-  else if ( measure == "max") {
-    function->SetMeasure( FunctionType::MAX );
-  }
-  else {
-    Rcpp::stop("Invalid measure");
-  }
 
   for (unsigned long i=0; i<indices.size(); i++ ) {
-    values[i] = function->Evaluate( indices[i]-1 );
+    itk::FixedArray<unsigned long,2> iHit = function->Evaluate( indices[i]-1 );
+    hits(i,0) = iHit[0];
+    hits(i,1) = iHit[1];
   }
 
-  return( Rcpp::wrap(values) );
+  return( Rcpp::wrap(hits) );
 
 }
 
-RcppExport SEXP cellImageValueSummary( SEXP r_mesh, SEXP r_image, SEXP r_measure, SEXP r_index )
+RcppExport SEXP streamlineTargetsFromSeed( SEXP r_mesh, SEXP r_image, SEXP r_seeds, SEXP r_index )
 {
 try
 {
@@ -97,13 +83,13 @@ try
       {
       using MeshType = itk::Mesh<PrecisionType,2>;
       using ImageType = itk::Image<PrecisionType,2>;
-      return cellImageValueSummary<MeshType, ImageType, double>( r_mesh, r_image, r_measure, r_index );
+      return streamlineTargetsFromSeed<MeshType, ImageType>( r_mesh, r_image, r_seeds, r_index );
       }
     else if (dimension == 3)
       {
-        using MeshType = itk::Mesh<PrecisionType,3>;
-        using ImageType = itk::Image<PrecisionType,3>;
-        return cellImageValueSummary<MeshType,ImageType, double>( r_mesh, r_image, r_measure, r_index );
+      using MeshType = itk::Mesh<PrecisionType,3>;
+      using ImageType = itk::Image<PrecisionType,3>;
+      return streamlineTargetsFromSeed<MeshType, ImageType>( r_mesh, r_image, r_seeds, r_index );
       }
     }
   else if ( precision=="float") {
@@ -112,13 +98,13 @@ try
       {
       using MeshType = itk::Mesh<PrecisionType,2>;
       using ImageType = itk::Image<PrecisionType,2>;
-      return cellImageValueSummary<MeshType,ImageType, double>( r_mesh, r_image, r_measure, r_index );
+      return streamlineTargetsFromSeed<MeshType, ImageType>( r_mesh, r_image, r_seeds, r_index );
       }
     else if (dimension == 3)
       {
       using MeshType = itk::Mesh<PrecisionType,3>;
       using ImageType = itk::Image<PrecisionType,3>;
-      return cellImageValueSummary<MeshType,ImageType, double>( r_mesh, r_image, r_measure, r_index );
+      return streamlineTargetsFromSeed<MeshType, ImageType>( r_mesh, r_image, r_seeds, r_index );
       }
     }
   else

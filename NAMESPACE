@@ -37,6 +37,7 @@ export(pointIsInImage)
 export(polylineConnections)
 export(polylineVoxelCount)
 export(read.antsrMesh)
+export(streamlineTargetsFromSeed)
 export(write.antsrMesh)
 
 importFrom(RNifti, worldToVoxel)
