@@ -36,6 +36,8 @@ SEXP pointCountImageFunction( SEXP r_mesh, SEXP r_image )
   filter->Update();
 
   OutputImagePointer countImage = filter->GetOutput();
+  countImage->DisconnectPipeline();
+  
   return Rcpp::wrap( countImage );
 }
 

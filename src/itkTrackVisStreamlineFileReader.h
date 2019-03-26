@@ -21,10 +21,10 @@ class  TrackVisStreamlineFileReader : public MeshSource<TOutputMesh>
 {
 public:
   /** Standard "Self" typedef. */
-  typedef TrackVisStreamlineFileReader        Self;
-  typedef Object                              Superclass;
-  typedef SmartPointer<Self>                  Pointer;
-  typedef SmartPointer<const Self>            ConstPointer;
+  using Self =  TrackVisStreamlineFileReader;
+  using Superclass = MeshSource<TOutputMesh>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory */
   itkNewMacro( Self );
@@ -43,14 +43,15 @@ public:
   itkTypeMacro( TrackVisStreamlineFileReader, Object );
 
   /** Hold on to the type information specified by the template parameters. */
-  typedef TOutputMesh                             OutputMeshType;
-  typedef typename TOutputMesh::Pointer           OutputMeshPointer;
-  typedef typename OutputMeshType::MeshTraits     MeshTraits;
-  typedef typename OutputMeshType::Superclass     PointSetType;
-  typedef typename OutputMeshType::PointType      PointType;
-  typedef typename MeshTraits::PixelType         PixelType;
-  typedef Array<PixelType>                       MultiComponentScalarType;
-  typedef Array<unsigned long>                   LineType;
+  using OutputMeshType = TOutputMesh;
+  using OutputMeshPointer = typename TOutputMesh::Pointer;
+  using MeshTraits = typename OutputMeshType::MeshTraits;
+  using PointSetType = typename OutputMeshType::Superclass;
+  using PointType = typename OutputMeshType::PointType;
+  using PixelType = typename MeshTraits::PixelType;
+  using MultiComponentScalarType = Array<PixelType>;
+  using LineType = Array<unsigned long>;
+
   typedef VectorContainer<long,
     MultiComponentScalarType>                    MultiComponentScalarSetType;
   typedef VectorContainer<long,
@@ -85,24 +86,6 @@ public:
   itkSetMacro( MultiComponentScalarSetNames,
     typename MultiComponentScalarSetNamesType::Pointer );
 
-  //itkSetMacro( ReferenceImage, ImagePointerType );
-  //itkGetConstObjectMacro( ReferenceImage, ImageType );
-
-  /** Specify image attributes if output is an image. */
-  //itkSetMacro( ImageSize, ImageSizeType );
-  //itkGetConstMacro( ImageSize, ImageSizeType );
-
-  //itkSetMacro( ImageOrigin, ImageOriginType );
-  //itkGetConstMacro( ImageOrigin, ImageOriginType );
-
-  //itkSetMacro( ImageSpacing, ImageSpacingType );
-  //itkGetConstMacro( ImageSpacing, ImageSpacingType );
-
-  //itkSetMacro( ImageDirection, ImageDirectionType );
-  //itkGetConstMacro( ImageDirection, ImageDirectionType );
-
-
-
   ImagePointerType m_ReferenceImage;
 
 protected:
@@ -117,14 +100,6 @@ protected:
 
   short int m_NScalars;
   short int m_NProperties;
-
-  /**
-   * If output is an image type, the attributes must be specified.
-   */
-  //ImageSizeType                       m_ImageSize;
-  //ImageSpacingType                    m_ImageSpacing;
-  //ImageOriginType                     m_ImageOrigin;
-  //ImageDirectionType                  m_ImageDirection;
 
   typename MultiComponentScalarSetNamesType::Pointer m_MultiComponentScalarSetNames;
 

@@ -15,6 +15,8 @@
 #include "itkTrackVisStreamlineFileWriter.h"
 #include "itkVtkPolyDataFileReader.h"
 #include "itkVtkPolyDataFileWriter.h"
+//#include "itkGiftiMeshIO.h"
+#include "itkMeshFileReader.h"
 
 #include "itkLineCell.h"
 #include "itkPolygonCell.h"
@@ -994,6 +996,7 @@ antsrMesh_ReadVTK( SEXP r_filename )
   reader->SetFileName( filename.c_str() );
   reader->Update();
   MeshPointerType mesh = reader->GetOutput();
+  mesh->DisconnectPipeline();
 
   //typename ReaderType::LineSetType * lines = reader->GetLines();
 
@@ -1103,6 +1106,7 @@ antsrMesh_ReadCamino( SEXP r_filename )
   reader->SetFileName( filename.c_str() );
   reader->Update();
   MeshPointerType mesh = reader->GetOutput();
+  mesh->DisconnectPipeline();
 
   Rcpp::NumericVector seeds(reader->GetOutput()->GetNumberOfCells());
 
@@ -1170,6 +1174,7 @@ antsrMesh_ReadTrk( SEXP r_filename )
   reader->SetFileName( filename.c_str() );
   reader->Update();
   MeshPointerType mesh = reader->GetOutput();
+  mesh->DisconnectPipeline();
 
   typename ReaderType::ImagePointerType img = reader->GetReferenceImage();
   Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh),
@@ -1233,6 +1238,7 @@ antsrMesh_ReadTck( SEXP r_filename )
   reader->SetFileName( filename.c_str() );
   reader->Update();
   MeshPointerType mesh = reader->GetOutput();
+  mesh->DisconnectPipeline();
 
   Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh));
   return Rcpp::wrap(list);
@@ -1277,6 +1283,70 @@ catch(...)
   {
 	Rcpp::stop("c++ exception (unknown reason)");
   }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+template< class MeshType >
+SEXP
+antsrMesh_ReadITKIO( SEXP r_filename )
+{
+  using MeshPointerType = typename MeshType::Pointer;
+  using ReaderType = itk::MeshFileReader<MeshType>;
+
+  std::string filename = Rcpp::as<std::string>( r_filename );
+
+  typename ReaderType::Pointer reader = ReaderType::New();
+
+  reader->SetFileName( filename.c_str() );
+  reader->Update();
+  MeshPointerType mesh = reader->GetOutput();
+  mesh->DisconnectPipeline();
+
+  Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh));
+  return Rcpp::wrap(list);
+
+}
+
+//pixeltype, precision, dimension, type, isVector
+RcppExport SEXP antsrMesh_ReadITKIO( SEXP r_filename, SEXP r_pixeltype )
+{
+try
+{
+  std::string precision = Rcpp::as<std::string>(r_pixeltype);
+
+  if ( precision=="double") {
+    using PrecisionType = double;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_ReadITKIO<MeshType>(r_filename);
+  }
+  else if (precision=="float") {
+    using PrecisionType = float;
+    using MeshType = itk::Mesh<PrecisionType,3>;
+    return antsrMesh_ReadITKIO<MeshType>(r_filename);
+  }
+  else {
+    Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+
 return Rcpp::wrap(NA_REAL); //not reached
 }
 

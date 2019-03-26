@@ -67,7 +67,8 @@ SEXP dtiReconstruction( SEXP r_dwi, SEXP r_gradients, SEXP r_method )
     //filter->SetThreshold( lowValue ); add this as option?
     filter->Update();
     typename FilterType::OutputImageType::Pointer dtiImage = filter->GetOutput();
-
+    dtiImage->DisconnectPipeline();
+    
     //Copy to ANTsR compatible image
     VectorImagePointerType outImage = VectorImageType::New();
     outImage->SetRegions( dtiImage->GetBufferedRegion() );

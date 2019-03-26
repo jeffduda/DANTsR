@@ -1,4 +1,4 @@
-# this file defines the S4 classes related to 'antsrMesh and the associated
+#this file defines the S4 classes related to 'antsrMesh and the associated
 # methods
 
 
@@ -289,6 +289,10 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
   }
   else if ( grepl(".tck", filename )) {
     mesh = .Call("antsrMesh_ReadTck", filename, pixeltype, PACKAGE="DANTsR")
+  }
+  else if ( grepl(".gii", filename) ) { #.gii.gz ?
+    stop("GIFTI support coming soon with update to ITKR (hopefully)")
+    #mesh = .Call("antsrMesh_ReadITKIO", filename, pixeltype, PACKAGE="DANTsR")
   }
   else {
     stop(paste("Unknown filetype:", filename))

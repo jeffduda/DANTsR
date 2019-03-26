@@ -170,6 +170,7 @@ SEXP dtiFilters( SEXP r_dti, SEXP r_filter )
     filter->SetInput( image );
     filter->Update();
     typename ImageType::Pointer outImage = filter->GetOutput();
+    outImage->DisconnectPipeline();
 
     return Rcpp::wrap(outImage);
   }
@@ -182,6 +183,7 @@ SEXP dtiFilters( SEXP r_dti, SEXP r_filter )
     filter->SetInput( image );
     filter->Update();
     typename ImageType::Pointer outImage = filter->GetOutput();
+    outImage->DisconnectPipeline();
 
     return Rcpp::wrap(outImage);
   }
@@ -194,6 +196,7 @@ SEXP dtiFilters( SEXP r_dti, SEXP r_filter )
     filter->SetInput( image );
     filter->Update();
     typename ImageType::Pointer outImage = filter->GetOutput();
+    outImage->DisconnectPipeline();
 
     return Rcpp::wrap(outImage);
   }

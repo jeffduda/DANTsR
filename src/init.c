@@ -18,6 +18,7 @@ extern SEXP antsrMesh_GetNumberOfPoints(SEXP);
 extern SEXP antsrMesh_GetPoint(SEXP, SEXP);
 extern SEXP antsrMesh_GetPoints(SEXP, SEXP);
 extern SEXP antsrMesh_ReadCamino(SEXP, SEXP);
+extern SEXP antsrMesh_ReadITKIO(SEXP, SEXP);
 extern SEXP antsrMesh_ReadTck(SEXP, SEXP);
 extern SEXP antsrMesh_ReadTrk(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_ReadVTK(SEXP, SEXP, SEXP);
@@ -51,6 +52,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"antsrMesh_GetPoint",          (DL_FUNC) &antsrMesh_GetPoint,          2},
     {"antsrMesh_GetPoints",         (DL_FUNC) &antsrMesh_GetPoints,         2},
     {"antsrMesh_ReadCamino",        (DL_FUNC) &antsrMesh_ReadCamino,        2},
+    {"antsrMesh_ReadITKIO",         (DL_FUNC) &antsrMesh_ReadITKIO,         2},
     {"antsrMesh_ReadTck",           (DL_FUNC) &antsrMesh_ReadTck,           2},
     {"antsrMesh_ReadTrk",           (DL_FUNC) &antsrMesh_ReadTrk,           2},
     {"antsrMesh_ReadVTK",           (DL_FUNC) &antsrMesh_ReadVTK,           3},
@@ -71,7 +73,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"isInImage",                   (DL_FUNC) &isInImage,                   3},
     {"isInMesh",                    (DL_FUNC) &isInMesh,                    3},
     {"labelsToPoints",              (DL_FUNC) &labelsToPoints,              2},
-    {"streamlineTargestFromSeed",   (DL_FUNC) &streamlineTargetsFromSeed,   4},    
+    {"streamlineTargestFromSeed",   (DL_FUNC) &streamlineTargetsFromSeed,   4},
     {NULL, NULL, 0}
 };
 
