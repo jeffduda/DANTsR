@@ -52,27 +52,21 @@ public:
   using MultiComponentScalarType = Array<PixelType>;
   using LineType = Array<unsigned long>;
 
-  typedef VectorContainer<long,
-    MultiComponentScalarType>                    MultiComponentScalarSetType;
-  typedef VectorContainer<long,
-    SmartPointer<MultiComponentScalarSetType> >   MultiComponentScalarMultiSetType;
-  typedef VectorContainer<long, std::string >     MultiComponentScalarSetNamesType;
+  using MultiComponentScalarSetType = VectorContainer<long,MultiComponentScalarType>;
+  using MultiComponentScalarMultiSetType = VectorContainer<long,SmartPointer<MultiComponentScalarSetType> >;
+  using MultiComponentScalarSetNamesType = VectorContainer<long, std::string >;
 
   using ImageType = typename itk::Image<PixelType,3>;
   using ImagePointerType = typename ImageType::Pointer;
 
-  typedef typename OutputMeshType::CellType       CellType;
-  typedef typename CellType::CellAutoPointer      CellAutoPointer;
-  typedef typename itk::PolyLineCell< CellType >  PolyLineCellType;
+  using CellType = typename OutputMeshType::CellType;
+  using CellAutoPointer = typename CellType::CellAutoPointer;
+  using PolyLineCellType = typename itk::PolyLineCell< CellType >;
 
-  typedef typename
-    ImageType::SizeType           ImageSizeType;
-  typedef typename
-    ImageType::PointType          ImageOriginType;
-  typedef typename
-    ImageType::SpacingType        ImageSpacingType;
-  typedef typename
-    ImageType::DirectionType      ImageDirectionType;
+  using ImagSizeType = typename ImageType::SizeType;
+  using ImageOriginType = ImageType::PointType;
+  using ImageSpacingType = ImageType::SpacingType;
+  using ImageDirectionType = ImageType::DirectionType;
 
   itkGetMacro( ReferenceImage, ImagePointerType );
 
