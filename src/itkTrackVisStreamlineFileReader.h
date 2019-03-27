@@ -64,9 +64,9 @@ public:
   using PolyLineCellType = typename itk::PolyLineCell< CellType >;
 
   using ImagSizeType = typename ImageType::SizeType;
-  using ImageOriginType = ImageType::PointType;
-  using ImageSpacingType = ImageType::SpacingType;
-  using ImageDirectionType = ImageType::DirectionType;
+  using ImageOriginType = typename ImageType::PointType;
+  using ImageSpacingType = typename ImageType::SpacingType;
+  using ImageDirectionType = typename ImageType::DirectionType;
 
   itkGetMacro( ReferenceImage, ImagePointerType );
 
