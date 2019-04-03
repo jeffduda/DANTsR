@@ -2,7 +2,7 @@
 #' @description Apply transform to pixel data (vectors, tensors, etc)
 #' @param transform antsrTransform
 #' @param image antsImage of pixels to transform
-#' @param pixels.as type of data stored as pixels ("vector", "diffusiontensor")
+#' @param pixel.as type of data stored as pixels ("vector", "diffusiontensor")
 #' @param in.place modify the input image instead of returning a new image
 #' @return antsImage
 #' @examples
@@ -12,27 +12,28 @@
 #' img2 = applyAntsrTransformToImage(tx, img, img)
 #' # plot(img,img2)
 #' @export
-applyAntsrTransformToPixels <- function(transform, image, pixels.as="vector", in.place=FALSE) {
+applyAntsrTransformToPixels <- function(transform, image, pixel.as="vector", in.place=FALSE) {
   if ( typeof(transform) == "list")
   {
     transform <- composeAntsrTransforms(transform)
   }
 
-  if ( pixels.as=="vector" ) {
+  pixel.as = tolower(pixel.as)
+  if ( pixel.as=="vector" | pixel.as=="covariantvector") {
     if ( image@components != transform@dimension ) {
-      stop( "Dimensionality of transform must match number of components in image for pixels.as='vector' " )
+      stop( "Dimensionality of transform must match number of components in image for pixel vector types" )
     }
   }
-  else if ( pixels.as=="diffusiontensor") {
+  else if ( pixel.as=="diffusiontensor") {
     if ( image@components != 6 ) {
       stop("diffusiontensor pixels must have 6 componenets")
     }
     if ( tranform@dimension != 3 ) {
-      stop("diffusion tensorpixels must have a 3D transform")
+      stop("diffusion tensor pixels must have a 3D transform")
     }
   }
   else {
-    stop("Invalid 'pixels.as' type")
+    stop("Invalid 'pixel.as' type")
   }
 
   outImg = NA
@@ -43,6 +44,6 @@ applyAntsrTransformToPixels <- function(transform, image, pixels.as="vector", in
     outImg = antsImageClone(image)
   }
 
-  .Call("antsrTransform_TransformPixels", transform, outImg, pixels.as, PACKAGE = "DANTsR")
+  .Call("antsrTransform_TransformPixels", transform, outImg, pixel.as, PACKAGE = "DANTsR")
   return(outImg)
 }

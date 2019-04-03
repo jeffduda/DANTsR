@@ -40,6 +40,7 @@ extern SEXP interpolateImageValues(SEXP, SEXP, SEXP, SEXP);
 extern SEXP isInImage(SEXP, SEXP, SEXP);
 extern SEXP isInMesh(SEXP, SEXP, SEXP);
 extern SEXP labelsToPoints(SEXP, SEXP);
+extern SEXP physicalVectorsToIndexVectors(SEXP,SEXP);
 extern SEXP streamlineTargetsFromSeed(SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
@@ -75,6 +76,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"isInImage",                   (DL_FUNC) &isInImage,                   3},
     {"isInMesh",                    (DL_FUNC) &isInMesh,                    3},
     {"labelsToPoints",              (DL_FUNC) &labelsToPoints,              2},
+    {"physicalVectorsToIndexVectors", (DL_FUNC) &physicalVectorsToIndexVectors, 2},
     {"streamlineTargestFromSeed",   (DL_FUNC) &streamlineTargetsFromSeed,   4},
     {NULL, NULL, 0}
 };
