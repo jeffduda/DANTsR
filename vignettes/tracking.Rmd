@@ -28,6 +28,7 @@ b0Ids = which( mag == 0 )
 grad=as.matrix(grad[1:33,])
 bvalues = c(rep(1000,32),0)
 grad = cbind(grad, bvalues)
+grad[,2] = -grad[,2]
 
 d = dim(dwi)
 d[4] = 33
@@ -52,7 +53,7 @@ eig = dtiEigenSystem(dt)
 
 seeds = labelsToPoints(seedMask)
 nSeeds = antsrMeshGetNumberOfPoints(seeds)
-#seeds = antsrMeshCreate( points=antsrMeshGetPoints(seeds)[ sample(1:nSeeds)[1:1000], ])
+seeds = antsrMeshCreate( points=antsrMeshGetPoints(seeds)[ sample(1:nSeeds)[1:5000], ])
 
 f = deterministicTracking( eig$v1, seeds, mask )
 lengths = cellEdgeLength( f$Mesh )

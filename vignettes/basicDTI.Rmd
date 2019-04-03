@@ -33,13 +33,13 @@ b0Ids = which( mag == 0 )
 grad=as.matrix(grad[1:33,])
 bvalues = c(rep(1000,32),0)
 grad = cbind(grad, bvalues)
+grad[,2] = -grad[,2]
 
 d = dim(dwi)
 d[4] = 33
 dwi = cropIndices(dwi, c(1,1,1,1), d)
 dwi = dimensionToChannel(dwi)
 dt = dtiReconstruction(dwi, grad, method="itk-svd")
-
 fa = dtiAnisotropy(dt, method="fractionalanisotropy")
 plot(fa)
 ```
