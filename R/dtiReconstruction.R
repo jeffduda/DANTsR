@@ -10,10 +10,11 @@ dtiReconstruction.r.svd <- function(x, basis, bMat) {
 #' @param dwi an N-channel antsImage
 #' @param gradients Nx4 matrix of gradient directions and b-values
 #' @param method the reconstruction algorithm to use (default = "itk-svd")
-#' @param mask 'antsImage' mask indicating where to perform reconstruction
 #' \itemize{
 #'   \item{itk-svd}{uses the itk::DiffusionTensor3DReconstructionImageFilter filter}
+#'   \item{r-svd} uses the r 'solve' function
 #' }
+#' @param mask 'antsImage' mask indicating where to perform reconstruction
 #' @export
 dtiReconstruction = function(dwi, gradients, method, mask=NULL)
 {
