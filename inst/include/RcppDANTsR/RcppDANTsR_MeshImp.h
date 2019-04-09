@@ -32,6 +32,20 @@ SEXP wrap( const itk::ImageRegionIteratorWithIndex< itk::MeshType<PIXELTYPE,DIME
 }
 */
 
+inline
+int antsrMeshDimension( SEXP r_mesh )
+{
+  Rcpp::S4 mesh( r_mesh );
+  return( Rcpp::as<int>( mesh.slot("dimension") ) );
+}
+
+inline
+std::string antsrMeshPrecision( SEXP r_mesh )
+{
+  Rcpp::S4 mesh( r_mesh );
+  return( Rcpp::as<std::string>( mesh.slot("precision") ) );
+}
+
 
 template <> inline
 SEXP wrap( const itk::Mesh< double, 2 >::Pointer & mesh )

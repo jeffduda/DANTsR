@@ -68,6 +68,7 @@ try
 {
   std::string precision = Rcpp::as< std::string >( r_precision );
   unsigned int dimension = Rcpp::as< int >( r_dimension );
+
   itk::IdentifierType reserve = Rcpp::as< itk::IdentifierType >( r_reserve );
 
   if ( (dimension < 2) || (dimension > 4) ) {
@@ -131,9 +132,11 @@ return Rcpp::wrap(NA_REAL); //not reached
 
 void antsrMesh_Valid( SEXP r_mesh )
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  //Rcpp::S4 rMesh( r_mesh );
+  //std::string precision = rMesh.slot("precision");
+  //unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision(r_mesh);
+  int dimension = Rcpp::antsrMeshDimension(r_mesh);
 
   if ( (dimension < 2) || (dimension > 4) ) {
     Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
@@ -141,18 +144,6 @@ void antsrMesh_Valid( SEXP r_mesh )
   if ( (precision != "float") && (precision != "double")) {
     Rcpp::stop("Unsupported precision type - must be 'float' or 'double'");
   }
-}
-
-std::string antsrMesh_GetPrecision( SEXP r_mesh )
-{
-  Rcpp::S4 rMesh(r_mesh);
-  return rMesh.slot("precision");
-}
-
-unsigned int antsrMesh_GetDimension( SEXP r_mesh )
-{
-  Rcpp::S4 rMesh(r_mesh);
-  return rMesh.slot("dimension");
 }
 
 template< class MeshType >
@@ -170,8 +161,8 @@ RcppExport SEXP antsrMesh_GetNumberOfPoints( SEXP r_mesh )
 try
 {
   antsrMesh_Valid(r_mesh);
-  std::string precision = antsrMesh_GetPrecision(r_mesh);
-  unsigned int dimension = antsrMesh_GetDimension(r_mesh);
+  std::string precision = Rcpp::antsrMeshPrecision(r_mesh);
+  unsigned int dimension = Rcpp::antsrMeshDimension(r_mesh);
 
   if ( precision=="double") {
     using PrecisionType = double;
@@ -242,9 +233,8 @@ RcppExport SEXP antsrMesh_GetNumberOfCells( SEXP r_mesh )
 {
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( (dimension < 2) || (dimension > 4) ) {
     Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
@@ -332,9 +322,8 @@ RcppExport SEXP antsrMesh_GetPoint( SEXP r_mesh, SEXP r_identifier )
 {
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( (dimension < 2) || (dimension > 4) ) {
     Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
@@ -427,9 +416,8 @@ RcppExport SEXP antsrMesh_GetCell( SEXP r_mesh, SEXP r_identifier )
 {
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( (dimension < 2) || (dimension > 4) ) {
     Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
@@ -525,9 +513,8 @@ RcppExport SEXP antsrMesh_GetCellPoints( SEXP r_mesh, SEXP r_identifier )
 {
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( (dimension < 2) || (dimension > 4) ) {
     Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
@@ -627,9 +614,8 @@ RcppExport SEXP antsrMesh_GetPoints( SEXP r_mesh, SEXP r_identifiers )
 {
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( (dimension < 2) || (dimension > 4) ) {
     Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
@@ -722,9 +708,8 @@ RcppExport SEXP antsrMesh_AddPoint( SEXP r_mesh, SEXP r_identifier, SEXP r_point
 {
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( (dimension < 2) || (dimension > 4) ) {
     Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
@@ -817,9 +802,8 @@ RcppExport SEXP antsrMesh_SetPoint( SEXP r_mesh, SEXP r_identifier, SEXP r_point
 {
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( (dimension < 2) || (dimension > 4) ) {
     Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
@@ -919,9 +903,8 @@ RcppExport SEXP antsrMesh_AddPolyline( SEXP r_mesh, SEXP r_identifier, SEXP r_po
 {
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( (dimension < 2) || (dimension > 4) ) {
     Rcpp::stop("Unsupported dimension type - must be 2,3, or 4");
@@ -1380,9 +1363,8 @@ RcppExport SEXP antsrMesh_WriteCamino( SEXP r_mesh, SEXP r_filename, SEXP r_seed
 {
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  //unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  //unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh );
 
   if ( precision=="double") {
     using PrecisionType = double;
@@ -1464,9 +1446,8 @@ RcppExport SEXP antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs
 
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  //unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  //unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( precision=="double") {
     using PrecisionType = double;
@@ -1603,9 +1584,8 @@ RcppExport SEXP antsrMesh_WriteTck( SEXP r_mesh, SEXP r_filename, SEXP r_image)
 
 try
 {
-  Rcpp::S4 rMesh( r_mesh );
-  std::string precision = rMesh.slot("precision");
-  //unsigned int dimension = rMesh.slot("dimension");
+  std::string precision = Rcpp::antsrMeshPrecision( r_mesh );
+  //unsigned int dimension = Rcpp::antsrMeshDimension( r_mesh);
 
   if ( precision=="double") {
     using PrecisionType = double;

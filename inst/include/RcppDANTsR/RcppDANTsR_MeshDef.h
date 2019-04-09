@@ -10,6 +10,10 @@
 
 namespace Rcpp {
 
+// convenience functions
+inline std::string antsrMeshPrecision( SEXP antsrMesh );
+inline int antsrMeshDimension( SEXP antsrMesh );
+
 // itk to antsr
 template <> inline SEXP wrap( const itk::Mesh< double, 2 >::Pointer & mesh );
 template <> inline SEXP wrap( const itk::Mesh< double, 3 >::Pointer & mesh );
