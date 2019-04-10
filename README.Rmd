@@ -30,14 +30,6 @@ The goal of DANTsR is to provide diffusion imaging extensions to ANTsR.
 
 ## Installation
 
-<!--
-You can install the released version of DANTsR from [CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("DANTsR")
-```
--->
-
 You can install the development version from [GitHub](https://github.com/) with:
 
 ``` r
