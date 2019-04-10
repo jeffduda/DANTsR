@@ -3,9 +3,6 @@
 
 # DANTsR
 
-![dantsr
-killers](http://www.picslyrics.net/images/255741-the-killers-are-we-human-or-are-we-dancer.jpg)
-
 <!-- badges: start -->
 
 [![Travis build
@@ -15,11 +12,12 @@ status](https://travis-ci.com/muschellij2/DANTsR.svg?branch=master)](https://tra
 
 <!-- badges: end -->
 
-The goal of DANTsR is to provide diffusion imaging extension to ANTsR.
+The goal of DANTsR is to provide diffusion imaging extensions to ANTsR.
 
 ## Installation
 
-Install the development version from [GitHub](https://github.com/) with:
+You can install the development version from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
