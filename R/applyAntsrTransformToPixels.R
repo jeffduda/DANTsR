@@ -28,7 +28,7 @@ applyAntsrTransformToPixels <- function(transform, image, pixel.as="vector", in.
     if ( image@components != 6 ) {
       stop("diffusiontensor pixels must have 6 componenets")
     }
-    if ( tranform@dimension != 3 ) {
+    if ( transform@dimension != 3 ) {
       stop("diffusion tensor pixels must have a 3D transform")
     }
   }

@@ -52,7 +52,7 @@ template< class TransformType>
 void antsrTransform_TransformVectorPixels( SEXP r_transform, SEXP r_image )
 {
   Rcpp::S4 image( r_image );
-  std::string pixeltype = Rcpp::as<std::string>( image.slot("precision") );
+  std::string pixeltype = Rcpp::as<std::string>( image.slot("pixeltype") );
   int dimension = Rcpp::as<int>( image.slot("dimension"));
 
   if ( pixeltype=="double" ) {
@@ -160,7 +160,7 @@ template< class TransformType>
 void antsrTransform_TransformCovariantVectorPixels( SEXP r_transform, SEXP r_image )
 {
   Rcpp::S4 image( r_image );
-  std::string pixeltype = Rcpp::as<std::string>( image.slot("precision") );
+  std::string pixeltype = Rcpp::as<std::string>( image.slot("pixeltype") );
   int dimension = Rcpp::as<int>( image.slot("dimension"));
 
   if ( pixeltype=="double" ) {
@@ -268,7 +268,7 @@ template< class TransformType>
 void antsrTransform_TransformDiffusionTensorPixels( SEXP r_transform, SEXP r_image )
 {
   Rcpp::S4 image( r_image );
-  std::string pixeltype = Rcpp::as<std::string>( image.slot("precision") );
+  std::string pixeltype = Rcpp::as<std::string>( image.slot("pixeltype") );
   int dimension = Rcpp::as<int>( image.slot("dimension"));
 
   if ( pixeltype=="double" ) {
