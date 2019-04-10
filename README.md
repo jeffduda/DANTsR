@@ -12,7 +12,14 @@ status](https://travis-ci.com/muschellij2/DANTsR.svg?branch=master)](https://tra
 
 <!-- badges: end -->
 
-The goal of DANTsR is to provide diffusion imaging extensions to ANTsR.
+DANTsR provides diffusion imaging extensions to ANTsR.
+
+“Tensors? Richard had no idea what a tensor was, but he had noticed that
+when math geeks started throwing the word around, it meant that they
+were headed in the general direction of actually getting something
+done.”
+
+  - Neal Stephenson, Reamde (2011).
 
 ## Installation
 

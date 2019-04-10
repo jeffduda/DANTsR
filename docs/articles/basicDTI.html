@@ -100,18 +100,19 @@
 <a class="sourceLine" id="cb1-9" data-line-number="9">grad=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(grad[<span class="dv">1</span><span class="op">:</span><span class="dv">33</span>,])</a>
 <a class="sourceLine" id="cb1-10" data-line-number="10">bvalues =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">1000</span>,<span class="dv">32</span>),<span class="dv">0</span>)</a>
 <a class="sourceLine" id="cb1-11" data-line-number="11">grad =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(grad, bvalues)</a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># for index space, flip y</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co">#grad[,2] = -grad[,2]</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15">d =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(dwi)</a>
-<a class="sourceLine" id="cb1-16" data-line-number="16">d[<span class="dv">4</span>] =<span class="st"> </span><span class="dv">33</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17">dwi =<span class="st"> </span><span class="kw">cropIndices</span>(dwi, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>), d)</a>
-<a class="sourceLine" id="cb1-18" data-line-number="18">dwi =<span class="st"> </span><span class="kw"><a href="../reference/dimensionToChannel.html">dimensionToChannel</a></span>(dwi)</a>
-<a class="sourceLine" id="cb1-19" data-line-number="19">dt =<span class="st"> </span><span class="kw"><a href="../reference/dtiReconstruction.html">dtiReconstruction</a></span>(dwi, grad, <span class="dt">method=</span><span class="st">"itk-svd"</span>)</a>
-<a class="sourceLine" id="cb1-20" data-line-number="20">fa =<span class="st"> </span><span class="kw"><a href="../reference/dtiAnisotropy.html">dtiAnisotropy</a></span>(dt, <span class="dt">method=</span><span class="st">"fractionalanisotropy"</span>)</a>
-<a class="sourceLine" id="cb1-21" data-line-number="21"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(fa)</a></code></pre></div>
+<a class="sourceLine" id="cb1-12" data-line-number="12">grad[,<span class="dv">3</span>] =<span class="st"> </span><span class="op">-</span>grad[,<span class="dv">3</span>]</a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">d =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(dwi)</a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">d[<span class="dv">4</span>] =<span class="st"> </span><span class="dv">33</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16">dwi =<span class="st"> </span><span class="kw">cropIndices</span>(dwi, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>), d)</a>
+<a class="sourceLine" id="cb1-17" data-line-number="17">dwi =<span class="st"> </span><span class="kw"><a href="../reference/dimensionToChannel.html">dimensionToChannel</a></span>(dwi)</a>
+<a class="sourceLine" id="cb1-18" data-line-number="18">dt =<span class="st"> </span><span class="kw"><a href="../reference/dtiReconstruction.html">dtiReconstruction</a></span>(dwi, grad, <span class="dt">method=</span><span class="st">"itk-svd"</span>)</a>
+<a class="sourceLine" id="cb1-19" data-line-number="19">fa =<span class="st"> </span><span class="kw"><a href="../reference/dtiAnisotropy.html">dtiAnisotropy</a></span>(dt, <span class="dt">method=</span><span class="st">"fractionalanisotropy"</span>)</a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(fa)</a></code></pre></div>
 <p><img src="basicDTI_files/figure-html/dwi2dti-1.png" width="672"></p>
-<pre><code>#&gt; NULL</code></pre>
+<pre><code>#&gt; NULL
+
+#antsImageWrite(dt, "dt.nii.gz", as.tensor=TRUE )</code></pre>
 </div>
   </div>
 
