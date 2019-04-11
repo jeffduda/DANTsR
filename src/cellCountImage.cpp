@@ -1,12 +1,11 @@
 #include <RcppDANTsR.h>
 #include <string>
 #include "itkImage.h"
-#include "itkPointCountImageFilter.h"
+#include "itkCellCountImageFilter.h"
 
 template< class MeshType, class ImageType >
-SEXP pointCountImageFunction( SEXP r_mesh, SEXP r_image )
+SEXP cellCountImageFunction( SEXP r_mesh, SEXP r_image )
 {
-  //Rcpp::Rcout << "pointCountImageFunction<MeshType,ImageType>()" << std::endl;
 
   using ImagePointerType = typename ImageType::Pointer;
   using MeshPointerType = typename MeshType::Pointer;
@@ -14,9 +13,8 @@ SEXP pointCountImageFunction( SEXP r_mesh, SEXP r_image )
   using OutputImageType = itk::Image< PixelType, ImageType::ImageDimension >;
   using OutputImagePointer = typename OutputImageType::Pointer;
 
-  using FilterType = itk::PointCountImageFilter<MeshType, OutputImageType>;
+  using FilterType = itk::CellCountImageFilter<MeshType, OutputImageType>;
   using FilterPointerType = typename FilterType::Pointer;
-
 
   ImagePointerType image = Rcpp::as<ImagePointerType>(r_image);
   if ( ! image.IsNotNull() )
@@ -41,18 +39,16 @@ SEXP pointCountImageFunction( SEXP r_mesh, SEXP r_image )
   return Rcpp::wrap( countImage );
 }
 
-RcppExport SEXP pointCountImage( SEXP r_mesh, SEXP r_image )
+RcppExport SEXP cellCountImage( SEXP r_mesh, SEXP r_image )
 {
 try
 {
-  //Rcpp::Rcout << "pointCountImage()" << std::endl;
-
   if( (r_image == nullptr) || (r_mesh == nullptr) )
     {
-    Rcpp::Rcout << "Unspecified Argument" << std::endl ;
-    return Rcpp::wrap( 1 ) ;
+    Rcpp::stop("Unspecified Argument");
     }
 
+  Rcpp::S4 antsrmesh( r_mesh );
   std::string pixeltype = Rcpp::antsrMeshPrecision(r_mesh);
   unsigned int dimension = Rcpp::antsrMeshDimension(r_mesh);
 
@@ -60,13 +56,11 @@ try
   unsigned int idimension = Rcpp::as< int >( antsimage.slot( "dimension" ) );
 
   if ( dimension != idimension ) {
-    Rcpp::Rcout << "Mesh and image must have same dimension" << std::endl;
-    return Rcpp::wrap(NA_REAL);
+    Rcpp::stop("Mesh and image must have same dimension");
   }
 
   if ( ( dimension > 4) || (dimension < 2) ) {
-    Rcpp::Rcout << "Invalid Dimension: must be 2,3, or 4" << std::endl;
-    return Rcpp::wrap(NA_REAL);
+    Rcpp::stop("Invalid Dimension: must be 2,3, or 4");
   }
 
   if( pixeltype == "double" )
@@ -77,21 +71,21 @@ try
       const unsigned int Dimension = 2;
       typedef itk::ImageBase< Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
       typedef itk::ImageBase< Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
       typedef itk::ImageBase< Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     }
   else if( pixeltype == "float" )
@@ -102,26 +96,26 @@ try
       const unsigned int Dimension = 2;
       typedef itk::Image< PixelType, Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
       typedef itk::Image< PixelType, Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
       typedef itk::Image< PixelType, Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  pointCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
       }
     }
   else
     {
-    Rcpp::Rcout << "Unsupported antsrMesh@Precision" << std::endl ;
+    Rcpp::stop("Unsupported antsrMesh@Precision");
     return Rcpp::wrap( NA_REAL ) ;
     }
 

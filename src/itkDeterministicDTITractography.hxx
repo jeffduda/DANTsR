@@ -1,20 +1,3 @@
-/*=========================================================================
- *
- *  Copyright Insight Software Consortium
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0.txt
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- *=========================================================================*/
 #ifndef itkDeterministicDTITractography_hxx
 #define itkDeterministicDTITractography_hxx
 
@@ -131,8 +114,6 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
 
   points->InsertElement(0, point);
 
-  ValueType stepSize = 0.2;
-
   bool continueTracking = true;
 
   unsigned long id = 1;
@@ -218,12 +199,6 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
 ::GenerateData()
 {
 
-  // FIXME - make this parallel as each seed is independent
-
-  //std::cout << "GenerateData()" << std::endl;
-  // Initialize variables
-
-
   m_OutputMesh = this->GetOutput();
 
   m_InputImage = this->GetField();
@@ -235,37 +210,13 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
   IdentifierType nPoints = 0;
   IdentifierType nCells = 0;
 
-  unsigned long percent = m_SeedMesh->GetNumberOfPoints() / 100;
-  unsigned long milestone = 0;
 
-  Rcpp::Rcout << "Progress: 0%";
   for ( IdentifierType i=0; i<m_SeedMesh->GetNumberOfPoints(); i++ )
-  //for ( IdentifierType i=0; i<1000; i++ )
   {
-    if ( (i  / percent) > milestone ) {
-      ++milestone;
-      if ( milestone <= 10 ) {
-        Rcpp::Rcout << "\b\b";
-      }
-      else {
-        Rcpp::Rcout << "\b\b\b";
-      }
-      Rcpp::Rcout << milestone << "%";
-    }
-
-    //if ( !m_OutputMesh->GetPoints()->IndexExists( nPoints ) )
-    //{
-    //  m_OutputMesh->GetPoints()->CreateIndex( nPoints ); // FIXME - add memory in chunks?
-    //}
-    //Rcpp::Rcout << "Tracking from seed " << i << std::endl;
 
     PointsContainerPointer forwardPts = this->TrackFiber( m_SeedMesh->GetPoints()->GetElement(i), true );
-    //Rcpp::Rcout << "forward tracking done" << std::endl;
     PointsContainerPointer backwardPts = this->TrackFiber( m_SeedMesh->GetPoints()->GetElement(i), false );
-    //Rcpp::Rcout << "backward tracking done" << std::endl;
-
     unsigned long tractPoints = forwardPts->Size() + backwardPts->Size() - 1;
-    //std::cout << "Tract from seed " << i << " has " << tractPoints << " points" << std::endl;
 
     bool keepTract = true;
     if ( tractPoints < m_MinimumNumberOfPoints ) {
@@ -307,12 +258,10 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
 
   }
 
-  Rcpp::Rcout << std::endl;
-
   // This indicates that the current BufferedRegion is equal to the
   // requested region. This action prevents useless rexecutions of
   // the pipeline.
-  //this->m_OutputMesh->SetBufferedRegion( this->GetOutput()->GetRequestedRegion() );
+  this->m_OutputMesh->SetBufferedRegion( this->GetOutput()->GetRequestedRegion() );
   //std::cout << "End GenerateData()" << std::endl;
 
 }

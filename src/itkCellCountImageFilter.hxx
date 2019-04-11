@@ -1,24 +1,7 @@
-/*=========================================================================
- *
- *  Copyright Insight Software Consortium
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0.txt
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- *=========================================================================*/
-#ifndef itkPointCountImageFilter_hxx
-#define itkPointCountImageFilter_hxx
+#ifndef itkCellCountImageFilter_hxx
+#define itkCellCountImageFilter_hxx
 
-#include "itkPointCountImageFilter.h"
+#include "itkCellCountImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkContinuousIndex.h"
 #include "itkNumericTraits.h"
@@ -28,8 +11,8 @@ namespace itk
 {
 /** Constructor */
 template< typename TInputMesh, typename TOutputImage >
-PointCountImageFilter< TInputMesh, TOutputImage >
-::PointCountImageFilter()
+CellCountImageFilter< TInputMesh, TOutputImage >
+::CellCountImageFilter()
 {
   this->SetNumberOfRequiredInputs(1);
 
@@ -52,14 +35,14 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 
 /** Destructor */
 template< typename TInputMesh, typename TOutputImage >
-PointCountImageFilter< TInputMesh, TOutputImage >
-::~PointCountImageFilter()
+CellCountImageFilter< TInputMesh, TOutputImage >
+::~CellCountImageFilter()
 {}
 
 /** Set the Input Mesh */
 template< typename TInputMesh, typename TOutputImage >
 void
-PointCountImageFilter< TInputMesh, TOutputImage >
+CellCountImageFilter< TInputMesh, TOutputImage >
 ::SetInput(TInputMesh *input)
 {
   this->ProcessObject::SetNthInput(0, input);
@@ -67,8 +50,8 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 
 /** Get the input Mesh */
 template< typename TInputMesh, typename TOutputImage >
-typename PointCountImageFilter< TInputMesh, TOutputImage >::InputMeshType *
-PointCountImageFilter< TInputMesh, TOutputImage >
+typename CellCountImageFilter< TInputMesh, TOutputImage >::InputMeshType *
+CellCountImageFilter< TInputMesh, TOutputImage >
 ::GetInput(void)
 {
   return static_cast< TInputMesh * >( this->GetInput() );
@@ -76,8 +59,8 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 
 /** Get the input Mesh */
 template< typename TInputMesh, typename TOutputImage >
-typename PointCountImageFilter< TInputMesh, TOutputImage >::InputMeshType *
-PointCountImageFilter< TInputMesh, TOutputImage >
+typename CellCountImageFilter< TInputMesh, TOutputImage >::InputMeshType *
+CellCountImageFilter< TInputMesh, TOutputImage >
 ::GetInput(unsigned int idx)
 {
   return itkDynamicCastInDebugMode< TInputMesh * >
@@ -87,7 +70,7 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 //----------------------------------------------------------------------------
 template< typename TInputMesh, typename TOutputImage >
 void
-PointCountImageFilter< TInputMesh, TOutputImage >
+CellCountImageFilter< TInputMesh, TOutputImage >
 ::SetSpacing(const double spacing[3])
 {
   SpacingType s;
@@ -100,7 +83,7 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 
 template< typename TInputMesh, typename TOutputImage >
 void
-PointCountImageFilter< TInputMesh, TOutputImage >
+CellCountImageFilter< TInputMesh, TOutputImage >
 ::SetSpacing(const float spacing[3])
 {
   SpacingType s;
@@ -114,7 +97,7 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 //----------------------------------------------------------------------------
 template< typename TInputMesh, typename TOutputImage >
 void
-PointCountImageFilter< TInputMesh, TOutputImage >
+CellCountImageFilter< TInputMesh, TOutputImage >
 ::SetOrigin(const double origin[3])
 {
   PointType p(origin);
@@ -123,7 +106,7 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 
 template< typename TInputMesh, typename TOutputImage >
 void
-PointCountImageFilter< TInputMesh, TOutputImage >
+CellCountImageFilter< TInputMesh, TOutputImage >
 ::SetOrigin(const float origin[3])
 {
   PointType p;
@@ -143,11 +126,10 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 /** Update */
 template< typename TInputMesh, typename TOutputImage >
 void
-PointCountImageFilter< TInputMesh, TOutputImage >
+CellCountImageFilter< TInputMesh, TOutputImage >
 ::GenerateData(void)
 {
-
-  itkDebugMacro(<< "PointCountImageFilter::Update() called");
+  itkDebugMacro(<< "CellCountImageFilter::Update() called");
 
   // Get the input and output pointers
   OutputImagePointer OutputImage = this->GetOutput();
@@ -184,17 +166,39 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 
   ContinuousIndexType cidx;
   IndexType idx;
+  IndexType lastIdx;
 
-  for (unsigned long i=0; i<this->GetInput(0)->GetNumberOfPoints(); i++ ) {
-    PointType pt = this->GetInput(0)->GetPoint(i);
-    this->GetOutput()->TransformPhysicalPointToContinuousIndex(pt, cidx);
-    idx.CopyWithRound(cidx);
-    if ( this->GetOutput()->GetLargestPossibleRegion().IsInside(idx) ) {
-      OutputImage->SetPixel(idx,1+OutputImage->GetPixel(idx));
+  std::vector<IndexType> indexList;
+
+  for (unsigned long i=0; i<this->GetInput(0)->GetNumberOfCells(); i++ ) {
+
+    CellAutoPointer cell;
+    this->GetInput(0)->GetCell(i, cell);
+    indexList.clear();
+
+    for (unsigned int j=0; j<cell->GetNumberOfPoints(); j++ ) {
+      PointType pt = this->GetInput(0)->GetPoint( cell->GetPointIds()[j] );
+      this->GetOutput()->TransformPhysicalPointToContinuousIndex(pt, cidx);
+      idx.CopyWithRound(cidx);
+      if ( this->GetOutput()->GetLargestPossibleRegion().IsInside(idx) )
+      {
+        if (idx != lastIdx) {
+          indexList.push_back(idx);
+        }
+      }
+      lastIdx = idx;
     }
+    std::sort( indexList.begin(), indexList.end() );
+    auto last = std::unique( indexList.begin(), indexList.end() );
+    indexList.erase( last, indexList.end() );
+
+    for ( IndexType vIdx : indexList ) {
+      OutputImage->SetPixel(vIdx,1+OutputImage->GetPixel(vIdx));
+    }
+
   }
 
-  itkDebugMacro(<< "PointCountImageFilter::Update() finished");
+  itkDebugMacro(<< "CellCountImageFilter::Update() finished");
 
 } // end update function
 
@@ -202,7 +206,7 @@ PointCountImageFilter< TInputMesh, TOutputImage >
 
 template< typename TInputMesh, typename TOutputImage >
 void
-PointCountImageFilter< TInputMesh, TOutputImage >
+CellCountImageFilter< TInputMesh, TOutputImage >
 ::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);

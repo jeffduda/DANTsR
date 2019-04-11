@@ -1,5 +1,5 @@
-#ifndef itkPointCountImageFilter_h
-#define itkPointCountImageFilter_h
+#ifndef itkCellCountImageFilter_h
+#define itkCellCountImageFilter_h
 
 #include "itkImageSource.h"
 
@@ -45,7 +45,7 @@ public:
   }
 };
 
-/** \class PointCountImageFilter
+/** \class CellCountImageFilter
  *
  * \brief 3D Rasterization algorithm Courtesy of Dr David Gobbi of Atamai Inc.
 
@@ -53,13 +53,13 @@ public:
  * \ingroup ITKMesh
  */
 template< typename TInputMesh, typename TOutputImage  >
-class ITK_TEMPLATE_EXPORT PointCountImageFilter:public ImageSource< TOutputImage >
+class ITK_TEMPLATE_EXPORT CellCountImageFilter:public ImageSource< TOutputImage >
 {
 public:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PointCountImageFilter);
+  ITK_DISALLOW_COPY_AND_ASSIGN(CellCountImageFilter);
 
   /** Standard class type aliases. */
-  using Self = PointCountImageFilter;
+  using Self = CellCountImageFilter;
   using Superclass = ImageSource< TOutputImage >;
   using Pointer = SmartPointer< Self >;
   using ConstPointer = SmartPointer< const Self >;
@@ -80,7 +80,7 @@ public:
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(PointCountImageFilter, ImageSource);
+  itkTypeMacro(CellCountImageFilter, ImageSource);
 
   /** Superclass type alias. */
   using OutputImageRegionType = typename Superclass::OutputImageRegionType;
@@ -201,8 +201,8 @@ public:
   itkGetConstMacro(Tolerance, double);
 
 protected:
-  PointCountImageFilter();
-  ~PointCountImageFilter() override;
+  CellCountImageFilter();
+  ~CellCountImageFilter() override;
 
   void GenerateOutputInformation() override {}  // do nothing
   void GenerateData() override;
@@ -237,7 +237,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPointCountImageFilter.hxx"
+#include "itkCellCountImageFilter.hxx"
 #endif
 
 #endif

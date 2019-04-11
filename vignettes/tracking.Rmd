@@ -53,10 +53,14 @@ eig = dtiEigenSystem(dt)
 
 seeds = labelsToPoints(seedMask)
 nSeeds = antsrMeshGetNumberOfPoints(seeds)
-seeds = antsrMeshCreate( points=antsrMeshGetPoints(seeds)[ sample(1:nSeeds)[1:5000], ])
+seeds = antsrMeshCreate( points=antsrMeshGetPoints(seeds)[ sample(1:nSeeds)[1:20000], ])
 
 f = deterministicTracking( eig$v1, seeds, mask )
 lengths = cellEdgeLength( f$Mesh )
 hist(lengths)
+
+lineCount = cellCountImage( f$Mesh, fa )
+plot(lineCount)
+
 
 ```
