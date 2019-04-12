@@ -220,65 +220,30 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
 
   // FIXME - make this parallel as each seed is independent
 
-  //std::cout << "GenerateData()" << std::endl;
-  // Initialize variables
-
-
   m_OutputMesh = this->GetOutput();
 
   m_InputImage = this->GetField();
   m_SeedMesh = this->GetSeeds();
 
-  //Rcpp::Rcout << "Tracking from " << m_SeedMesh->GetNumberOfPoints() << " seed points" << std::endl;
-  //this->m_OutputMesh->GetPoints()->Reserve(1);
-
   IdentifierType nPoints = 0;
   IdentifierType nCells = 0;
 
-  unsigned long percent = m_SeedMesh->GetNumberOfPoints() / 100;
-  unsigned long milestone = 0;
-
-  Rcpp::Rcout << "Progress: 0%";
   for ( IdentifierType i=0; i<m_SeedMesh->GetNumberOfPoints(); i++ )
-  //for ( IdentifierType i=0; i<1000; i++ )
   {
-    if ( (i  / percent) > milestone ) {
-      ++milestone;
-      if ( milestone <= 10 ) {
-        Rcpp::Rcout << "\b\b";
-      }
-      else {
-        Rcpp::Rcout << "\b\b\b";
-      }
-      Rcpp::Rcout << milestone << "%";
-    }
-
-    //if ( !m_OutputMesh->GetPoints()->IndexExists( nPoints ) )
-    //{
-    //  m_OutputMesh->GetPoints()->CreateIndex( nPoints ); // FIXME - add memory in chunks?
-    //}
-    //Rcpp::Rcout << "Tracking from seed " << i << std::endl;
 
     PointsContainerPointer forwardPts = this->TrackFiber( m_SeedMesh->GetPoints()->GetElement(i), true );
-    //Rcpp::Rcout << "forward tracking done" << std::endl;
     PointsContainerPointer backwardPts = this->TrackFiber( m_SeedMesh->GetPoints()->GetElement(i), false );
-    //Rcpp::Rcout << "backward tracking done" << std::endl;
-
     unsigned long tractPoints = forwardPts->Size() + backwardPts->Size() - 1;
-    //std::cout << "Tract from seed " << i << " has " << tractPoints << " points" << std::endl;
 
     bool keepTract = true;
     if ( tractPoints < m_MinimumNumberOfPoints ) {
       keepTract = false;
-      //std::cout << "Too few points" << std::endl;
     }
     else if ( tractPoints > m_MaximumNumberOfPoints ) {
       keepTract = false;
-      //std::cout << "too many points" << std::endl;
     }
 
     if ( keepTract ) {
-      //std::cout << "Add tract:" << nCells << std::endl;
       typename OutputMeshType::PointIdentifier polyPoints[ tractPoints ];
 
       unsigned long tractId=0;
@@ -312,7 +277,7 @@ DeterministicDTITractography< TInputImage, TOutputMesh >
   // This indicates that the current BufferedRegion is equal to the
   // requested region. This action prevents useless rexecutions of
   // the pipeline.
-  //this->m_OutputMesh->SetBufferedRegion( this->GetOutput()->GetRequestedRegion() );
+  this->m_OutputMesh->SetBufferedRegion( this->GetOutput()->GetRequestedRegion() );
   //std::cout << "End GenerateData()" << std::endl;
 
 }

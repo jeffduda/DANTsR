@@ -36,7 +36,7 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
   tracker->SetMaximumNumberOfPoints(2000);
   tracker->Update();
   MeshPointerType outMesh = tracker->GetOutput();
-  //Rcpp::Rcout << "Returned from tracker" << std::endl;
+  outMesh->DisconnectPipeline();
 
   SeedPointerType seedOffsets = tracker->GetSeedOffsets();
 
@@ -45,15 +45,9 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
     seedVector[i] = seedOffsets->GetElement(i);
   }
 
-
-  //return( Rcpp::wrap(outMesh) );
-
-
-
   Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(outMesh),
                                        Rcpp::Named("Seeds")=seedVector);
   return(Rcpp::wrap(list));
-
 
 }
 
