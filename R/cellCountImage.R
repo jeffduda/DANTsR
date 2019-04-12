@@ -1,10 +1,10 @@
-#' @title polylineVoxelCount
-#' @description return point coordinates of all voxels with specified label
+#' @title cellCountImage
+#' @description return image where values represent counts of unique cells with a point in that cell
 #' @param mesh 'antsrMesh' of polylines
 #' @param reference antsImage that defines the physical space to consider
 #' @export
 
-polylineVoxelCount = function(mesh, reference)
+cellCountImage = function(mesh, reference)
 {
 
   if ( !class(mesh)=="antsrMesh") {
