@@ -189,7 +189,9 @@ PointCountImageFilter< TInputMesh, TOutputImage >
     PointType pt = this->GetInput(0)->GetPoint(i);
     this->GetOutput()->TransformPhysicalPointToContinuousIndex(pt, cidx);
     idx.CopyWithRound(cidx);
-    OutputImage->SetPixel(idx,1+OutputImage->GetPixel(idx));
+    if ( this->GetOutput()->GetLargestPossibleRegion().IsInside(idx) ) {
+      OutputImage->SetPixel(idx,1+OutputImage->GetPixel(idx));
+    }
   }
 
   itkDebugMacro(<< "PointCountImageFilter::Update() finished");
