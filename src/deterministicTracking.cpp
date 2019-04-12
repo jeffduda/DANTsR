@@ -9,12 +9,12 @@
 #include "itkLabeledImageToPointSetFilter.h"
 #include "itkMesh.h"
 #include "itkPointSet.h"
-#include "RcppITKObserver.h"
+
 
 template< class VectorImageType, class MeshType >
 SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
 {
-  //using PixelType = typename VectorImageType::PixelType;
+  using PixelType = typename VectorImageType::PixelType;
   using ImagePointerType = typename VectorImageType::Pointer;
   using MeshPointerType = typename MeshType::Pointer;
   using TrackerType = itk::DeterministicDTITractography< VectorImageType, MeshType >;
@@ -23,7 +23,7 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
   using MaskPointerType = typename TrackerType::MaskPointerType;
   using SeedPointerType = typename TrackerType::SeedContainerPointer;
 
-  RcppITKObserver::Pointer myCommand = RcppITKObserver::New();
+  //using MaskPointerType = typename ImageType::Pointer;
 
   ImagePointerType dfield = Rcpp::as<ImagePointerType>(r_dfield);
   MeshPointerType seedMesh = Rcpp::as<MeshPointerType>(r_seeds);
@@ -34,7 +34,6 @@ SEXP deterministicTracking( SEXP r_dfield, SEXP r_seeds, SEXP r_mask )
   tracker->SetMask( mask );
   tracker->SetMinimumNumberOfPoints(2);
   tracker->SetMaximumNumberOfPoints(2000);
-  tracker->AddObserver(itk::ProgressEvent(), myCommand);
   tracker->Update();
   MeshPointerType outMesh = tracker->GetOutput();
   //Rcpp::Rcout << "Returned from tracker" << std::endl;
@@ -114,7 +113,7 @@ try
       const unsigned int Dimension = 2;
       typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      //typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::Image< PixelType, Dimension >  ImageType;
       return  deterministicTracking< VectorImageType, MeshType >( r_dfield, r_seeds, r_mask );
       }
     else if ( dimension == 3 )
@@ -122,7 +121,7 @@ try
       const unsigned int Dimension = 3;
       typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      //typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::Image< PixelType, Dimension >  ImageType;
       return  deterministicTracking< VectorImageType, MeshType >( r_dfield, r_seeds, r_mask );
       }
     else if ( dimension == 4 )
@@ -130,7 +129,7 @@ try
       const unsigned int Dimension = 4;
       typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      //typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::Image< PixelType, Dimension >  ImageType;
       return  deterministicTracking< VectorImageType, MeshType >( r_dfield, r_seeds, r_mask );
       }
     }
@@ -142,7 +141,7 @@ try
       const unsigned int Dimension = 2;
       typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      //typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::Image< PixelType, Dimension >  ImageType;
       return  deterministicTracking< VectorImageType, MeshType>( r_dfield, r_seeds, r_mask );
     }
     else if ( dimension == 3 )
@@ -150,7 +149,7 @@ try
       const unsigned int Dimension = 3;
       typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      //typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::Image< PixelType, Dimension >  ImageType;
       return  deterministicTracking< VectorImageType, MeshType >( r_dfield, r_seeds, r_mask );
       }
     else if ( dimension == 4 )
@@ -158,7 +157,7 @@ try
       const unsigned int Dimension = 4;
       typedef itk::VectorImage< PixelType, Dimension >  VectorImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      //typedef itk::Image< PixelType, Dimension >  ImageType;
+      typedef itk::Image< PixelType, Dimension >  ImageType;
       return  deterministicTracking< VectorImageType, MeshType >( r_dfield, r_seeds, r_mask );
       }
     }

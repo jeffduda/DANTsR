@@ -25,7 +25,7 @@ SEXP pointCountImageFunction( SEXP r_mesh, SEXP r_image )
     }
 
   MeshPointerType mesh = Rcpp::as<MeshPointerType>(r_mesh);
-  if ( ! mesh.IsNotNull() )
+  if ( ! image.IsNotNull() )
     {
     Rcpp::stop("Mesh is not allocated");
     }
@@ -37,7 +37,7 @@ SEXP pointCountImageFunction( SEXP r_mesh, SEXP r_image )
 
   OutputImagePointer countImage = filter->GetOutput();
   countImage->DisconnectPipeline();
-
+  
   return Rcpp::wrap( countImage );
 }
 
@@ -53,8 +53,11 @@ try
     return Rcpp::wrap( 1 ) ;
     }
 
-  std::string pixeltype = Rcpp::antsrMeshPrecision(r_mesh);
-  unsigned int dimension = Rcpp::antsrMeshDimension(r_mesh);
+  return Rcpp::wrap(NA_REAL);
+
+  /*Rcpp::S4 antsrmesh( r_mesh );
+  std::string pixeltype = Rcpp::as< std::string >( antsrmesh.slot( "precision" ) );
+  unsigned int dimension = Rcpp::as< int >( antsrmesh.slot( "dimension" ) );
 
   Rcpp::S4 antsimage( r_image ) ;
   unsigned int idimension = Rcpp::as< int >( antsimage.slot( "dimension" ) );
@@ -127,7 +130,7 @@ try
 
   // never reached
   return Rcpp::wrap(NA_REAL);
-
+  */
 
 }
 catch( itk::ExceptionObject & err )

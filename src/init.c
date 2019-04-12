@@ -29,7 +29,6 @@ extern SEXP antsrMesh_WriteTck(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteTrk(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteVTK(SEXP, SEXP, SEXP, SEXP);
 extern SEXP antsrTransform_TransformPixels(SEXP, SEXP, SEXP);
-extern SEXP cellCountImage(SEXP, SEXP);
 extern SEXP cellEdgeLength(SEXP, SEXP);
 extern SEXP cellImageValueSummary(SEXP, SEXP, SEXP, SEXP);
 extern SEXP cellPointInMask(SEXP, SEXP, SEXP);
@@ -41,7 +40,6 @@ extern SEXP interpolateImageValues(SEXP, SEXP, SEXP, SEXP);
 extern SEXP isInImage(SEXP, SEXP, SEXP);
 extern SEXP isInMesh(SEXP, SEXP, SEXP);
 extern SEXP labelsToPoints(SEXP, SEXP);
-extern SEXP pointCountImage(SEXP, SEXP);
 extern SEXP physicalVectorsToIndexVectors(SEXP,SEXP);
 extern SEXP streamlineTargetsFromSeed(SEXP, SEXP, SEXP, SEXP);
 
@@ -68,7 +66,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"antsrMesh_WriteVTK",          (DL_FUNC) &antsrMesh_WriteVTK,          4},
     {"antsrTransform_TransformPixels", (DL_FUNC) &antsrTransform_TransformPixels, 3},
 //    {"antsrRegistrationRun",        (DL_FUNC) &antsrRegistrationRun,        3},
-    {"cellCountImage",              (DL_FUNC) &cellCountImage,              2},
     {"cellEdgeLength",              (DL_FUNC) &cellEdgeLength,              2},
     {"cellImageValueSummary",       (DL_FUNC) &cellImageValueSummary,       4},
     {"cellPointInMask",             (DL_FUNC) &cellPointInMask,             3},
@@ -79,7 +76,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"isInImage",                   (DL_FUNC) &isInImage,                   3},
     {"isInMesh",                    (DL_FUNC) &isInMesh,                    3},
     {"labelsToPoints",              (DL_FUNC) &labelsToPoints,              2},
-    {"pointCountImage",             (DL_FUNC) &pointCountImage,             2},
     {"physicalVectorsToIndexVectors", (DL_FUNC) &physicalVectorsToIndexVectors, 2},
     {"streamlineTargestFromSeed",   (DL_FUNC) &streamlineTargetsFromSeed,   4},
     {NULL, NULL, 0}
