@@ -18,8 +18,8 @@ physicalVectorsToIndexVectors <- function(image, in.place=FALSE) {
     returnImg = antsImageClone(image)
   }
 
-  .Call("physicalVectorsToIndexVectors", returnImage, TRUE, package="DANTsR")
-  return(returnImage)
+  .Call("physicalVectorsToIndexVectors", returnImg, TRUE, package="DANTsR")
+  return(returnImg)
 
 }
 
@@ -43,7 +43,7 @@ indexVectorsToPhysicalVectors <- function(image, in.place=FALSE) {
     returnImg = antsImageClone(image)
   }
 
-  .Call("physicalVectorsToIndexVectors", returnImage, FALSE, package="DANTsR")
-  return(returnImage)
+  .Call("physicalVectorsToIndexVectors", returnImg, FALSE, package="DANTsR")
+  return(returnImg)
 
 }
