@@ -14,9 +14,6 @@ Depends:
   ANTsRCore (>= 0.5.0),
   ANTsR
 Imports:
-  methods,
-  Rcpp,
-  ITKR,
   RNifti
 Suggests:
   testthat
