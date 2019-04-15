@@ -43,6 +43,11 @@ dt = dtiReconstruction(dwi, grad, method="itk-svd")
 fa = dtiAnisotropy(dt, method="fractionalanisotropy")
 plot(fa)
 
-#antsImageWrite(dt, "dt.nii.gz", as.tensor=TRUE )
+tx = createAntsrTransform(dimension=3, type="Euler3DTransform", parameters=c(0,0,0.261799,20,-30,0))
+dt2 = applyAntsrTransformToImage(tx, dt, fa)
+invisible(applyAntsrTransformToPixels(tx, dt2, in.place=TRUE, pixel.as="diffusiontensor"))
 
+#antsImageWrite(dt, "dt.nii.gz", as.tensor=TRUE )
+#antsImageWrite(dt2, "dt2.nii.gz", as.tensor=TRUE )
+#antsImageWrite(dt3, "dt3.nii.gz", as.tensor=TRUE )
 ```
