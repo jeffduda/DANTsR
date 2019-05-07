@@ -8,7 +8,8 @@
 #include "itkTransform.h"
 #include "itkImage.h"
 #include "itkDiffusionTensor3D.h"
-
+#include "itkPreservationOfPrincipalDirectionTensorReorientationImageFilter2.h"
+#include "itkCastImageFilter.h"
 
 
 // Apply transform to vector pixel data
@@ -24,33 +25,33 @@ void antsrTransform_WarpVectorPixels( SEXP r_transform, SEXP r_image )
   using PointType = typename ImageType::PointType;
   using WarpType = itk::DisplacementFieldTransform< typename TransformType::ParametersValueType, TransformType::InputSpaceDimension >;
   using WarpPointerType = typename WarpType::Pointer;
+  using FieldType = typename WarpType::DisplacementFieldType;
+  using PPDReorientType = itk::PreservationOfPrincipalDirectionTensorReorientationImageFilter2<ImageType,FieldType>;
+  using PPDFieldType = typename PPDReorientType::DisplacementFieldType;
+  using PPDPointerType = typename PPDReorientType::Pointer;
+  using CastFilterType = itk::CastImageFilter<FieldType, PPDFieldType>;
+  using CastFilterPointerType = typename CastFilterType::Pointer;
 
   TransformPointerType transform2 = Rcpp::as<TransformPointerType>( r_transform );
   WarpPointerType transform = dynamic_cast<WarpType *>( transform2.GetPointer() );
   ImagePointerType image = Rcpp::as<ImagePointerType>( r_image );
 
+  CastFilterPointerType cast = CastFilterType::New();
+  cast->SetInput( transform->GetDisplacementField() );
+
+  PPDPointerType ppd = PPDReorientType::New();
+  ppd->SetInput( image );
+  ppd->SetUseImageDirection(false);
+  
+  ppd->SetDisplacementField( cast->GetOutput() );
+  ppd->Update();
+
+  ImagePointerType outImg = ppd->GetOutput();
+  outImg->DisconnectPipeline();
+
   IteratorType it( image, image->GetLargestPossibleRegion() );
-  while ( !it.IsAtEnd() )
-  {
-    PixelType pix = it.Get();
-    InputVectorType inVector;
-    for (unsigned int i=0; i<image->GetNumberOfComponentsPerPixel(); i++)
-    {
-      inVector[i] = pix[i];
-    }
-
-    PointType pt;
-    image->TransformIndexToPhysicalPoint( it.GetIndex(), pt );
-
-    OutputVectorType outVec = transform->TransformVector(inVector, pt);
-
-    for (unsigned int i=0; i<image->GetNumberOfComponentsPerPixel(); i++)
-    {
-      pix[i] = outVec[i];
-    }
-
-    it.Set(pix);
-
+  while ( !it.IsAtEnd() ) {
+    it.Set( outImg->GetPixel(it.GetIndex()) );
     ++it;
   }
 
@@ -71,17 +72,17 @@ void antsrTransform_WarpVectorPixels( SEXP r_transform, SEXP r_image )
   else if ( pixeltype=="float" ) {
     using PixelType = float;
     using ImageType = itk::VectorImage<PixelType,TransformType::InputSpaceDimension>;
-    antsrTransform_WarpVectorPixels<TransformType, ImageType>( r_transform, r_image );
+    //antsrTransform_WarpVectorPixels<TransformType, ImageType>( r_transform, r_image );
   }
   else if ( pixeltype=="unsigned int" ) {
     using PixelType = unsigned int;
     using ImageType = itk::VectorImage<PixelType,TransformType::InputSpaceDimension>;
-    antsrTransform_WarpVectorPixels<TransformType, ImageType>( r_transform, r_image );
+    //antsrTransform_WarpVectorPixels<TransformType, ImageType>( r_transform, r_image );
   }
   else if ( pixeltype=="unsigned char" ) {
     using PixelType = unsigned char;
     using ImageType = itk::VectorImage<PixelType,TransformType::InputSpaceDimension>;
-    antsrTransform_WarpVectorPixels<TransformType, ImageType>( r_transform, r_image );
+    //antsrTransform_WarpVectorPixels<TransformType, ImageType>( r_transform, r_image );
   }
 }
 
@@ -636,9 +637,9 @@ try
     using PrecisionType = double;
     if( dimension == 4 )
 	    {
-      warp ?
-        antsrTransform_WarpPixels<PrecisionType,4>( r_transform, r_image, r_pixelAs )  :
-        antsrTransform_TransformPixels<PrecisionType,4>( r_transform, r_image, r_pixelAs );
+      //warp ?
+      //  antsrTransform_WarpPixels<PrecisionType,4>( r_transform, r_image, r_pixelAs )  :
+      //  antsrTransform_TransformPixels<PrecisionType,4>( r_transform, r_image, r_pixelAs );
       }
     else if( dimension == 3 )
 	    {
@@ -648,9 +649,9 @@ try
 	    }
     else if( dimension == 2 )
 	    {
-      warp ?
-        antsrTransform_WarpPixels<PrecisionType,2>( r_transform, r_image, r_pixelAs )  :
-        antsrTransform_TransformPixels<PrecisionType,2>( r_transform, r_image, r_pixelAs );
+      //warp ?
+      //  antsrTransform_WarpPixels<PrecisionType,2>( r_transform, r_image, r_pixelAs )  :
+      //  antsrTransform_TransformPixels<PrecisionType,2>( r_transform, r_image, r_pixelAs );
 	    }
 	  }
   else if( precision == "float" )
@@ -658,9 +659,9 @@ try
     using PrecisionType = float;
     if( dimension == 4 )
 	    {
-      warp ?
-        antsrTransform_WarpPixels<PrecisionType,4>( r_transform, r_image, r_pixelAs )  :
-        antsrTransform_TransformPixels<PrecisionType,4>( r_transform, r_image, r_pixelAs );
+      //warp ?
+      //  antsrTransform_WarpPixels<PrecisionType,4>( r_transform, r_image, r_pixelAs )  :
+      //  antsrTransform_TransformPixels<PrecisionType,4>( r_transform, r_image, r_pixelAs );
       }
     else if( dimension == 3 )
 	    {
@@ -670,9 +671,9 @@ try
 	    }
     else if( dimension == 2 )
 	    {
-      warp ?
-        antsrTransform_WarpPixels<PrecisionType,2>( r_transform, r_image, r_pixelAs )  :
-        antsrTransform_TransformPixels<PrecisionType,2>( r_transform, r_image, r_pixelAs );
+      //warp ?
+      //  antsrTransform_WarpPixels<PrecisionType,2>( r_transform, r_image, r_pixelAs )  :
+      //  antsrTransform_TransformPixels<PrecisionType,2>( r_transform, r_image, r_pixelAs );
 	    }
     }
 

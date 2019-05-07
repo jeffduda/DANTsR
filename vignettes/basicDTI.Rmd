@@ -49,5 +49,4 @@ invisible(applyAntsrTransformToPixels(tx, dt2, in.place=TRUE, pixel.as="diffusio
 
 #antsImageWrite(dt, "dt.nii.gz", as.tensor=TRUE )
 #antsImageWrite(dt2, "dt2.nii.gz", as.tensor=TRUE )
-#antsImageWrite(dt3, "dt3.nii.gz", as.tensor=TRUE )
 ```

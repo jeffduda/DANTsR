@@ -8,9 +8,81 @@
 #include "itkImage.h"
 #include "itkVectorImage.h"
 #include "itkEigenAnalysis3DImageFilter.h"
+#include "itkSymmetricEigenAnalysis.h"
+#include "itkRGBPixel.h"
+#include "itkRGBAPixel.h"
+#include "TensorFunctions.h"
 
 typedef itk::DiffusionTensor3D<double> DTDouble;
 typedef itk::DiffusionTensor3D<float>  DTFloat;
+
+/*
+template< class VectorType >
+MatrixType tensorAsDiffusionTensor3D VectorType dtVec )
+{
+  using TensorType = typename itk::DiffusionTensor3D< typename VectorType::ValueType >;
+
+  TensorType dt()  ;
+
+}
+*/
+
+
+template< class VectorType, class MatrixType >
+MatrixType tensorAsMatrix( VectorType dtVec )
+{
+  MatrixType dtMat;
+  dtMat[0][0] = dtVec[0];
+  dtMat[0][1] = dtMat[1][0] = dtVec[1];
+  dtMat[0][2] = dtMat[2][0] = dtVec[2];
+  dtMat[1][1] = dtVec[3];
+  dtMat[1][2] = dtVec[4];
+  dtMat[2][2] = dtVec[5];
+  return dtMat;
+}
+
+template< class MatrixType, class VectorType >
+VectorType tensorAsVector( MatrixType dtMat )
+{
+  VectorType dtVec;
+  itk::NumericTraits<VectorType>::SetLength(dtVec, 6);
+
+  dtVec[0] = dtMat[0][0];
+  dtVec[1] = dtMat[0][1];
+  dtVec[2] = dtMat[0][2];
+  dtVec[3] = dtMat[1][1];
+  dtVec[4] = dtMat[1][2];
+  dtVec[5] = dtMat[2][2];
+  return dtVec;
+}
+
+template< class VectorType >
+VectorType zeroNonFiniteTensors( VectorType dt )
+{
+  bool valid = true;
+  VectorType dtOut;
+  itk::NumericTraits<VectorType>::SetLength(dtOut,6);
+
+  for (unsigned int i=0; i<6; i++)
+    {
+    valid = valid && (std::isfinite(dt[i]));
+    }
+
+  for (unsigned int i=0; i<6; i++)
+    {
+    if (valid)
+      {
+      dtOut[i] = dt[i];
+      }
+    else
+      {
+      dtOut[i] = 0;
+      }
+    }
+
+  return(dtOut);
+
+}
 
 namespace itk
   {
@@ -142,6 +214,125 @@ namespace itk
        }
      };
 
+     template< typename VectorType, typename DataType >
+     class DANTsR_Log
+     {
+     public:
+       DANTsR_Log() {}
+       ~DANTsR_Log() {}
+
+       typedef itk::DefaultConvertPixelTraits<VectorType> ConvertType;
+       typedef itk::NumericTraits<VectorType>             TraitsType;
+       typedef typename TraitsType::ValueType             ValueType;
+       typedef DANTsR_GetDataValue<VectorType>            GetValueType;
+
+       bool operator!=(const DANTsR_Log &) const
+       {
+         return false;
+       }
+
+      bool operator==(const DANTsR_Log & other) const
+       {
+         return !( *this != other );
+       }
+
+      inline DataType operator()(const VectorType & A ) const
+       {
+        using TensorType = typename itk::DiffusionTensor3D< typename VectorType::ValueType>;
+        TensorType dt( A.GetDataPointer() );
+        TensorType dt2 = TensorLog<TensorType>( dt );
+        VectorType logDt( dt2.GetDataPointer(),6 );
+        return( logDt );
+
+        /*
+        using MatrixType = typename itk::Matrix<typename DataType::ValueType, 3,3>;
+        using ArrayType = typename itk::Vector<typename DataType::ValueType, 3>;
+        using SolverType = itk::SymmetricEigenAnalysis<MatrixType,ArrayType,MatrixType>;
+        SolverType solver;
+        ArrayType eigenValues;
+        MatrixType eigenVectors;
+
+        MatrixType dtMat = tensorAsMatrix<VectorType, MatrixType>(A);
+
+        solver.SetDimension(3);
+        solver.ComputeEigenValuesAndVectors(dtMat, eigenValues, eigenVectors);
+
+        MatrixType eValues;
+        eValues.Fill(0);
+
+        for (unsigned int i=0; i<3; i++)
+          {
+          eValues(i,i) = std::log(eigenValues[i]);
+          }
+
+        MatrixType DTrec = eigenVectors * eValues * eigenVectors.GetTranspose();
+        DataType dtv = tensorAsVector<MatrixType,DataType>(DTrec);
+        return(zeroNonFiniteTensors<DataType>(dtv));
+        */
+       }
+
+     };
+
+     template< typename VectorType, typename DataType >
+     class DANTsR_Exp
+     {
+     public:
+       DANTsR_Exp() {}
+       ~DANTsR_Exp() {}
+
+       typedef itk::DefaultConvertPixelTraits<VectorType> ConvertType;
+       typedef itk::NumericTraits<VectorType>             TraitsType;
+       typedef typename TraitsType::ValueType             ValueType;
+       typedef DANTsR_GetDataValue<VectorType>            GetValueType;
+
+       bool operator!=(const DANTsR_Exp &) const
+       {
+         return false;
+       }
+
+      bool operator==(const DANTsR_Exp & other) const
+       {
+         return !( *this != other );
+       }
+
+       inline DataType operator()(const VectorType & A ) const
+        {
+          using TensorType = typename itk::DiffusionTensor3D< typename VectorType::ValueType>;
+          TensorType dt( A.GetDataPointer() );
+          bool junk=false;
+          TensorType dt2 = TensorExp<TensorType>( dt, junk );
+          VectorType logDt( dt2.GetDataPointer(),6 );
+          return( logDt );
+
+         /*
+         using MatrixType = typename itk::Matrix<typename DataType::ValueType, 3,3>;
+         using ArrayType = typename itk::Vector<typename DataType::ValueType, 3>;
+         using SolverType = itk::SymmetricEigenAnalysis<MatrixType,ArrayType,MatrixType>;
+         SolverType solver;
+         ArrayType eigenValues;
+         MatrixType eigenVectors;
+
+         MatrixType dtMat = tensorAsMatrix<VectorType, MatrixType>(A);
+
+         solver.SetDimension(3);
+         solver.ComputeEigenValuesAndVectors(dtMat, eigenValues, eigenVectors);
+
+         MatrixType eValues;
+         eValues.Fill(0);
+
+         for (unsigned int i=0; i<3; i++)
+           {
+           eValues(i,i) = std::exp(eigenValues[i]);
+           }
+
+         MatrixType DTrec = eigenVectors * eValues * eigenVectors.GetTranspose();
+         DataType dtv = tensorAsVector<MatrixType,DataType>(DTrec);
+         return(zeroNonFiniteTensors<DataType>(dtv));
+         */
+        }
+
+     };
+
    }
  }
 
@@ -196,6 +387,33 @@ SEXP dtiFilters( SEXP r_dti, SEXP r_filter )
     filter->SetInput( image );
     filter->Update();
     typename ImageType::Pointer outImage = filter->GetOutput();
+    outImage->DisconnectPipeline();
+
+    return Rcpp::wrap(outImage);
+  }
+  else if ( filter == "log" )
+  {
+    typedef itk::UnaryFunctorImageFilter<VectorImageType, VectorImageType,
+      itk::Functor::DANTsR_Log<VectorType,VectorType>  > FilterType;
+
+    typename FilterType::Pointer filter = FilterType::New();
+    filter->SetInput( image );
+    filter->DebugOn();
+    filter->Update();
+    typename VectorImageType::Pointer outImage = filter->GetOutput();
+    outImage->DisconnectPipeline();
+
+    return Rcpp::wrap(outImage);
+  }
+  else if ( filter == "exp" )
+  {
+    typedef itk::UnaryFunctorImageFilter<VectorImageType, VectorImageType,
+      itk::Functor::DANTsR_Exp<VectorType,VectorType>  > FilterType;
+
+    typename FilterType::Pointer filter = FilterType::New();
+    filter->SetInput( image );
+    filter->Update();
+    typename VectorImageType::Pointer outImage = filter->GetOutput();
     outImage->DisconnectPipeline();
 
     return Rcpp::wrap(outImage);
