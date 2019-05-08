@@ -16,6 +16,6 @@ get a given point in mesh
 }
 \examples{
 x =  antsrMeshCreate( 3, "float", reserve=128 )
-antsrMeshSetPoint( x, c(0,0,0), 0 )
-pt = antsrMeshGetPoint(x, 0)
+antsrMeshSetPoint( x, c(0,0,0), 1 )
+pt = antsrMeshGetPoint(x, 1)
 }
