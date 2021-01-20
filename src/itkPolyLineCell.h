@@ -78,8 +78,9 @@ public:
   itkCellVisitMacro(Superclass::POLYGON_CELL);
 
   /** Implement the standard CellInterface. */
-  virtual CellGeometry GetType(void) const ITK_OVERRIDE
+  virtual CommonEnums::CellGeometry GetType(void) const ITK_OVERRIDE
   { return Superclass::POLYGON_CELL; }
+  
   virtual void MakeCopy(CellAutoPointer &) const ITK_OVERRIDE;
 
   virtual unsigned int GetDimension(void) const ITK_OVERRIDE;

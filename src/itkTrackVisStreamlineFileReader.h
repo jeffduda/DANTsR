@@ -109,7 +109,7 @@ private:
 
   TRACKVIS_HEADER_V2 ReadTrkHeader();
 
-  void ReadTrkTract();
+  void ReadTrkTract(float, float, float, float);
 
   void PrintTrkHeader( TRACKVIS_HEADER_V2 hdr );
 

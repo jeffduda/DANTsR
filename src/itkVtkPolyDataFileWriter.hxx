@@ -36,6 +36,8 @@ VtkPolyDataFileWriter<TInputMesh>
   this->m_Input = NULL;
   this->m_FileName = "";
   this->m_MultiComponentScalarSets = NULL;
+  this->m_PointNormals = MatrixSetType::New();
+
 
   this->m_Lines = NULL;
   this->m_Polygons = NULL;
@@ -191,7 +193,7 @@ VtkPolyDataFileWriter<TInputMesh>
   std::ofstream outputFile( this->m_FileName.c_str() );
 
   outputFile << "# vtk DataFile Version 2.0" << std::endl;
-  outputFile << "File written by itkVtkPolyDataFileWriter" << std::endl;
+  outputFile << "vtk output" << std::endl;
   if (this->m_WriteBinary)
     {
     outputFile << "BINARY" << std::endl;
@@ -261,12 +263,54 @@ VtkPolyDataFileWriter<TInputMesh>
 template<class TInputMesh>
 void
 VtkPolyDataFileWriter<TInputMesh>
+::WriteVTKDataMatrix( MatrixType matrix, std::string dataType )
+{
+  std::cout << "WriteVTKDataMatrix()" << std::endl;
+  if (!this->GetWriteBinary())
+  {
+    std::cout << "matrix size = " << matrix.rows() << " x " << matrix.cols() << std::endl;
+    this->WriteVTKASCIIMatrix( matrix );
+  }
+  else
+  {
+    if ( !dataType.compare("unsigned char") ) {
+      this->WriteVTKBinaryMatrix<unsigned char>( matrix );
+    }
+    else if ( !dataType.compare("char") ) {
+      this->WriteVTKBinaryMatrix<char>( matrix );
+    }
+    else if ( !dataType.compare("int") ) {
+      this->WriteVTKBinaryMatrix<int>( matrix );
+    }
+    else if ( !dataType.compare("long") ) {
+      this->WriteVTKBinaryMatrix<long>( matrix );
+    }
+    else if ( !dataType.compare("float") ) {
+      this->WriteVTKBinaryMatrix<float>( matrix );
+    }
+    else if ( !dataType.compare("double") ) {
+      this->WriteVTKBinaryMatrix<double>( matrix );
+    }
+    else {
+      Rcpp::Rcout << "Datatype not currently supported: " << dataType << std::endl;
+    }
+  }
+
+}
+
+
+
+template<class TInputMesh>
+void
+VtkPolyDataFileWriter<TInputMesh>
 ::WritePointData()
 {
+  std::cout << "WritePointData()" << std::endl;
   //
   // Write to output file
   //
-  std::ofstream outputFile( this->m_FileName.c_str(), std::ios::app );
+  //  this->m_InputFile.open( this->m_FileName.c_str(), std::ifstream::in );
+  this->m_OutputFile.open( this->m_FileName.c_str(), std::ios::app );
 
   // No point data conditions
   //if (!this->m_Input->GetPointData()) return;
@@ -274,28 +318,75 @@ VtkPolyDataFileWriter<TInputMesh>
 
   unsigned int numberOfPoints = this->m_Input->GetNumberOfPoints();
 
+  bool hasNormals = false;
+  //if ( this->GetPointNormals()->Size() > 0 ) {
+  //  Rcpp::Rcout << "has point normals to write" << std::endl;
+  //  hasNormals = true;
+  //
+  //}
+  if ( this->GetPointNormals() != NULL )
+    {
+    if ( this->GetPointNormals()->Size() > 0 ) {
+      std::cout << "normals found: " << this->GetPointNormals()->Size() << std::endl;
+      hasNormals = true;
+
+      this->m_OutputFile << std::endl << "POINT_DATA " << numberOfPoints << std::endl;
+      std::string type = std::string( "float" );
+      this->m_OutputFile << "NORMALS normals " << type << std::endl;
+      if ( !this->GetWriteBinary() ) {
+        this->WriteVTKASCIIMatrix( this->GetPointNormals()->ElementAt(0) );
+        //for ( unsigned int i=0; i<this->GetPointNormals()->Size(); i++ ) {
+        //  this->WriteVTKDataMatrix( this->GetPointNormals()->ElementAt(i), std::string("float") );
+        //  }
+        }
+      else {
+        float p;
+        MatrixType mat = this->GetPointNormals()->ElementAt(0);
+        unsigned long totalSize = mat.rows() * mat.cols();
+        float * normDat = new float [ totalSize ];
+
+        unsigned long idx = 0;
+        for ( unsigned long i=0; i<mat.rows(); i++)  {
+          for (unsigned long j=0; j<mat.cols(); j++) {
+            normDat[idx] = static_cast<float>( mat(i,j) );
+            ++idx;
+            }
+          }
+
+        ByteSwapper<float>::SwapRangeFromSystemToBigEndian(normDat,totalSize);
+        this->m_OutputFile.write( reinterpret_cast<char *>( normDat ), totalSize * sizeof(p) );
+        delete [] normDat;
+
+        }
+      }
+    }
+
+
   if( !this->m_MultiComponentScalarSets )
     {
 
     if (!this->m_Input->GetPointData())
     {
-      outputFile.close();
+      this->m_OutputFile.close();
       return;
     }
 
     if (this->m_Input->GetPointData()->Size() == 0)
     {
-      outputFile.close();
+      this->m_OutputFile.close();
       return;
     }
 
-    outputFile << std::endl;
-    outputFile << "POINT_DATA " << numberOfPoints << std::endl;
+    if (!hasNormals) {
+      this->m_OutputFile << std::endl << "POINT_DATA " << numberOfPoints << std::endl;
+    }
+
+
     std::string type = std::string( "float" );
 
-    outputFile << "SCALARS pointLabels " << type
+    this->m_OutputFile << "SCALARS pointLabels " << type
       << " 1" << std::endl;
-    outputFile << "LOOKUP_TABLE default" << std::endl;
+    this->m_OutputFile << "LOOKUP_TABLE default" << std::endl;
 
     typename InputMeshType::PointDataContainerIterator pointDataIterator
       = this->m_Input->GetPointData()->Begin();
@@ -304,15 +395,17 @@ VtkPolyDataFileWriter<TInputMesh>
 
     while( pointDataIterator != pointDataEnd )
       {
-      outputFile << pointDataIterator.Value() << " ";
+      this->m_OutputFile << pointDataIterator.Value() << " ";
       pointDataIterator++;
       }
-    outputFile << std::endl;
+    this->m_OutputFile << std::endl;
     }
   else
     {
-    outputFile << std::endl;
-    outputFile << "POINT_DATA " << numberOfPoints << std::endl;
+    if (!hasNormals) {
+      this->m_OutputFile << std::endl << "POINT_DATA " << numberOfPoints << std::endl;
+    }
+
     std::string type = std::string( "float" );
 
     for (unsigned int nSet = 0; nSet < this->m_MultiComponentScalarSets->Size(); nSet++)
@@ -333,9 +426,9 @@ VtkPolyDataFileWriter<TInputMesh>
       }
 
 
-      outputFile << "SCALARS " << dataName << " " << type
+      this->m_OutputFile << "SCALARS " << dataName << " " << type
         << " " << numberOfComponents << std::endl;
-      outputFile << "LOOKUP_TABLE default" << std::endl;
+      this->m_OutputFile << "LOOKUP_TABLE default" << std::endl;
 
       typename MultiComponentScalarSetType::Iterator It
         = this->m_MultiComponentScalarSets->GetElement(nSet)->Begin();
@@ -346,16 +439,16 @@ VtkPolyDataFileWriter<TInputMesh>
       {
         for (unsigned int i=0; i<It.Value().Size(); i++)
         {
-          outputFile << It.Value()[i] << " ";
+          this->m_OutputFile << It.Value()[i] << " ";
         }
         It++;
       }
 
-      outputFile << std::endl;
+      this->m_OutputFile << std::endl;
       }
 
     }
-  outputFile.close();
+  this->m_OutputFile.close();
 }
 
 
@@ -484,7 +577,7 @@ VtkPolyDataFileWriter<TInputMesh>
       totalSize += cell->GetNumberOfPoints() + 1;
     }
 
-    outputFile << cellType << " " << numberOfCells << " " << totalSize << std::endl;
+    outputFile << std::endl << cellType << " " << numberOfCells << " " << totalSize << std::endl;
 
     if ( this->m_WriteBinary )
       {

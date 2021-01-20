@@ -130,11 +130,16 @@ VtkPolyDataFileReader<TOutputMesh>
     return;
     }
 
+  if ( this->GetTriangularStrips()->Size() > 0 ) {
+
+  }
 
   // FIXME Debugging output
-  if ( false ) {
+  if ( true ) {
     Rcpp::Rcout << "# Points: " << this->GetOutput()->GetNumberOfPoints() << std::endl;
     Rcpp::Rcout << "# Cells: " << this->GetOutput()->GetNumberOfCells() << std::endl;
+
+    Rcpp::Rcout << "# Strips " << this->GetTriangularStrips()->Size() << std::endl;
 
     Rcpp::Rcout << "# PointScalarSets: " << this->m_PointScalars->Size() << std::endl;
     for ( unsigned int i=0; i<this->m_PointScalars->Size(); i++ ) {
@@ -175,7 +180,8 @@ VtkPolyDataFileReader<TOutputMesh>
     Rcpp::Rcout << "# CellTensorsSets: " << this->m_CellTensors->Size() << std::endl;
     for ( unsigned int i=0; i<this->m_CellTensors->Size(); i++ ) {
       Rcpp::Rcout << "  " << this->m_CellTensorsNames->ElementAt((long)i) << std::endl;
-    }  }
+    }
+  }
 
 }
 
@@ -277,7 +283,7 @@ VtkPolyDataFileReader<TOutputMesh>
 
     if ( line.find( "POINTS" ) != (std::string::npos) )
       {
-
+      std::cout << "POINTS" << std::endl;
       std::string::size_type pos = line.rfind( " " );
       std::string dataType = std::string( line, pos+1, line.length()-1 );
 
@@ -332,6 +338,8 @@ VtkPolyDataFileReader<TOutputMesh>
       }
     else if (line.find("TRIANGLE_STRIPS") != std::string::npos)
       {
+
+      std::cout << "TRIANGLE_STRIPS" << std::endl;
       std::string::size_type sp1 = line.find( " " );
       std::string::size_type sp2 = line.find( " ", sp1+1);
 
@@ -345,7 +353,7 @@ VtkPolyDataFileReader<TOutputMesh>
       }
     else if (line.find("POINT_DATA") != std::string::npos)
       {
-      //Rcpp::Rcout << "Found POINT_DATA" << std::endl;
+      Rcpp::Rcout << "Found POINT_DATA" << std::endl;
       std::string::size_type sp1 = line.find( " " );
 
       unsigned long nPoints = std::atoi( std::string( line, sp1, line.length()-1 ).c_str() );
@@ -696,6 +704,7 @@ VtkPolyDataFileReader<TOutputMesh>
     delete [] stripData;
   }
 
+
   return true;
 }
 
@@ -704,15 +713,15 @@ bool
 VtkPolyDataFileReader<TOutputMesh>
 ::ReadVTKData( unsigned long n, bool isPointData )
 {
-
   std::string line;
   std::getline(this->m_InputFile, line);
+  Rcpp::Rcout << line << std::endl;
 
   // When a POINT_DATA or CELl_DATA line is included with no data after it
   if ( line.find("POINT_DATA") != std::string::npos) {
     std::string::size_type sp1 = line.find( " " );
     unsigned long nPoints = std::atoi( std::string( line, sp1, line.length()-1 ).c_str() );
-    //Rcpp::Rcout << "Found POINT_DATA " << nPoints << std::endl;
+    //Rcpp::Rcout << "Found POINT_DATA - attempting to read" << nPoints << std::endl;
     return this->ReadVTKData(nPoints, true);
 
   }
@@ -812,7 +821,7 @@ VtkPolyDataFileReader<TOutputMesh>
       std::string dataName = std::string( line, sp1+1, (sp2-sp1)-1 );
       std::string dataType = std::string( line, sp2+1, line.length()-sp1-1 );
       MatrixType dat = this->ReadVTKDataMatrix(dataType, n, 3);
-      if ( isPointData) {
+      if ( isPointData ) {
         this->m_PointNormals->InsertElement(this->m_PointNormals->Size(), dat);
         this->m_PointNormalsNames->InsertElement(this->m_PointNormalsNames->Size(), dataName);
       }
@@ -820,7 +829,7 @@ VtkPolyDataFileReader<TOutputMesh>
         this->m_CellNormals->InsertElement(this->m_CellNormals->Size(), dat);
         this->m_CellNormalsNames->InsertElement(this->m_CellNormalsNames->Size(), dataName);
       }
-      //Rcpp::Rcout << "Read " << n << " NORMALS: isPointData=" << (int)isPointData << std::endl;
+      Rcpp::Rcout << "Read " << n << " NORMALS: isPointData=" << (int)isPointData << std::endl;
     }
     else if (line.find("TEXTURE_COORDINATES") != std::string::npos)
     {
@@ -881,6 +890,10 @@ VtkPolyDataFileReader<TOutputMesh>
         MatrixType dat = this->ReadVTKDataMatrix(dataType, nComponents, nTuples);
         //Rcpp::Rcout << "Read array " << dataName << " : " << nComponents << "x" << nTuples << " values of type " << dataType << std::endl;
       }
+    }
+    else if ( line.find("POINT_DATA") != std::string::npos )
+    {
+      Rcpp::Rcout << "Implement reading of point data" << std::endl;
     }
 
     std::getline( this->m_InputFile, line );

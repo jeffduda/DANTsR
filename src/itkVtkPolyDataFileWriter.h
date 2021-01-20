@@ -63,6 +63,10 @@ public:
   typedef typename InputMeshType::Superclass     PointSetType;
   typedef typename InputMeshType::PointType      PointType;
   typedef typename MeshTraits::PixelType         PixelType;
+
+  typedef typename Rcpp::NumericMatrix            MatrixType;
+  typedef VectorContainer<long, MatrixType>       MatrixSetType;
+
   typedef Array<PixelType>                       MultiComponentScalarType;
   typedef Array<unsigned long>                   LineType;
   typedef VectorContainer<long,
@@ -70,6 +74,9 @@ public:
   typedef VectorContainer<long,
     SmartPointer<MultiComponentScalarSetType> >   MultiComponentScalarMultiSetType;
   typedef VectorContainer<long, std::string >     MultiComponentScalarSetNamesType;
+
+  typedef VectorContainer<long, std::string>      DataNameSetType;
+
 
   typedef typename InputMeshType::CellType      CellType;
   typedef typename CellType::CellAutoPointer    CellAutoPointer;
@@ -124,6 +131,12 @@ public:
   itkSetMacro( ImageDirection, ImageDirectionType );
   itkGetConstMacro( ImageDirection, ImageDirectionType );
 
+  itkGetObjectMacro( PointNormals, MatrixSetType);
+  itkGetObjectMacro( PointNormalsNames, DataNameSetType);
+
+  MultiComponentScalarMultiSetType* GetMultiComponentScalarSets()
+    { return this->m_MultiComponentScalarSets.GetPointer(); }
+
 protected:
   VtkPolyDataFileWriter();
   virtual ~VtkPolyDataFileWriter();
@@ -137,6 +150,12 @@ protected:
   typename LineSetType::Pointer                        m_Lines;
   typename LineSetType::Pointer                        m_Polygons;
 
+  typename MatrixSetType::Pointer                 m_PointNormals;
+  typename MatrixSetType::Pointer                 m_CellNormals;
+
+  typename DataNameSetType::Pointer               m_PointNormalsNames;
+  typename DataNameSetType::Pointer               m_CellNormalsNames;
+
   /**
    * If output is an image type, the attributes must be specified.
    */
@@ -148,6 +167,54 @@ protected:
   typename MultiComponentScalarSetNamesType::Pointer m_MultiComponentScalarSetNames;
 
   void PrintSelf(std::ostream& os, Indent indent) const override;
+
+  template <typename ValueType>
+  void WriteVTKBinaryMatrix( MatrixType matrix ) {
+    std::cout << "WriteVTKBinaryMatrix()" << std::endl;
+    //ValueType * vec = ReadVTKBinaryData<ValueType>(normMatrix.rows()*normMatrix.cols());
+    //for ( unsigned long i=0; i<normMatrix.rows()*normMatrix.cols(); i++ ) {
+    //  normMatrix[i] = vec[i];
+    //  }
+    //delete [] vec;
+
+/*
+    float p;
+    unsigned long totalSize = matrix.nrows()*matrix.ncols()
+    float * data = new float [ totalSize ];
+
+    unsigned long idx = 0;
+    for ( unsigned long i=0; i<matrix.nrows(); i++)  {
+      for (unsigned long j=0; j<matrix.ncols(); j++) {
+        data[idx] = static_cast<float>( matrix(i,j) );
+        ++idx;
+      }
+    }
+
+    ByteSwapper<float>::SwapRangeFromSystemToBigEndian(data,totalSize);
+    this->m_OutputFile.write( reinterpret_cast<char *>( data ), totalSize * sizeof(p) );
+    delete [] data;
+    */
+  }
+
+  void WriteVTKASCIIMatrix( MatrixType matrix ) {
+    std::cout << "WriteVTKASCIIMatrix()" << std::endl;
+    //double value=0;
+    this->m_OutputFile << std::setprecision(10) << std::fixed;
+
+    for (unsigned long i=0; i<matrix.rows(); i++) {
+      for (unsigned long j=0; j<matrix.cols(); j++ ) {
+        this->m_OutputFile << matrix(i,j) << " ";
+      }
+      this->m_OutputFile << std::endl;
+    }
+    //  this->m_InputFile >> value;
+    //  matrix[i] = value;
+    //}
+    //std::string line;
+    //std::getline( this->m_InputFile, line );
+  }
+
+  std::ofstream                                   m_OutputFile;
 
 private:
   VtkPolyDataFileWriter(const Self&); //purposely not implemented
@@ -165,7 +232,7 @@ private:
   void WriteLines();
   void WritePolygons();
   void WriteCellsAs(std::string);
-
+  void WriteVTKDataMatrix( MatrixType, std::string);
 
 
 };

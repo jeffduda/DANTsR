@@ -125,7 +125,7 @@ TrackVisStreamlineFileReader<TOutputMesh>
   m_ReferenceImage->SetDirection( dir );
 
   for ( int i=0; i<hdr.n_count; i++ ) {
-    this->ReadTrkTract();
+    this->ReadTrkTract(hdr.voxel_size[0], hdr.voxel_size[1], hdr.voxel_size[2], hdr.dim[1]);
   }
 }
 
@@ -184,7 +184,7 @@ TrackVisStreamlineFileReader<TOutputMesh>
 template<class TOutputMesh>
 void
 TrackVisStreamlineFileReader<TOutputMesh>
-::ReadTrkTract()
+::ReadTrkTract(float xsize, float ysize, float zsize, float ydim)
 {
   typename OutputMeshType::Pointer outputMesh = this->GetOutput();
   int nPoints;
@@ -195,6 +195,7 @@ TrackVisStreamlineFileReader<TOutputMesh>
 
   CellAutoPointer streamline;
   typename OutputMeshType::PointIdentifier polyPoints[ nPoints ];
+  bool flipY=true;
 
   int idx = 0;
   for ( int i=0; i<nPoints; i++ ) {
@@ -203,6 +204,13 @@ TrackVisStreamlineFileReader<TOutputMesh>
     point[0] = buffer[idx++];
     point[1] = buffer[idx++];
     point[2] = buffer[idx++];
+
+    if ( flipY ) {
+      point[0] = 1 + point[0] / xsize;
+      point[1] = 1 + (ydim - point[1]/ysize);
+      point[2] = 1 + point[2] / zsize;
+    }
+
     polyPoints[i] = outputMesh->GetNumberOfPoints();
     outputMesh->GetPoints()->InsertElement(outputMesh->GetNumberOfPoints(),point);
 

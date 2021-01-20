@@ -31,6 +31,7 @@ CellCountImageFilter< TInputMesh, TOutputImage >
 
   m_Tolerance = 1e-5;
   m_InfoImage = nullptr;
+  //m_Target = nullptr;
 }
 
 /** Destructor */
@@ -170,30 +171,45 @@ CellCountImageFilter< TInputMesh, TOutputImage >
 
   std::vector<IndexType> indexList;
 
-  for (unsigned long i=0; i<this->GetInput(0)->GetNumberOfCells(); i++ ) {
+  //for (unsigned long i=0; i<this->GetInput(0)->GetNumberOfCells(); i++ ) {
+  for (unsigned long i1=0; i1<this->m_Subset.size(); i1++) {
+    unsigned long i = (unsigned long)(this->m_Subset[i1] )-1;
 
     CellAutoPointer cell;
     this->GetInput(0)->GetCell(i, cell);
     indexList.clear();
 
+    bool hit=false;
+
     for (unsigned int j=0; j<cell->GetNumberOfPoints(); j++ ) {
       PointType pt = this->GetInput(0)->GetPoint( cell->GetPointIds()[j] );
       this->GetOutput()->TransformPhysicalPointToContinuousIndex(pt, cidx);
+      //cidx[0]=pt[0]; cidx[1]=pt[1]; cidx[2]=pt[2];
       idx.CopyWithRound(cidx);
       if ( this->GetOutput()->GetLargestPossibleRegion().IsInside(idx) )
       {
         if (idx != lastIdx) {
           indexList.push_back(idx);
         }
+        if ( m_Target ) {
+          if ( this->m_InfoImage->GetPixel(idx) > 0 ) {
+            hit=true;
+          }
+        }
       }
       lastIdx = idx;
     }
+    if ( !m_Target ) {
+      hit = true;
+    }
+
     std::sort( indexList.begin(), indexList.end() );
     auto last = std::unique( indexList.begin(), indexList.end() );
     indexList.erase( last, indexList.end() );
-
-    for ( IndexType vIdx : indexList ) {
-      OutputImage->SetPixel(vIdx,1+OutputImage->GetPixel(vIdx));
+    if ( hit ) {
+      for ( IndexType vIdx : indexList ) {
+        OutputImage->SetPixel(vIdx,1+OutputImage->GetPixel(vIdx));
+      }
     }
 
   }

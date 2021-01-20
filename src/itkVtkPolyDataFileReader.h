@@ -111,6 +111,9 @@ public:
   itkGetObjectMacro( CellScalars, MatrixSetType);
   itkGetObjectMacro( CellScalarsNames, DataNameSetType);
 
+  itkGetObjectMacro( PointNormals, MatrixSetType);
+  itkGetObjectMacro( PointNormalsNames, DataNameSetType);
+
   itkSetMacro( ExtractBoundaryPoints, bool );
   itkGetMacro( ExtractBoundaryPoints, bool );
   itkBooleanMacro( ExtractBoundaryPoints );
@@ -168,10 +171,14 @@ public:
   }
 
   template <typename ValueType>
-  bool ReadVTKBinaryMatrix(  MatrixType normMatrix ) {
+  bool ReadVTKBinaryMatrix( MatrixType normMatrix ) {
     ValueType * vec = ReadVTKBinaryData<ValueType>(normMatrix.rows()*normMatrix.cols());
-    for ( unsigned long i=0; i<normMatrix.rows()*normMatrix.cols(); i++ ) {
-      normMatrix[i] = vec[i];
+    unsigned long idx=0;
+    for ( unsigned long i=0; i<normMatrix.rows(); i++ ) {
+      for (unsigned long j=0; j<normMatrix.cols(); j++ ) {
+        normMatrix(i,j) = vec[idx];
+        idx = idx + 1;
+        }
       }
     delete [] vec;
     return true;

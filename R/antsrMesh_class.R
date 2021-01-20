@@ -265,6 +265,19 @@ applyAntsrTransformToMesh <- function(transform, mesh, in.place=FALSE) {
   return(NA)
 }
 
+#' @title antsrMeshIndicesPoints
+#' @description Convert image indices to point coordinates
+#' @param mesh antsrMesh to transform
+#' @param image image for reference space
+#' @param in.place if true modify the input mesh, if false return a new mesh
+#' @return antsrMesh
+#' @export
+antsrMeshIndicesToPoints <- function(mesh, image, in.place=FALSE) {
+  return(.Call("antsrMesh_IndicesToPoints", mesh, image, in.place, PACKAGE="DANTsR"))
+  return(NA)
+}
+
+
 #' @title read.antsrMesh
 #' @description read a file into an antsrMesh
 #' @param filename name of the file to read
@@ -280,19 +293,24 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
 
   if ( grepl(".vtk", filename ) ) {
     mesh = .Call("antsrMesh_ReadVTK", filename, dimension, pixeltype, PACKAGE="DANTsR")
+    mesh$datatype="point"
   }
   else if ( grepl(".Bfloat", filename ) | grepl(".Bdouble", filename) ) {
     mesh = .Call("antsrMesh_ReadCamino", filename, pixeltype="float", PACKAGE="DANTsR")
+    mesh$datatype="point"
   }
   else if ( grepl(".trk", filename) ) {
     mesh = .Call("antsrMesh_ReadTrk", filename, pixeltype, PACKAGE="DANTsR")
+    mesh$datatype="index"
   }
   else if ( grepl(".tck", filename )) {
     mesh = .Call("antsrMesh_ReadTck", filename, pixeltype, PACKAGE="DANTsR")
+    mesh$datatype="point"
   }
   else if ( grepl(".gii", filename) ) { #.gii.gz ?
-    stop("GIFTI support coming soon with update to ITKR (hopefully)")
-    #mesh = .Call("antsrMesh_ReadITKIO", filename, pixeltype, PACKAGE="DANTsR")
+    #stop("GIFTI support coming soon with update to ITKR (hopefully)")
+    mesh = .Call("antsrMesh_ReadITKIO", filename, pixeltype, PACKAGE="DANTsR")
+    mesh$datatype="point"
   }
   else {
     stop(paste("Unknown filetype:", filename))
@@ -309,9 +327,9 @@ read.antsrMesh = function( filename, dimension=3, pixeltype="float" ) {
 #' @param cells.as what VTK-type of cell should cell data be written as ("NA", "polygon", "line")
 #' @param binary write data as binary (default is TRUE)
 #' @export
-write.antsrMesh = function( mesh, filename, image=NULL, seeds=NULL, cells.as="polygon", binary=TRUE ) {
+write.antsrMesh = function( mesh, filename, image=NULL, seeds=NULL, cells.as="polygons", binary=TRUE, point.scalars=NULL, point.normals=NULL ) {
   if ( grepl(".vtk", filename ) ) {
-    invisible(.Call("antsrMesh_WriteVTK", mesh, filename, cells.as, binary, PACKAGE="DANTsR"))
+    invisible(.Call("antsrMesh_WriteVTK", mesh, filename, cells.as, binary, point.scalars, point.normals, PACKAGE="DANTsR"))
   }
   else if ( grepl(".Bfloat", filename ) | grepl(".Bdouble", filename) ) {
     if (is.null(seeds) ) {

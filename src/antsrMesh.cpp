@@ -15,7 +15,7 @@
 #include "itkTrackVisStreamlineFileWriter.h"
 #include "itkVtkPolyDataFileReader.h"
 #include "itkVtkPolyDataFileWriter.h"
-//#include "itkGiftiMeshIO.h"
+#include "itkGiftiMeshIO.h"
 #include "itkMeshFileReader.h"
 
 #include "itkLineCell.h"
@@ -999,9 +999,18 @@ antsrMesh_ReadVTK( SEXP r_filename )
   }
   cellScalarList.attr("names") = cellScalarNames;
 
+  Rcpp::List pointNormalsList( reader->GetPointNormals()->Size() );
+  Rcpp::CharacterVector pointNormalsNames( reader->GetPointNormals()->Size() );
+  for (unsigned int i=0; i<reader->GetPointNormals()->Size(); i++ ) {
+    pointNormalsList[i] = reader->GetPointNormals()->ElementAt(i);
+    pointNormalsNames[i] = reader->GetPointNormalsNames()->ElementAt(i);
+  }
+  pointNormalsList.attr("names") = pointNormalsNames;
+
   Rcpp::List list = Rcpp::List::create(Rcpp::Named("Mesh")=Rcpp::wrap(mesh),
                                        Rcpp::Named("PointScalars")=pointScalarList,
-                                       Rcpp::Named("CellScalars")=cellScalarList);
+                                       Rcpp::Named("CellScalars")=cellScalarList,
+                                       Rcpp::Named("PointNormals")=pointNormalsList );
   return Rcpp::wrap(list);
 
 
@@ -1280,6 +1289,10 @@ antsrMesh_ReadITKIO( SEXP r_filename )
 
   typename ReaderType::Pointer reader = ReaderType::New();
 
+  using MeshIOType = itk::GiftiMeshIO;
+  MeshIOType::Pointer giftiIO = MeshIOType::New();
+  reader->SetMeshIO(giftiIO);
+
   reader->SetFileName( filename.c_str() );
   reader->Update();
   MeshPointerType mesh = reader->GetOutput();
@@ -1405,7 +1418,7 @@ return Rcpp::wrap(NA_REAL); //not reached
 
 template< class MeshType >
 SEXP
-antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs, SEXP r_binary )
+antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs, SEXP r_binary, SEXP r_pointscalars, SEXP r_pointnormals )
 {
 
   //Rcpp::Rcout << "antsrMesh_WriteVTK<MeshType>()" << std::endl;
@@ -1430,8 +1443,35 @@ antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs, SEXP r_binary 
     writer->SetCellsAsLines(true);
   }
   else if ( cellsAs == "polygons" ) {
+    std::cout << "Cell as Polygons" << std::endl;
     writer->SetCellsAsPolygons(true);
   }
+
+  Rcpp::List pointscalars( r_pointscalars );
+  for ( unsigned int i=0; i<pointscalars.length(); i++ ) {
+    Rcpp::NumericMatrix mat = pointscalars[i];
+
+    std::cout << "pointscalars size: " << mat.nrow() << " x " << mat.ncol() << std::endl;
+    std::cout << "pointscalar a WIP" << std::endl;
+    //writer->GetMultiComponentScalarSets()->InsertElement(i, mat);
+    //typename WriterType::MultiComponentScalarSetType::Pointer set = WriterType::MultiComponentScalarSetType::New();
+
+  }
+
+  if ( r_pointnormals != NULL ) {
+    Rcpp::Rcout << "passed normals" << std::endl;
+  }
+
+  Rcpp::List pointnormals( r_pointnormals );
+  for ( unsigned int i=0; i<pointnormals.length(); i++ ) {
+    Rcpp::NumericMatrix mat = pointnormals[i];
+    std::cout << "pointnormals size: " << mat.nrow() << " x " << mat.ncol() << std::endl;
+    writer->GetPointNormals()->InsertElement(i, mat);
+    //typename WriterType::MatrixType mat;
+    //typename WriterType::MatrixSetType::Pointer set = WriterType::MatrixSetType::New();
+    //writer->SetPointNormals
+    }
+
 
   writer->SetWriteBinary(isbinary);
   writer->Update();
@@ -1440,7 +1480,7 @@ antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs, SEXP r_binary 
 }
 
 //pixeltype, precision, dimension, type, isVector
-RcppExport SEXP antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs, SEXP r_binary )
+RcppExport SEXP antsrMesh_WriteVTK( SEXP r_mesh, SEXP r_filename, SEXP r_cellsAs, SEXP r_binary, SEXP r_pointscalars, SEXP r_pointnormals )
 {
   //Rcpp::Rcout << "antsrMesh_WriteVTK()" << std::endl;
 
@@ -1452,12 +1492,12 @@ try
   if ( precision=="double") {
     using PrecisionType = double;
     using MeshType = itk::Mesh<PrecisionType,3>;
-    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs, r_binary);
+    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs, r_binary, r_pointscalars, r_pointnormals);
   }
   else if (precision=="float") {
     using PrecisionType = float;
     using MeshType = itk::Mesh<PrecisionType,3>;
-    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs, r_binary);
+    return antsrMesh_WriteVTK<MeshType>(r_mesh, r_filename, r_cellsAs, r_binary, r_pointscalars, r_pointnormals);
   }
   else {
     Rcpp::stop( "Unsupported precision type - must be 'float' or 'double'");
@@ -1748,6 +1788,136 @@ try
     else if ( dimension == 4 ) {
       typedef itk::Mesh<PixelType,4> MeshType;
       return antsrMesh_TransformMesh<MeshType>(r_transform, r_mesh, r_inplace);
+    }
+  }
+  else {
+    Rcpp::stop( "Unsupported pixel type in mesh - must be 'float' or 'double'");
+  }
+
+  // Never reached
+  return( Rcpp::wrap(NA_REAL) );
+
+}
+catch( itk::ExceptionObject & err )
+  {
+  Rcpp::Rcout << "ITK ExceptionObject caught !" << std::endl;
+  Rcpp::Rcout << err << std::endl;
+  Rcpp::stop("ITK exception caught");
+  }
+catch( const std::exception& exc )
+  {
+  forward_exception_to_r( exc ) ;
+  }
+catch(...)
+  {
+	Rcpp::stop("c++ exception (unknown reason)");
+  }
+return Rcpp::wrap(NA_REAL); //not reached
+}
+
+// Apply transform to image
+template< class MeshType, class ImageType >
+SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_inplace )
+{
+  typedef typename MeshType::Pointer             MeshPointerType;
+  typedef typename ImageType::Pointer            ImagePointerType;
+
+  const unsigned int Dimension = ImageType::ImageDimension;
+
+  bool inplace = Rcpp::as<bool>(r_inplace);
+
+  MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
+  ImagePointerType image = Rcpp::as<ImagePointerType>( r_image );
+
+  //typedef typename ImageType::PixelType         PrecisionType;
+  typedef typename MeshType::PixelType          PixelType;
+
+  typedef typename MeshType::PointType      MeshPointType;
+
+  typename MeshType::Pointer outMesh = nullptr;
+  if ( !inplace ) {
+    outMesh = MeshType::New();
+    outMesh->GetPoints()->Reserve(mesh->GetNumberOfPoints());
+  }
+  else {
+    outMesh = mesh;
+  }
+
+  typename ImageType::PointType outPoint;
+  typename itk::ContinuousIndex< float, Dimension> cindex;
+
+  for (unsigned int i=0; i<mesh->GetNumberOfPoints(); i++ ) {
+    MeshPointType mPoint = mesh->GetPoint(i);
+
+    for (unsigned int j=0; j<Dimension; j++) {
+      cindex[j] = mPoint[j]-1.0;
+    }
+
+    image->TransformContinuousIndexToPhysicalPoint( cindex, outPoint );
+    for (unsigned int j=0; j<Dimension; j++) {
+      mPoint[j] = static_cast<PixelType>(outPoint[j]);
+    }
+
+    outMesh->SetPoint(i, mPoint);
+  }
+
+  return Rcpp::wrap<MeshPointerType>( outMesh );
+}
+
+RcppExport SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_inplace )
+{
+try
+{
+  Rcpp::S4 rMesh( r_mesh );
+  std::string pixeltype = rMesh.slot("precision");
+  unsigned int dimension = rMesh.slot("dimension");
+
+  Rcpp::S4 image( r_image);
+  std::string precision = Rcpp::as<std::string>( image.slot("pixeltype") );
+  unsigned int idimension = Rcpp::as<int>( image.slot("dimension") );
+
+  if ( (dimension < 2) || (dimension > 4) ) {
+    Rcpp::stop("Unsupported dimension - must be 2,3, or 4");
+  }
+  if ( dimension != idimension ) {
+    Rcpp::stop("Image and mesh must have same dimension");
+  }
+
+
+  if ( pixeltype=="double") {
+    typedef double PixelType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PixelType,2> MeshType;
+      typedef itk::ImageBase<2> ImageType;
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PixelType,3> MeshType;
+      typedef itk::ImageBase<3> ImageType;
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+    }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PixelType,4> MeshType;
+      typedef itk::ImageBase<3> ImageType;
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+    }
+  }
+  else if (pixeltype=="float") {
+    typedef float PixelType;
+    if ( dimension == 2 ) {
+      typedef itk::Mesh<PixelType,2> MeshType;
+      typedef itk::ImageBase<3> ImageType;
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+    }
+    else if ( dimension == 3 ) {
+      typedef itk::Mesh<PixelType,3> MeshType;
+      typedef itk::ImageBase<3> ImageType;
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+      }
+    else if ( dimension == 4 ) {
+      typedef itk::Mesh<PixelType,4> MeshType;
+      typedef itk::ImageBase<3> ImageType;
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
     }
   }
   else {

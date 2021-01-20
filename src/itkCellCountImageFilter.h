@@ -76,6 +76,8 @@ public:
   using AddFilterType = itk::AddImageFilter<OutputImageType, OutputImageType, OutputImageType>;
   using AddFilterPointerType = typename AddFilterType::Pointer;
 
+  using SubsetType = typename std::vector<double>;
+
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
@@ -96,7 +98,8 @@ public:
   using CellsContainerIterator = typename InputMeshType::CellsContainerIterator;
   using CellAutoPointer = typename CellType::CellAutoPointer;
 
-  using InfoImageType = itk::ImageBase< OutputImageType::ImageDimension >;
+  //using InfoImageType = itk::ImageBase< OutputImageType::ImageDimension >;
+  using InfoImageType = OutputImageType;
   using InfoImagePointer = typename InfoImageType::Pointer;
   using IndexType = typename InfoImageType::IndexType;
   using SizeType = typename InfoImageType::SizeType;
@@ -170,6 +173,8 @@ public:
 
   itkGetConstReferenceMacro(Origin, PointType);
 
+  itkSetMacro(Subset, SubsetType);
+
   /** Set/Get Index */
   itkSetMacro(Index, IndexType);
   itkGetConstMacro(Index, IndexType);
@@ -177,6 +182,9 @@ public:
   /** Set/Get Size */
   itkSetMacro(Size, SizeType);
   itkGetConstMacro(Size, SizeType);
+
+  itkSetMacro(Target, bool);
+  itkGetConstMacro(Target, bool);
 
   /** Set the mesh input of this process object.  */
   using Superclass::SetInput;
@@ -190,6 +198,7 @@ public:
       m_InfoImage = InfoImage;
       }
   }
+
 
   /** Get the mesh input of this process object.  */
   InputMeshType * GetInput();
@@ -209,6 +218,8 @@ protected:
 
   InfoImageType *m_InfoImage;
 
+  bool m_Target;
+
   IndexType m_Index;
 
   SizeType m_Size;
@@ -225,6 +236,8 @@ protected:
   DirectionType m_Direction;
 
   StencilIndexVector m_StencilIndex;
+
+  SubsetType m_Subset;
 
   void PrintSelf(std::ostream & os, Indent indent) const override;
 

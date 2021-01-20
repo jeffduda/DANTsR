@@ -3,7 +3,7 @@
 #' @param mesh 'antsrMesh' of polylines
 #' @param reference antsImage that defines the physical space to consider (points outside of image space are ignored)
 #' @export
-cellCountImage = function(mesh, reference)
+cellCountImage = function(mesh, reference, target=FALSE, subset=NULL)
 {
 
   if ( !class(mesh)=="antsrMesh") {
@@ -13,5 +13,10 @@ cellCountImage = function(mesh, reference)
     stop("reference must be an 'antsImage'")
   }
 
-  return( .Call( "cellCountImage", mesh, reference, PACKAGE="DANTsR") )
+  if ( is.null(subset) ) {
+    nCells=antsrMeshGetNumberOfCells(mesh)
+    subset=c(1:nCells)
+  }
+
+  return( .Call( "cellCountImage", mesh, reference, target, subset, PACKAGE="DANTsR") )
 }

@@ -4,7 +4,7 @@
 #include "itkCellCountImageFilter.h"
 
 template< class MeshType, class ImageType >
-SEXP cellCountImageFunction( SEXP r_mesh, SEXP r_image )
+SEXP cellCountImageFunction( SEXP r_mesh, SEXP r_image, SEXP r_target, SEXP r_subset )
 {
 
   using ImagePointerType = typename ImageType::Pointer;
@@ -28,9 +28,20 @@ SEXP cellCountImageFunction( SEXP r_mesh, SEXP r_image )
     Rcpp::stop("Mesh is not allocated");
     }
 
+  Rcpp::NumericVector subset( r_subset );
+  std::vector<double> stdsubset = Rcpp::as< std::vector<double> >( subset );
+
+  bool target = Rcpp::as<bool>(r_target);
+
   FilterPointerType filter = FilterType::New();
   filter->SetInput( mesh );
   filter->SetInfoImage( image );
+  filter->SetTarget( target );
+  filter->SetSubset( stdsubset );
+  //if ( r_target != nullptr ) {
+  //  ImagePointerType target = Rcpp::as<ImagePointerType>(r_target);
+  //  filter->SetTarget( target );
+  //}
   filter->Update();
 
   OutputImagePointer countImage = filter->GetOutput();
@@ -39,7 +50,7 @@ SEXP cellCountImageFunction( SEXP r_mesh, SEXP r_image )
   return Rcpp::wrap( countImage );
 }
 
-RcppExport SEXP cellCountImage( SEXP r_mesh, SEXP r_image )
+RcppExport SEXP cellCountImage( SEXP r_mesh, SEXP r_image, SEXP r_target, SEXP r_subset )
 {
 try
 {
@@ -69,23 +80,23 @@ try
     if ( dimension == 2 )
       {
       const unsigned int Dimension = 2;
-      typedef itk::ImageBase< Dimension >  ImageType;
+      typedef itk::Image< PixelType,Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image, r_target, r_subset );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
-      typedef itk::ImageBase< Dimension >  ImageType;
+      typedef itk::Image< PixelType,Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image, r_target, r_subset  );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
-      typedef itk::ImageBase< Dimension >  ImageType;
+      typedef itk::Image< PixelType,Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image, r_target, r_subset  );
       }
     }
   else if( pixeltype == "float" )
@@ -96,21 +107,21 @@ try
       const unsigned int Dimension = 2;
       typedef itk::Image< PixelType, Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image, r_target, r_subset  );
       }
     else if ( dimension == 3 )
       {
       const unsigned int Dimension = 3;
       typedef itk::Image< PixelType, Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image, r_target, r_subset  );
       }
     else if ( dimension == 4 )
       {
       const unsigned int Dimension = 4;
       typedef itk::Image< PixelType, Dimension >  ImageType;
       typedef itk::Mesh< PixelType, Dimension >   MeshType;
-      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image );
+      return  cellCountImageFunction< MeshType, ImageType >( r_mesh, r_image, r_target, r_subset  );
       }
     }
   else
