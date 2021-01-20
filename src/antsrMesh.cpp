@@ -1823,6 +1823,7 @@ SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_inplace )
   typedef typename ImageType::Pointer            ImagePointerType;
 
   const unsigned int Dimension = ImageType::ImageDimension;
+  unsigned int dim = (unsigned int) Dimension;
 
   bool inplace = Rcpp::as<bool>(r_inplace);
 
@@ -1854,7 +1855,7 @@ SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_inplace )
     }
 
     image->TransformContinuousIndexToPhysicalPoint( cindex, outPoint );
-    for (unsigned int j=0; j<Dimension; j++) {
+    for (unsigned int j=0; j<dim; j++) {
       mPoint[j] = static_cast<PixelType>(outPoint[j]);
     }
 
