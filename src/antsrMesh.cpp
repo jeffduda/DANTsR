@@ -1817,7 +1817,7 @@ return Rcpp::wrap(NA_REAL); //not reached
 
 // Apply transform to image
 template< class MeshType, class ImageType >
-SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_inplace )
+SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_indexOffset, SEXP r_inplace)
 {
   typedef typename MeshType::Pointer             MeshPointerType;
   typedef typename ImageType::Pointer            ImagePointerType;
@@ -1826,6 +1826,8 @@ SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_inplace )
   unsigned int dim = (unsigned int) Dimension;
 
   bool inplace = Rcpp::as<bool>(r_inplace);
+
+  double indexOffset = Rcpp::as<double>(r_indexOffset);
 
   MeshPointerType mesh = Rcpp::as<MeshPointerType>( r_mesh );
   ImagePointerType image = Rcpp::as<ImagePointerType>( r_image );
@@ -1851,7 +1853,7 @@ SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_inplace )
     MeshPointType mPoint = mesh->GetPoint(i);
 
     for (unsigned int j=0; j<Dimension; j++) {
-      cindex[j] = mPoint[j]-1.0;
+      cindex[j] = mPoint[j] + indexOffset;
     }
 
     image->TransformContinuousIndexToPhysicalPoint( cindex, outPoint );
@@ -1865,7 +1867,7 @@ SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_inplace )
   return Rcpp::wrap<MeshPointerType>( outMesh );
 }
 
-RcppExport SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_inplace )
+RcppExport SEXP antsrMesh_IndicesToPoints( SEXP r_mesh, SEXP r_image, SEXP r_indexOffset, SEXP r_inplace )
 {
 try
 {
@@ -1890,17 +1892,17 @@ try
     if ( dimension == 2 ) {
       typedef itk::Mesh<PixelType,2> MeshType;
       typedef itk::ImageBase<2> ImageType;
-      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_indexOffset, r_inplace);
     }
     else if ( dimension == 3 ) {
       typedef itk::Mesh<PixelType,3> MeshType;
       typedef itk::ImageBase<3> ImageType;
-      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_indexOffset, r_inplace);
     }
     else if ( dimension == 4 ) {
       typedef itk::Mesh<PixelType,4> MeshType;
       typedef itk::ImageBase<3> ImageType;
-      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_indexOffset, r_inplace);
     }
   }
   else if (pixeltype=="float") {
@@ -1908,17 +1910,17 @@ try
     if ( dimension == 2 ) {
       typedef itk::Mesh<PixelType,2> MeshType;
       typedef itk::ImageBase<3> ImageType;
-      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_indexOffset, r_inplace);
     }
     else if ( dimension == 3 ) {
       typedef itk::Mesh<PixelType,3> MeshType;
       typedef itk::ImageBase<3> ImageType;
-      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_indexOffset, r_inplace);
       }
     else if ( dimension == 4 ) {
       typedef itk::Mesh<PixelType,4> MeshType;
       typedef itk::ImageBase<3> ImageType;
-      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_inplace);
+      return antsrMesh_IndicesToPoints<MeshType,ImageType>(r_mesh, r_image, r_indexOffset, r_inplace);
     }
   }
   else {

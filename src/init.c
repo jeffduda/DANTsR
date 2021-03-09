@@ -17,7 +17,7 @@ extern SEXP antsrMesh_GetNumberOfCells(SEXP);
 extern SEXP antsrMesh_GetNumberOfPoints(SEXP);
 extern SEXP antsrMesh_GetPoint(SEXP, SEXP);
 extern SEXP antsrMesh_GetPoints(SEXP, SEXP);
-extern SEXP antsrMesh_IndicesToPoints(SEXP, SEXP, SEXP);
+extern SEXP antsrMesh_IndicesToPoints(SEXP, SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_ReadCamino(SEXP, SEXP);
 extern SEXP antsrMesh_ReadITKIO(SEXP, SEXP);
 extern SEXP antsrMesh_ReadTck(SEXP, SEXP);
@@ -30,6 +30,7 @@ extern SEXP antsrMesh_WriteTck(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteTrk(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteVTK(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP antsrTransform_TransformPixels(SEXP, SEXP, SEXP);
+extern SEXP cellConnectionCountImage(SEXP,SEXP,SEXP,SEXP,SEXP);
 extern SEXP cellCountImage(SEXP,SEXP,SEXP,SEXP);
 extern SEXP cellEdgeLength(SEXP, SEXP);
 extern SEXP cellImageValueSummary(SEXP, SEXP, SEXP, SEXP);
@@ -59,7 +60,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"antsrMesh_GetNumberOfPoints", (DL_FUNC) &antsrMesh_GetNumberOfPoints, 1},
     {"antsrMesh_GetPoint",          (DL_FUNC) &antsrMesh_GetPoint,          2},
     {"antsrMesh_GetPoints",         (DL_FUNC) &antsrMesh_GetPoints,         2},
-    {"antsrMesh_IndicesToPoints",   (DL_FUNC) &antsrMesh_IndicesToPoints,   3},
+    {"antsrMesh_IndicesToPoints",   (DL_FUNC) &antsrMesh_IndicesToPoints,   4},
     {"antsrMesh_ReadCamino",        (DL_FUNC) &antsrMesh_ReadCamino,        2},
     {"antsrMesh_ReadITKIO",         (DL_FUNC) &antsrMesh_ReadITKIO,         2},
     {"antsrMesh_ReadTck",           (DL_FUNC) &antsrMesh_ReadTck,           2},
@@ -74,6 +75,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"antsrTransform_TransformPixels", (DL_FUNC) &antsrTransform_TransformPixels, 3},
 //    {"antsrRegistrationRun",        (DL_FUNC) &antsrRegistrationRun,        3},
     {"cellCountImage",              (DL_FUNC) &cellCountImage,              4},
+    {"cellConnectionCountImage",    (DL_FUNC) &cellConnectionCountImage,    5},
     {"cellEdgeLength",              (DL_FUNC) &cellEdgeLength,              2},
     {"cellImageValueSummary",       (DL_FUNC) &cellImageValueSummary,       4},
     {"cellPointInMask",             (DL_FUNC) &cellPointInMask,             3},

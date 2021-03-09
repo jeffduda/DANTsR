@@ -272,8 +272,8 @@ applyAntsrTransformToMesh <- function(transform, mesh, in.place=FALSE) {
 #' @param in.place if true modify the input mesh, if false return a new mesh
 #' @return antsrMesh
 #' @export
-antsrMeshIndicesToPoints <- function(mesh, image, in.place=FALSE) {
-  return(.Call("antsrMesh_IndicesToPoints", mesh, image, in.place, PACKAGE="DANTsR"))
+antsrMeshIndicesToPoints <- function(mesh, image, indexOffset=-1.0, in.place=FALSE) {
+  return(.Call("antsrMesh_IndicesToPoints", mesh, image, indexOffset, in.place, PACKAGE="DANTsR"))
   return(NA)
 }
 
