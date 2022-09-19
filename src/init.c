@@ -30,13 +30,13 @@ extern SEXP antsrMesh_WriteTck(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteTrk(SEXP, SEXP, SEXP);
 extern SEXP antsrMesh_WriteVTK(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP antsrTransform_TransformPixels(SEXP, SEXP, SEXP);
-extern SEXP cellConnectionCountImage(SEXP,SEXP,SEXP,SEXP,SEXP);
+// extern SEXP cellConnectionCountImage(SEXP,SEXP,SEXP,SEXP,SEXP);
 extern SEXP cellCountImage(SEXP,SEXP,SEXP,SEXP);
 extern SEXP cellEdgeLength(SEXP, SEXP);
 extern SEXP cellImageValueSummary(SEXP, SEXP, SEXP, SEXP);
 extern SEXP cellPointInMask(SEXP, SEXP, SEXP);
-extern SEXP cellsConnectTargets(SEXP, SEXP, SEXP, SEXP);
-extern SEXP cellsHitTarget(SEXP, SEXP, SEXP);
+// extern SEXP cellsConnectTargets(SEXP, SEXP, SEXP, SEXP);
+// extern SEXP cellsHitTarget(SEXP, SEXP, SEXP);
 //extern SEXP antsrRegistrationRun(SEXP, SEXP, SEXP);
 extern SEXP deterministicTracking(SEXP, SEXP, SEXP);
 extern SEXP dtiFilters(SEXP, SEXP);
@@ -75,12 +75,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"antsrTransform_TransformPixels", (DL_FUNC) &antsrTransform_TransformPixels, 3},
 //    {"antsrRegistrationRun",        (DL_FUNC) &antsrRegistrationRun,        3},
     {"cellCountImage",              (DL_FUNC) &cellCountImage,              4},
-    {"cellConnectionCountImage",    (DL_FUNC) &cellConnectionCountImage,    5},
+//    {"cellConnectionCountImage",    (DL_FUNC) &cellConnectionCountImage,    5},
     {"cellEdgeLength",              (DL_FUNC) &cellEdgeLength,              2},
     {"cellImageValueSummary",       (DL_FUNC) &cellImageValueSummary,       4},
     {"cellPointInMask",             (DL_FUNC) &cellPointInMask,             3},
-    {"cellsConnectTargets",         (DL_FUNC) &cellsConnectTargets,         4},
-    {"cellsHitTarget",              (DL_FUNC) &cellsHitTarget,              3},
+//    {"cellsConnectTargets",         (DL_FUNC) &cellsConnectTargets,         4},
+//    {"cellsHitTarget",              (DL_FUNC) &cellsHitTarget,              3},
     {"deterministicTracking",       (DL_FUNC) &deterministicTracking,       3},
     {"dtiFilters",                  (DL_FUNC) &dtiFilters,                  2},
     {"dtiReconstruction",           (DL_FUNC) &dtiReconstruction,           3},
